@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Algorithmacc;
-import com.ipincloud.iotbj.srv.dao.AlgorithmaccDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.AlgorithmaccService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Algorithmacc)算法接入 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("AlgorithmaccService")
 public class AlgorithmaccServiceImpl implements AlgorithmaccService {
     @Resource
     private AlgorithmaccDao algorithmaccDao;
+
     //@param id 主键 
     //@return 实例对象Algorithmacc 
     @Override 
     public Algorithmacc queryById(Long id){
-        this.algorithmaccDao.queryById(id); 
+        return this.algorithmaccDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

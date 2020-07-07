@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Camera;
-import com.ipincloud.iotbj.srv.dao.CameraDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.CameraService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Camera)摄像机 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("CameraService")
 public class CameraServiceImpl implements CameraService {
     @Resource
     private CameraDao cameraDao;
+
     //@param id 主键 
     //@return 实例对象Camera 
     @Override 
     public Camera queryById(Long id){
-        this.cameraDao.queryById(id); 
+        return this.cameraDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数 

@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Sensorcate;
-import com.ipincloud.iotbj.srv.dao.SensorcateDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.SensorcateService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Sensorcate)传感器类型 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("SensorcateService")
 public class SensorcateServiceImpl implements SensorcateService {
     @Resource
     private SensorcateDao sensorcateDao;
+
     //@param id 主键 
     //@return 实例对象Sensorcate 
     @Override 
     public Sensorcate queryById(Long id){
-        this.sensorcateDao.queryById(id); 
+        return this.sensorcateDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

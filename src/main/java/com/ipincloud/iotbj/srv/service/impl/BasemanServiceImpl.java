@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Baseman;
-import com.ipincloud.iotbj.srv.dao.BasemanDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.BasemanService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Baseman)基站管理 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("BasemanService")
 public class BasemanServiceImpl implements BasemanService {
     @Resource
     private BasemanDao basemanDao;
+
     //@param id 主键 
     //@return 实例对象Baseman 
     @Override 
     public Baseman queryById(Long id){
-        this.basemanDao.queryById(id); 
+        return this.basemanDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

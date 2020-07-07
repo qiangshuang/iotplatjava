@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Proman;
-import com.ipincloud.iotbj.srv.dao.PromanDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.PromanService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Proman)产品管理 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("PromanService")
 public class PromanServiceImpl implements PromanService {
     @Resource
     private PromanDao promanDao;
+
     //@param id 主键 
     //@return 实例对象Proman 
     @Override 
     public Proman queryById(Long id){
-        this.promanDao.queryById(id); 
+        return this.promanDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数 

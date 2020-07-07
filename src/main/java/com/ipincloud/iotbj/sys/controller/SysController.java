@@ -37,6 +37,7 @@ import org.apache.shiro.subject.Subject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
+import java.io.IOException;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -461,18 +462,34 @@ public class SysController {
                 while((len = fis.read(buf)) != -1) {
                     os.write(buf, 0, len);
                 }
-            }catch(Exception e){
+            }catch(IOException e){
                 String exMess = MessageInfo.exceptionInfo(e);
                 logger.debug("Ex:文件下载:"+ exMess);
                 
             }finally{
-                os.close();
-                fis.close();
+                if (os != null) {
+                    try {
+                        os.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (fis != null) {
+                    try {
+                        fis.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // os.close();
+                // fis.close();
 
             }
             
         }
          
+         return "";
     }
 
 }

@@ -11,20 +11,25 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Org;
-import com.ipincloud.iotbj.srv.dao.OrgDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.OrgService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Org) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("OrgService")
 public class OrgServiceImpl implements OrgService {
     @Resource
     private OrgDao orgDao;
+    @Resource
+    private UserDao userDao;
+    @Resource
+    private UserRoleDao userRoleDao;
+
     //@param id 主键 
     //@return 实例对象Org 
     @Override 
     public Org queryById(Long id){
-        this.orgDao.queryById(id); 
+        return this.orgDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 
@@ -102,7 +107,7 @@ public class OrgServiceImpl implements OrgService {
         Long genId = this.orgDao.addInst(jsonObjFirst); 
         jsonObj.put("id",genId);
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj,"gender");
-         new com.ipincloud.iotbj.srv.dao.UserDao().addInst(jsonObjSecond); 
+        this.userDao.addInst(jsonObjSecond); 
         return jsonObj; 
     } 
 
@@ -114,7 +119,7 @@ public class OrgServiceImpl implements OrgService {
         JSONObject jsonObjFirst = ParaUtils.copyJsonObjectCols(jsonObj,"title");
         this.orgDao.updateInst(jsonObjFirst); 
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj,"gender");
-        new com.ipincloud.iotbj.srv.dao.userDao().updateInst(jsonObjSecond); 
+        this.userDao.updateInst(jsonObjSecond); 
     } 
 
     //@param jsonObj 调用参数  
@@ -124,9 +129,9 @@ public class OrgServiceImpl implements OrgService {
     public Integer deletesOrgUserUserRoleInst(JSONObject jsonObj){
         Integer delNum1 = this.orgDao.deletesInst(jsonObj); 
         Integer delNum2=0;
-        delNum2 = new com.ipincloud.iotbj.srv.dao.UserDao().deletesInst(jsonObj); 
+        delNum2 = this.userDao.deletesInst(jsonObj); 
         delNum1 = delNum1+delNum2;
-        delNum2 = new com.ipincloud.iotbj.srv.dao.UserRoleDao().deletesInst(jsonObj); 
+        delNum2 = this.userRoleDao.deletesInst(jsonObj); 
         delNum1 = delNum1+delNum2;
         return delNum1;
     } 

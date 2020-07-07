@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Page;
-import com.ipincloud.iotbj.srv.dao.PageDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.PageService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Page) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("PageService")
 public class PageServiceImpl implements PageService {
     @Resource
     private PageDao pageDao;
+
     //@param id 主键 
     //@return 实例对象Page 
     @Override 
     public Page queryById(Long id){
-        this.pageDao.queryById(id); 
+        return this.pageDao.queryById(id); 
     } 
     //@param userId 用户ID 
     //@return PageMap列表 

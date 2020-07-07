@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Iotman;
-import com.ipincloud.iotbj.srv.dao.IotmanDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.IotmanService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Iotman)网关管理 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("IotmanService")
 public class IotmanServiceImpl implements IotmanService {
     @Resource
     private IotmanDao iotmanDao;
+
     //@param id 主键 
     //@return 实例对象Iotman 
     @Override 
     public Iotman queryById(Long id){
-        this.iotmanDao.queryById(id); 
+        return this.iotmanDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数 

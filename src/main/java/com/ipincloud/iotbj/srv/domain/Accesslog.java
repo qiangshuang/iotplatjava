@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Accesslog)访问记录
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:13
 public class Accesslog implements Serializable {
     private static final long serialVersionUID = 2L;
     // 主键id

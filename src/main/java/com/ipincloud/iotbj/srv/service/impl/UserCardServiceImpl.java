@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.UserCard;
-import com.ipincloud.iotbj.srv.dao.UserCardDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.UserCardService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(UserCard)用户卡片 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("UserCardService")
 public class UserCardServiceImpl implements UserCardService {
     @Resource
     private UserCardDao userCardDao;
+
     //@param id 主键 
     //@return 实例对象UserCard 
     @Override 
     public UserCard queryById(Long id){
-        this.userCardDao.queryById(id); 
+        return this.userCardDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数 

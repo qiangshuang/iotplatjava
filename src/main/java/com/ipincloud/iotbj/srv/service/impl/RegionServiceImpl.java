@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Region;
-import com.ipincloud.iotbj.srv.dao.RegionDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.RegionService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Region)区域 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("RegionService")
 public class RegionServiceImpl implements RegionService {
     @Resource
     private RegionDao regionDao;
+
     //@param id 主键 
     //@return 实例对象Region 
     @Override 
     public Region queryById(Long id){
-        this.regionDao.queryById(id); 
+        return this.regionDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数  

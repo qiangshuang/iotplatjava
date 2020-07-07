@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Dataflow;
-import com.ipincloud.iotbj.srv.dao.DataflowDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.DataflowService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Dataflow)数据流 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("DataflowService")
 public class DataflowServiceImpl implements DataflowService {
     @Resource
     private DataflowDao dataflowDao;
+
     //@param id 主键 
     //@return 实例对象Dataflow 
     @Override 
     public Dataflow queryById(Long id){
-        this.dataflowDao.queryById(id); 
+        return this.dataflowDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

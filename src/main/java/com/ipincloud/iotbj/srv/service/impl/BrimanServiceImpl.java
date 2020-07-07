@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Briman;
-import com.ipincloud.iotbj.srv.dao.BrimanDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.BrimanService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Briman)网桥管理 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("BrimanService")
 public class BrimanServiceImpl implements BrimanService {
     @Resource
     private BrimanDao brimanDao;
+
     //@param id 主键 
     //@return 实例对象Briman 
     @Override 
     public Briman queryById(Long id){
-        this.brimanDao.queryById(id); 
+        return this.brimanDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数 

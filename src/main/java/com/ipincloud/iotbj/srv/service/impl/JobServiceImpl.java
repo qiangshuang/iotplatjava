@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Job;
-import com.ipincloud.iotbj.srv.dao.JobDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.JobService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Job) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("JobService")
 public class JobServiceImpl implements JobService {
     @Resource
     private JobDao jobDao;
+
     //@param id 主键 
     //@return 实例对象Job 
     @Override 
     public Job queryById(Long id){
-        this.jobDao.queryById(id); 
+        return this.jobDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

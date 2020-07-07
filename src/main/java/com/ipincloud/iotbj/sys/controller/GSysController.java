@@ -73,8 +73,8 @@ public class GSysController {
 		
 
 		if  ("userlist".equals(hyVal) ){
-			List<Map> listMap = userService.queryUserList(jsonObj);
-			ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",listMap);
+			// Map retMap = userService.queryUserList(jsonObj);
+			ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",null);//retMap
         
         	return JSON.toJSONString(retResponseBean);
 		}

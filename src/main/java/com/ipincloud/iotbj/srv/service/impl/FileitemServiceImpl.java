@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Fileitem;
-import com.ipincloud.iotbj.srv.dao.FileitemDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.FileitemService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Fileitem) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("FileitemService")
 public class FileitemServiceImpl implements FileitemService {
     @Resource
     private FileitemDao fileitemDao;
+
     //@param id 主键 
     //@return 实例对象Fileitem 
     @Override 
     public Fileitem queryById(Long id){
-        this.fileitemDao.queryById(id); 
+        return this.fileitemDao.queryById(id); 
     } 
     //已处理，参看统一接口/hyupload
 

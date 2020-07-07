@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.User;
-import com.ipincloud.iotbj.srv.dao.UserDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.UserService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(User) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("UserService")
 public class UserServiceImpl implements UserService {
     @Resource
     private UserDao userDao;
+
     //@param id 主键 
     //@return 实例对象User 
     @Override 
     public User queryById(Long id){
-        this.userDao.queryById(id); 
+        return this.userDao.queryById(id); 
     } 
 //@param userName 账号 
 //@return 实例对象User 
@@ -73,7 +74,7 @@ public User queryByUsername(String userName){
     @Override
     public Map userUserRoleListJoin(JSONObject jsonObj){
 
-        int totalRec = this.countUserUserRoleListJoin(jsonObj);
+        int totalRec = this.userDao.countUserUserRoleListJoin(jsonObj);
         int startIndex = ParaUtils.checkStartIndex(jsonObj,totalRec);
         List<Map> pageData = this.userDao.userUserRoleListJoin(jsonObj);
         Map retMap = new HashMap();

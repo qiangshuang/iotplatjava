@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(AlgorithmalarmDao)算法报警记录 表数据库访问层
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 public interface AlgorithmalarmDao {
     //@param id 主键 
     //@return 实例对象Algorithmalarm 

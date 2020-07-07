@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Btn;
-import com.ipincloud.iotbj.srv.dao.BtnDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.BtnService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Btn) 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("BtnService")
 public class BtnServiceImpl implements BtnService {
     @Resource
     private BtnDao btnDao;
+
     //@param id 主键 
     //@return 实例对象Btn 
     @Override 
     public Btn queryById(Long id){
-        this.btnDao.queryById(id); 
+        return this.btnDao.queryById(id); 
     } 
     //@param userId 用户ID 
     //@return 实例Btn列表 

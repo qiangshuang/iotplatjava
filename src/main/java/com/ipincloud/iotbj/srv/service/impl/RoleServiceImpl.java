@@ -11,20 +11,21 @@ import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Role;
-import com.ipincloud.iotbj.srv.dao.RoleDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.RoleService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Role)角色 服务实现类
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 @Service("RoleService")
 public class RoleServiceImpl implements RoleService {
     @Resource
     private RoleDao roleDao;
+
     //@param id 主键 
     //@return 实例对象Role 
     @Override 
     public Role queryById(Long id){
-        this.roleDao.queryById(id); 
+        return this.roleDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 

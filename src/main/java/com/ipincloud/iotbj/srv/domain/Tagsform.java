@@ -8,7 +8,7 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Tagsform)
-//generate by redcloud,2020-07-07 23:53:41
+//generate by redcloud,2020-07-08 01:57:14
 public class Tagsform implements Serializable {
     private static final long serialVersionUID = 36L;
     // 自增ID
