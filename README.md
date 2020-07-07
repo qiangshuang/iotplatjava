@@ -1,2 +1,2 @@
 # iotplatjava
-redcloud lower code platform export java vm instance .
+iot srv platform for java vm instance .
