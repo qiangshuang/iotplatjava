@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.UserDao">
+
+    <resultMap type="com.ipincloud.iotbj.srv.domain.User" id="UserMap">
+        <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="pwd" column="pwd" jdbcType="VARCHAR"/>
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="parentTitle" column="parent_title" jdbcType="VARCHAR"/>
+        <result property="lastlogin" column="lastlogin" jdbcType="INTEGER"/>
+        <result property="jobTitle" column="job_title" jdbcType="VARCHAR"/>
+        <result property="jobId" column="job_id" jdbcType="INTEGER"/>
+        <result property="thirdin" column="thirdin" jdbcType="VARCHAR"/>
+        <result property="created" column="created" jdbcType="INTEGER"/>
+        <result property="updated" column="updated" jdbcType="INTEGER"/>
+        <result property="photo" column="photo" jdbcType="VARCHAR"/>
+        <result property="idnumber" column="idnumber" jdbcType="VARCHAR"/>
+        <result property="cardnumber" column="cardnumber" jdbcType="INTEGER"/>
+        <result property="mcardno" column="mcardno" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="UserMap">
+        select
+          *
+        from user
+        where id = #{id}
+    </select>
+
+    <select id="queryByUsername" resultMap="UserMap">
+        select
+          *
+        from user
+        where  user_name= #{userName}
+    </select>
+
+    <select id="queryUserList" resultType="java.util.Map">
+        select
+          *
+        from user 
+        
+            <where>
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test="item.op == 'like' ">    
+                    and ${item.name} ${item.op} concat('%',#{item.val},'%')
+                </if>
+                <if test="item.op == '=' ">    
+                    and ${item.name} = #{item.val}
+                </if>    
+                </foreach>
+            </where>
+       
+
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="UserMap">
+        select
+          mobile, user_name, pwd, id, title, parent_id, parent_title, lastlogin, job_title, job_id, thirdin, created, updated, photo, idnumber, cardnumber, mcardno, gender
+        from iotbj.user
+        <where>
+            <if test="mobile != null and mobile != ''">
+                and mobile = #{mobile}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </if>
+            <if test="pwd != null and pwd != ''">
+                and pwd = #{pwd}
+            </if>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="parentId != null">
+                and parent_id = #{parentId}
+            </if>
+            <if test="parentTitle != null and parentTitle != ''">
+                and parent_title = #{parentTitle}
+            </if>
+            <if test="lastlogin != null">
+                and lastlogin = #{lastlogin}
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                and job_title = #{jobTitle}
+            </if>
+            <if test="jobId != null">
+                and job_id = #{jobId}
+            </if>
+            <if test="thirdin != null and thirdin != ''">
+                and thirdin = #{thirdin}
+            </if>
+            <if test="created != null">
+                and created = #{created}
+            </if>
+            <if test="updated != null">
+                and updated = #{updated}
+            </if>
+            <if test="photo != null and photo != ''">
+                and photo = #{photo}
+            </if>
+            <if test="idnumber != null and idnumber != ''">
+                and idnumber = #{idnumber}
+            </if>
+            <if test="cardnumber != null">
+                and cardnumber = #{cardnumber}
+            </if>
+            <if test="mcardno != null and mcardno != ''">
+                and mcardno = #{mcardno}
+            </if>
+            <if test="gender != null and gender != ''">
+                and gender = #{gender}
+            </if>
+        </where>
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="UserMap">
+        select
+          mobile, user_name, pwd, id, title, parent_id, parent_title, lastlogin, job_title, job_id, thirdin, created, updated, photo, idnumber, cardnumber, mcardno, gender
+        from iotbj.user
+        <where>
+            <if test="mobile != null and mobile != ''">
+                and mobile = #{mobile}
+            </if>
+            <if test="userName != null and userName != ''">
+                and user_name = #{userName}
+            </if>
+            <if test="pwd != null and pwd != ''">
+                and pwd = #{pwd}
+            </if>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="parentId != null">
+                and parent_id = #{parentId}
+            </if>
+            <if test="parentTitle != null and parentTitle != ''">
+                and parent_title = #{parentTitle}
+            </if>
+            <if test="lastlogin != null">
+                and lastlogin = #{lastlogin}
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                and job_title = #{jobTitle}
+            </if>
+            <if test="jobId != null">
+                and job_id = #{jobId}
+            </if>
+            <if test="thirdin != null and thirdin != ''">
+                and thirdin = #{thirdin}
+            </if>
+            <if test="created != null">
+                and created = #{created}
+            </if>
+            <if test="updated != null">
+                and updated = #{updated}
+            </if>
+            <if test="photo != null and photo != ''">
+                and photo = #{photo}
+            </if>
+            <if test="idnumber != null and idnumber != ''">
+                and idnumber = #{idnumber}
+            </if>
+            <if test="cardnumber != null">
+                and cardnumber = #{cardnumber}
+            </if>
+            <if test="mcardno != null and mcardno != ''">
+                and mcardno = #{mcardno}
+            </if>
+            <if test="gender != null and gender != ''">
+                and gender = #{gender}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into iotbj.user(mobile, user_name, pwd, title, parent_id, parent_title, lastlogin, job_title, job_id, thirdin, created, updated, photo, idnumber, cardnumber, mcardno, gender)
+        values (#{mobile}, #{userName}, #{pwd}, #{title}, #{parentId}, #{parentTitle}, #{lastlogin}, #{jobTitle}, #{jobId}, #{thirdin}, #{created}, #{updated}, #{photo}, #{idnumber}, #{cardnumber}, #{mcardno}, #{gender})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update iotbj.user
+        <set>
+            <if test="mobile != null and mobile != ''">
+                mobile = #{mobile},
+            </if>
+            <if test="userName != null and userName != ''">
+                user_name = #{userName},
+            </if>
+            <if test="pwd != null and pwd != ''">
+                pwd = #{pwd},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="parentTitle != null and parentTitle != ''">
+                parent_title = #{parentTitle},
+            </if>
+            <if test="lastlogin != null">
+                lastlogin = #{lastlogin},
+            </if>
+            <if test="jobTitle != null and jobTitle != ''">
+                job_title = #{jobTitle},
+            </if>
+            <if test="jobId != null">
+                job_id = #{jobId},
+            </if>
+            <if test="thirdin != null and thirdin != ''">
+                thirdin = #{thirdin},
+            </if>
+            <if test="created != null">
+                created = #{created},
+            </if>
+            <if test="updated != null">
+                updated = #{updated},
+            </if>
+            <if test="photo != null and photo != ''">
+                photo = #{photo},
+            </if>
+            <if test="idnumber != null and idnumber != ''">
+                idnumber = #{idnumber},
+            </if>
+            <if test="cardnumber != null">
+                cardnumber = #{cardnumber},
+            </if>
+            <if test="mcardno != null and mcardno != ''">
+                mcardno = #{mcardno},
+            </if>
+            <if test="gender != null and gender != ''">
+                gender = #{gender},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from iotbj.user where id = #{id}
+    </delete>
+
+</mapper>

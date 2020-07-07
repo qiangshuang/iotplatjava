@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.PageDao">
+
+    <resultMap type="com.ipincloud.iotbj.srv.domain.Page" id="PageMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="icon" column="icon" jdbcType="VARCHAR"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="INTEGER"/>
+        <result property="parentTitle" column="parent_title" jdbcType="VARCHAR"/>
+        <result property="path" column="path" jdbcType="VARCHAR"/>
+        <result property="isMenu" column="is_menu" jdbcType="VARCHAR"/>
+        <result property="clientRoute" column="client_route" jdbcType="VARCHAR"/>
+        <result property="isCache" column="is_cache" jdbcType="VARCHAR"/>
+        <result property="needLogin" column="need_login" jdbcType="VARCHAR"/>
+        <result property="encode" column="encode" jdbcType="VARCHAR"/>
+        <result property="sort" column="sort" jdbcType="INTEGER"/>
+        <result property="version" column="version" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="PageMap">
+        select
+          id, name, icon, title, parent_id, parent_title, path, is_menu, client_route, is_cache, need_login, encode, sort, version
+        from iotbj.page
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="PageMap">
+        select
+          id, name, icon, title, parent_id, parent_title, path, is_menu, client_route, is_cache, need_login, encode, sort, version
+        from iotbj.page
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryAllByUser" resultType="java.util.Map">
+        select  page.* from user_role inner join role_page on user_role.role_id = role_page.role_id inner join page on 
+        role_page.page_id = page.id where user_role.user_id=#{userId} and (page.client_route='t' or page.is_menu='t') order by page.parent_id asc,page.sort asc
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="PageMap">
+        select
+          id, name, icon, title, parent_id, parent_title, path, is_menu, client_route, is_cache, need_login, encode, sort, version
+        from iotbj.page
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="icon != null and icon != ''">
+                and icon = #{icon}
+            </if>
+            <if test="title != null and title != ''">
+                and title = #{title}
+            </if>
+            <if test="parentId != null">
+                and parent_id = #{parentId}
+            </if>
+            <if test="parentTitle != null and parentTitle != ''">
+                and parent_title = #{parentTitle}
+            </if>
+            <if test="path != null and path != ''">
+                and path = #{path}
+            </if>
+            <if test="isMenu != null and isMenu != ''">
+                and is_menu = #{isMenu}
+            </if>
+            <if test="clientRoute != null and clientRoute != ''">
+                and client_route = #{clientRoute}
+            </if>
+            <if test="isCache != null and isCache != ''">
+                and is_cache = #{isCache}
+            </if>
+            <if test="needLogin != null and needLogin != ''">
+                and need_login = #{needLogin}
+            </if>
+            <if test="encode != null and encode != ''">
+                and encode = #{encode}
+            </if>
+            <if test="sort != null">
+                and sort = #{sort}
+            </if>
+            <if test="version != null">
+                and version = #{version}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into iotbj.page(name, icon, title, parent_id, parent_title, path, is_menu, client_route, is_cache, need_login, encode, sort, version)
+        values (#{name}, #{icon}, #{title}, #{parentId}, #{parentTitle}, #{path}, #{isMenu}, #{clientRoute}, #{isCache}, #{needLogin}, #{encode}, #{sort}, #{version})
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update iotbj.page
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="icon != null and icon != ''">
+                icon = #{icon},
+            </if>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="parentId != null">
+                parent_id = #{parentId},
+            </if>
+            <if test="parentTitle != null and parentTitle != ''">
+                parent_title = #{parentTitle},
+            </if>
+            <if test="path != null and path != ''">
+                path = #{path},
+            </if>
+            <if test="isMenu != null and isMenu != ''">
+                is_menu = #{isMenu},
+            </if>
+            <if test="clientRoute != null and clientRoute != ''">
+                client_route = #{clientRoute},
+            </if>
+            <if test="isCache != null and isCache != ''">
+                is_cache = #{isCache},
+            </if>
+            <if test="needLogin != null and needLogin != ''">
+                need_login = #{needLogin},
+            </if>
+            <if test="encode != null and encode != ''">
+                encode = #{encode},
+            </if>
+            <if test="sort != null">
+                sort = #{sort},
+            </if>
+            <if test="version != null">
+                version = #{version},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from iotbj.page where id = #{id}
+    </delete>
+
+</mapper>
