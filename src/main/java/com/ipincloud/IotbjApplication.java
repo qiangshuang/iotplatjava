@@ -1,4 +1,4 @@
-package com.ipincloud.iotbj;
+package com.ipincloud.{{HY_PRJCODE}};
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.Banner;
@@ -9,11 +9,11 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 
 
 @SpringBootApplication
-@MapperScan("com.ipincloud.iotbj.*.dao")
-public class IotbjApplication extends SpringBootServletInitializer {
+@MapperScan("com.ipincloud.{{HY_PRJCODE}}.*.dao")
+public class {{HY_PRJCODEUPPER1}}Application extends SpringBootServletInitializer {
 
 	public static void main(String[] args) {
-		SpringApplication application = new SpringApplication(IotbjApplication.class);
+		SpringApplication application = new SpringApplication({{HY_PRJCODEUPPER1}}Application.class);
 		application.setBannerMode(Banner.Mode.OFF);
 		application.run(args);
 	}

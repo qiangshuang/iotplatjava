@@ -1,40 +1,36 @@
 package com.ipincloud.iotbj.srv.service.impl;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Region;
-import com.ipincloud.iotbj.srv.dao.*;
+import com.ipincloud.iotbj.srv.dao.RegionDao;
 import com.ipincloud.iotbj.srv.service.RegionService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Region)区域 服务实现类
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:16
 @Service("RegionService")
 public class RegionServiceImpl implements RegionService {
     @Resource
     private RegionDao regionDao;
-
     //@param id 主键 
     //@return 实例对象Region 
     @Override 
     public Region queryById(Long id){
-        return this.regionDao.queryById(id); 
+        this.regionDao.queryById(id); 
     } 
 
     //@param jsonObj 调用参数  
     //@return 影响记录数 
     @Override 
     @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public Integer deletesRegionInst(JSONObject jsonObj){
+    public Integer deletesInst(JSONObject jsonObj){
         Integer delNum1 = this.regionDao.deletesInst(jsonObj); 
-                return delNum1;
+        Integer delNum2 = new com.ipincloud.iotbj.srv.dao.Dao().deletesInst(jsonObj); 
+        return delNum1+delNum2;
     } 
 
     //@param jsonObj 过滤条件等 
@@ -42,7 +38,7 @@ public class RegionServiceImpl implements RegionService {
     @Override
     public List<Map> regionTree(JSONObject jsonObj){
 
-        if (ParaUtils.notHaveColVal(jsonObj,"parent_id") != null && ParaUtils.notHaveColVal(jsonObj,"parent_id").length() > 0){
+        if (ParaUtils.notHaveColVal(jsonObj,"parent_id") != nil && ParaUtils.notHaveColVal(jsonObj,"parent_id").length() > 0){
             return this.regionDao.queryTreeHp(jsonObj);
         }else{
             return this.regionDao.queryTreeNp(jsonObj);
@@ -65,7 +61,7 @@ public class RegionServiceImpl implements RegionService {
     //@return 影响记录数Region 
     @Override 
     public void updateInst(JSONObject jsonObj){
-        this.regionDao.updateInst(jsonObj); 
+        return this.regionDao.updateInst(jsonObj); 
     } 
 
 }

@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Sensorcate)传感器类型
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class Sensorcate implements Serializable {
-    private static final long serialVersionUID = 33L;
     // 自增ID
     private Long id ;
     // 名称

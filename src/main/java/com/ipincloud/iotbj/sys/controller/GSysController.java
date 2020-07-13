@@ -1,4 +1,4 @@
-package com.ipincloud.iotbj.srv.controller;
+package com.ipincloud.iotbj.sys.controller;
 
 import java.io.UnsupportedEncodingException;
 import java.util.List;
@@ -35,26 +35,19 @@ import com.ipincloud.iotbj.sys.config.JWTUtil;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
 import com.ipincloud.iotbj.sys.messinfo.MessageInfo;
 
-import com.ipincloud.iotbj.srv.domain.User;
-import com.ipincloud.iotbj.srv.domain.Page;
-import com.ipincloud.iotbj.srv.domain.Btn;
-import com.ipincloud.iotbj.srv.service.UserService;
-import com.ipincloud.iotbj.srv.service.PageService;
-import com.ipincloud.iotbj.srv.service.BtnService;
+import com.ipincloud.iotbj.srv.domain.*;
+import com.ipincloud.iotbj.srv.service.*;
+import com.ipincloud.iotbj.srv.service.impl.*;
 
 @RestController
 public class GSysController {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-	@Autowired
-	private UserService userService;
-
-
+	
 	@PostMapping("/actq")
 	public Object actq(@RequestBody String bodyStr,
 							  HttpServletResponse response)  {
 
-		System.out.println("actq --------------------------:");
 		JSONObject jsonObj =  JSON.parseObject(bodyStr);
 		String hyVal = jsonObj.getString("_hy");
 
@@ -64,8 +57,6 @@ public class GSysController {
 		}
 
 		Subject currentUser = SecurityUtils.getSubject();
-		System.out.println("currentUser:"+currentUser.toString()+":"+hyVal);
-		// System.out.println("currentUser 2:"+currentUser.getStringPermissions().toString());
 		if(!currentUser.isPermitted(hyVal)){
             ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
         	return JSON.toJSONString(retResponseBean);
@@ -73,12 +64,12 @@ public class GSysController {
 		
 
 		if  ("userlist".equals(hyVal) ){
-			// Map retMap = userService.queryUserList(jsonObj);
-			ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",null);//retMap
+			List<Map> listMap = userService.queryUserList(jsonObj);
+			ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",listMap);
         
         	return JSON.toJSONString(retResponseBean);
 		}
 
-		return new ResponseBean(200,"SUCCESS", "登录成功",jsonObj);
+		return new ResponseBean(200,"SUCCESS", "未处理的服务查询命令",nil);
 	}
 }

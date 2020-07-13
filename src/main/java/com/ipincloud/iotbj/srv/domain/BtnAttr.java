@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(BtnAttr)
-//generate by redcloud,2020-07-08 01:57:13
+//generate by redcloud,2020-07-07 10:18:15
 public class BtnAttr implements Serializable {
-    private static final long serialVersionUID = 10L;
     // 键值ID
     private Long id ;
     // 调用编码

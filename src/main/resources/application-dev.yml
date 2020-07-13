@@ -2,7 +2,7 @@ server:
   port: 8088
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/iotbj1?useUnicode=true&characterEncoding=UTF-8
+    url: jdbc:mysql://192.168.3.8:3306/iotbj1?useUnicode=true&characterEncoding=UTF-8
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -15,7 +15,7 @@ mybatis:
 file:
   filePath: /upload
 keyfile:
-  filePath: /Users/qiangshuang/Desktop/dev/javawork/ipincloud/iotbj/src/main/resources/pri.pem
+  filePath: /src/main/resources/pri.pem
 # shiro:
 #   loginUrl: "/login"
 #   UnauthorizedUrl: "/login"

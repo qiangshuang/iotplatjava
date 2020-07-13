@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Srvplat)接入平台
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class Srvplat implements Serializable {
-    private static final long serialVersionUID = 34L;
     // 主键ID
     private Long id ;
     // 平台名称

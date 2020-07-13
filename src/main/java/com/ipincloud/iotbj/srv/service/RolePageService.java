@@ -4,15 +4,15 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(Iotbj) 服务接口
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:16
 public interface RolePageService {
-    //@param id 主键 
-    //@return 实例对象RolePage 
-    RolePage queryById(Long id);
+//@param id 主键 
+//@return 实例对象RolePage 
+RolePage queryById(Long id);
     //@param jsonObj 新增数据等 
     //@return jsonObj 
-    Integer rolePageMmjoin(JSONObject jsonObj);
+    Integer rolePageMmjoin(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return JSONObject 
-    Integer rolePageMmsub(JSONObject jsonObj);
+    Integer rolePageMmsub(@Param("jsonObj") JSONObject jsonObj);
 }

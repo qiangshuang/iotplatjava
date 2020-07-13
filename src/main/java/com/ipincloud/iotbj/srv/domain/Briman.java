@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Briman)网桥管理
-//generate by redcloud,2020-07-08 01:57:13
+//generate by redcloud,2020-07-07 10:18:15
 public class Briman implements Serializable {
-    private static final long serialVersionUID = 8L;
     // 自增ID
     private Long id ;
     // 设备名称

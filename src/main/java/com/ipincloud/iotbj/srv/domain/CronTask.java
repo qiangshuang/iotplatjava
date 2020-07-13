@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(CronTask)
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class CronTask implements Serializable {
-    private static final long serialVersionUID = 12L;
     // 任务ID
     private Long id ;
     // 任务名称

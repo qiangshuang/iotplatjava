@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Algorithm)算法
-//generate by redcloud,2020-07-08 01:57:13
+//generate by redcloud,2020-07-07 10:18:15
 public class Algorithm implements Serializable {
-    private static final long serialVersionUID = 3L;
     // 自增ID
     private Long id ;
     // 摄像机ID

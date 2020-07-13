@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Iotman)网关管理
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class Iotman implements Serializable {
-    private static final long serialVersionUID = 19L;
     // 自增ID
     private Long id ;
     // 设备名称

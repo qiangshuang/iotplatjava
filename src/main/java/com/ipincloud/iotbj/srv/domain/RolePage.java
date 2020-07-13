@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(RolePage)
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class RolePage implements Serializable {
-    private static final long serialVersionUID = 32L;
     // 角色ID
     @JSONField(name = "role_id")
     private Long roleId ;

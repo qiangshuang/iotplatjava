@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Dataflow)数据流
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class Dataflow implements Serializable {
-    private static final long serialVersionUID = 14L;
     // 自增ID
     private Long id ;
     // 数据流值

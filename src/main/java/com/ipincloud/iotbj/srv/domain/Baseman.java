@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Baseman)基站管理
-//generate by redcloud,2020-07-08 01:57:13
+//generate by redcloud,2020-07-07 10:18:15
 public class Baseman implements Serializable {
-    private static final long serialVersionUID = 7L;
     // 自增ID
     private Long id ;
     // 名称

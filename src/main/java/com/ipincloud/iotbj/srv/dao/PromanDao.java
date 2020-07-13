@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(PromanDao)产品管理 表数据库访问层
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:16
 public interface PromanDao {
     //@param id 主键 
     //@return 实例对象Proman 

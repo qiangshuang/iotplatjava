@@ -5,10 +5,10 @@
 
     <groupId>com.ipincloud</groupId>
     <artifactId>iotbj</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>iotbj</name>
-    <description>工业物联网大数据平台</description>
+    <description>物联网大数据平台</description>
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
@@ -62,8 +62,6 @@
            <artifactId>shiro-core</artifactId>
            <version>1.5.3</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-spring</artifactId>
@@ -111,11 +109,7 @@
             <artifactId>bcprov-jdk16</artifactId>
             <version>1.46</version>
         </dependency>
-         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-tx</artifactId>
-            <version>5.0.8.RELEASE</version>
-        </dependency>
+
     </dependencies>
     <build>
         <pluginManagement>

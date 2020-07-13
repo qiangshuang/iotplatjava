@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Device)设备
-//generate by redcloud,2020-07-08 01:57:14
+//generate by redcloud,2020-07-07 10:18:15
 public class Device implements Serializable {
-    private static final long serialVersionUID = 15L;
     // 主键ID
     private Long id ;
     // 设备名称

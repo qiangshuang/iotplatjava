@@ -8,9 +8,8 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Algorithmalarm)算法报警记录
-//generate by redcloud,2020-07-08 01:57:13
+//generate by redcloud,2020-07-07 10:18:15
 public class Algorithmalarm implements Serializable {
-    private static final long serialVersionUID = 5L;
     // 主键id
     private Long id ;
     // 报警时间
