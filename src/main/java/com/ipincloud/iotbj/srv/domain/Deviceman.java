@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Deviceman)设备管理
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Deviceman implements Serializable {
+    private static final long serialVersionUID = 21L;
     // 主键ID
     private Long id ;
     // 设备名称

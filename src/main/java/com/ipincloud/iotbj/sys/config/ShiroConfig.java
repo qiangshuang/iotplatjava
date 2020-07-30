@@ -45,6 +45,18 @@ public class ShiroConfig {
         filterRuleMap.put("/login", "anon");
         filterRuleMap.put("/logout", "anon");
         filterRuleMap.put("/static", "anon");
+		
+		filterRuleMap.put("/algorithmresult", "anon");
+        filterRuleMap.put("/eventRcvFace", "anon");
+        filterRuleMap.put("/eventRcvVehicle", "anon");
+
+        filterRuleMap.put("/doc.html", "anon");
+        filterRuleMap.put("/swagger-resources/**", "anon");
+        filterRuleMap.put("/v2/api-docs", "anon");
+        filterRuleMap.put("/v2/api-docs-ext", "anon");
+        filterRuleMap.put("/webjars/**", "anon");
+		
+		
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return shiroFilterFactoryBean;

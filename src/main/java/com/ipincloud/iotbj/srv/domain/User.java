@@ -1,58 +1,62 @@
 package com.ipincloud.iotbj.srv.domain;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.sql.Time;
-import java.sql.Date;
-import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
+import java.io.Serializable;
+
 //(User)
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-23 11:43:17
 public class User implements Serializable {
+    private static final long serialVersionUID = 72L;
     // 手机号
-    private String mobile ;
+    private String mobile;
     // 账号
     @JSONField(name = "user_name")
-    private String userName ;
+    private String userName;
     // 密码
-    private String pwd ;
+    private String pwd;
     // 主键ID
-    private Long id ;
+    private Long id;
     // 姓名
-    private String title ;
+    private String title;
     // 部门ID
     @JSONField(name = "parent_id")
-    private Long parentId ;
+    private Long parentId;
     // 部门名称
     @JSONField(name = "parent_title")
-    private String parentTitle ;
+    private String parentTitle;
     // 最后登录时间
-    private Long lastlogin ;
+    private Long lastlogin;
     // 岗位
     @JSONField(name = "job_title")
-    private String jobTitle ;
+    private String jobTitle;
     // 岗位ID
     @JSONField(name = "job_id")
-    private Long jobId ;
+    private Long jobId;
     // 第三方
-    private String thirdin ;
+    private String thirdin;
     // 添加时间
-    private Long created ;
+    private Long created;
     // 最后修改时间
-    private Long updated ;
-    private String photo ;
+    private Long updated;
+    private String photo;
     // 身份证号
-    private String idnumber ;
+    private String idnumber;
     // 卡片数量
-    private Integer cardnumber ;
+    private Integer cardnumber;
     // 主卡号
-    private String mcardno ;
+    private String mcardno;
     // 性别
-    private String gender ;
+    private String gender;
+    // 用户唯一标识
+    private String personId;
+
+    private String userGroup;
+    
+    private  String jobno;
 
     public String getMobile() {
-        return mobile ;
+        return mobile;
     }
 
     public void setMobile(String mobile) {
@@ -60,7 +64,7 @@ public class User implements Serializable {
     }
 
     public String getUserName() {
-        return userName ;
+        return userName;
     }
 
     public void setUserName(String userName) {
@@ -68,7 +72,7 @@ public class User implements Serializable {
     }
 
     public String getPwd() {
-        return pwd ;
+        return pwd;
     }
 
     public void setPwd(String pwd) {
@@ -76,7 +80,7 @@ public class User implements Serializable {
     }
 
     public Long getId() {
-        return id ;
+        return id;
     }
 
     public void setId(Long id) {
@@ -84,7 +88,7 @@ public class User implements Serializable {
     }
 
     public String getTitle() {
-        return title ;
+        return title;
     }
 
     public void setTitle(String title) {
@@ -92,7 +96,7 @@ public class User implements Serializable {
     }
 
     public Long getParentId() {
-        return parentId ;
+        return parentId;
     }
 
     public void setParentId(Long parentId) {
@@ -100,7 +104,7 @@ public class User implements Serializable {
     }
 
     public String getParentTitle() {
-        return parentTitle ;
+        return parentTitle;
     }
 
     public void setParentTitle(String parentTitle) {
@@ -108,7 +112,7 @@ public class User implements Serializable {
     }
 
     public Long getLastlogin() {
-        return lastlogin ;
+        return lastlogin;
     }
 
     public void setLastlogin(Long lastlogin) {
@@ -116,7 +120,7 @@ public class User implements Serializable {
     }
 
     public String getJobTitle() {
-        return jobTitle ;
+        return jobTitle;
     }
 
     public void setJobTitle(String jobTitle) {
@@ -124,7 +128,7 @@ public class User implements Serializable {
     }
 
     public Long getJobId() {
-        return jobId ;
+        return jobId;
     }
 
     public void setJobId(Long jobId) {
@@ -132,7 +136,7 @@ public class User implements Serializable {
     }
 
     public String getThirdin() {
-        return thirdin ;
+        return thirdin;
     }
 
     public void setThirdin(String thirdin) {
@@ -140,7 +144,7 @@ public class User implements Serializable {
     }
 
     public Long getCreated() {
-        return created ;
+        return created;
     }
 
     public void setCreated(Long created) {
@@ -148,7 +152,7 @@ public class User implements Serializable {
     }
 
     public Long getUpdated() {
-        return updated ;
+        return updated;
     }
 
     public void setUpdated(Long updated) {
@@ -156,7 +160,7 @@ public class User implements Serializable {
     }
 
     public String getPhoto() {
-        return photo ;
+        return photo;
     }
 
     public void setPhoto(String photo) {
@@ -164,7 +168,7 @@ public class User implements Serializable {
     }
 
     public String getIdnumber() {
-        return idnumber ;
+        return idnumber;
     }
 
     public void setIdnumber(String idnumber) {
@@ -172,7 +176,7 @@ public class User implements Serializable {
     }
 
     public Integer getCardnumber() {
-        return cardnumber ;
+        return cardnumber;
     }
 
     public void setCardnumber(Integer cardnumber) {
@@ -180,7 +184,7 @@ public class User implements Serializable {
     }
 
     public String getMcardno() {
-        return mcardno ;
+        return mcardno;
     }
 
     public void setMcardno(String mcardno) {
@@ -188,12 +192,39 @@ public class User implements Serializable {
     }
 
     public String getGender() {
-        return gender ;
+        return gender;
     }
 
     public void setGender(String gender) {
         this.gender = gender;
     }
 
+    public String getPersonId() {
+        return personId;
+    }
+
+    public void setPersonId(String personId) {
+        this.personId = personId;
+    }
+
+    public String getUserGroup() {
+        return userGroup;
+    }
+
+    public void setUserGroup(String userGroup) {
+        this.userGroup = userGroup;
+    }
+
+    public boolean isGuest() {
+        return "外来访客".equals(userGroup);
+    }
+
+    public String getJobno() {
+        return jobno;
+    }
+
+    public void setJobno(String jobno) {
+        this.jobno = jobno;
+    }
 }
 

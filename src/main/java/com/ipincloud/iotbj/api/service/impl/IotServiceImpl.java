@@ -2,18 +2,22 @@ package com.ipincloud.iotbj.api.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ipincloud.iotbj.api.dao.IotDao;
 import com.ipincloud.iotbj.api.service.IotService;
 import com.ipincloud.iotbj.api.utils.IotUtils;
-import com.ipincloud.iotbj.utils.StringUtils;
 import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.domain.Algorithm;
 import com.ipincloud.iotbj.srv.domain.Algorithmalarm;
 import com.ipincloud.iotbj.srv.domain.Camera;
+import com.ipincloud.iotbj.sys.domain.ResponseBean;
+import com.ipincloud.iotbj.utils.ParaUtils;
+import com.ipincloud.iotbj.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 
@@ -46,11 +50,12 @@ public class IotServiceImpl implements IotService {
     private AlgorithmresultDao algorithmresultDao;
     @Autowired
     private AlgorithmalarmDao algorithmalarmDao;
-
     @Autowired
     private ModInfoDao modInfoDao;
     @Autowired
     private ModCameraDao modCameraDao;
+    @Autowired
+    private IotDao iotDao;
 
     /**
      * 同步摄像机
@@ -61,7 +66,7 @@ public class IotServiceImpl implements IotService {
         JSONObject param = new JSONObject();
         param.put("modName", "摄像头");
         param.put("userName", "iotadmin");
-        JSONObject modInfo = modInfoDao.selectModInfo(param);
+        JSONObject modInfo = iotDao.selectModInfo(param);
         if (modInfo == null) {
             modInfo = IotUtils.getModInfo(iot_url, iot_apikey, param);
             modInfoDao.addInst(modInfo);
@@ -70,7 +75,7 @@ public class IotServiceImpl implements IotService {
         modInfo.put("pageSize", jsonObject.getInteger("rop"));
         JSONArray ja = IotUtils.getCameraEntityList(iot_url, iot_apikey, modInfo);
         for (int i = 0; i < ja.size(); i++) {
-            int count = modCameraDao.existByIndex(ja.getJSONObject(i).getString("cameraIndex"));
+            int count = iotDao.existByIndex(ja.getJSONObject(i).getString("cameraIndex"));
             if (count > 0) {
                 break;
             } else
@@ -104,6 +109,15 @@ public class IotServiceImpl implements IotService {
                 map.put("id", camera_id);
                 map.put("date", System.currentTimeMillis());
             }
+            JSONObject parm = new JSONObject();
+            parm.put("camera_id", camera.getCameraIndex());
+            parm.put("camera_name", camera.getTitle());
+            parm.put("fps", camera.getFramerate());
+            parm.put("resolution_ratio", camera.getResolution());
+            parm.put("video_stream", camera.getVideoa());
+            parm.put("target_address", algorithm_url);
+            IotUtils.postOpenCamera(algorithm_url, parm);
+
             cameraDao.updateInst(jo);
             list.add(map);
         }
@@ -134,6 +148,11 @@ public class IotServiceImpl implements IotService {
                 map.put("id", camera_id);
                 map.put("date", System.currentTimeMillis());
             }
+
+            JSONObject parm = new JSONObject();
+            parm.put("camera_id", camera.getCameraIndex());
+            IotUtils.postCloseCamera(algorithm_url, parm);
+
             cameraDao.updateInst(jo);
             list.add(map);
         }
@@ -164,11 +183,56 @@ public class IotServiceImpl implements IotService {
                 map.put("id", camera_id);
                 map.put("date", System.currentTimeMillis());
             }
+
+            JSONObject parm = new JSONObject();
+            parm.put("camera_id", camera.getCameraIndex());
+            IotUtils.postCloseCamera(algorithm_url, parm);
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException interruptedException) {
+                interruptedException.printStackTrace();
+            }
+
+            IotUtils.postOpenCamera(algorithm_url, parm);
+
             cameraDao.updateInst(jo);
             list.add(map);
         }
         return list;
     }
+
+    /**
+     * 打开算法_back
+     */
+//    public List<Map> algorithmOpen1(JSONArray algorithms) {
+//        Set<Long> set = new HashSet<>();
+//        for (int i = 0; i < algorithms.size(); i++) {
+//            set.add(algorithms.getJSONObject(i).getLong("camera_id"));
+//        }
+//        for (Long camera_id : set) {
+//            Camera camera = cameraDao.queryById(camera_id);
+//            JSONObject jsonObject = new JSONObject();
+//            if (StringUtils.isEmpty(camera.getCameraIndex())) {
+//                jsonObject.put("camera_id", camera.getId());
+//            } else {
+//                jsonObject.put("camera_id", camera.getCameraIndex());
+//            }
+//            jsonObject.put("camera_name", camera.getTitle());
+//            jsonObject.put("fps", camera.getFramerate());
+//            jsonObject.put("resolution_ratio", camera.getResolution());
+//            jsonObject.put("video_stream", camera.getVideoa());
+//            jsonObject.put("codec", camera.getCodec());
+//            jsonObject.put("target_address", algorithm_url);          //算法后端配置服务器
+//            jsonObject.put("target", algorithm_resultUrl);
+//
+//            //待调试--算法编码
+//            jsonObject.put("algorithm_api", "");    //算法服务器地址
+//            List list = new ArrayList();
+//            jsonObject.put("algorithm", "");
+//            jsonObject.put("extras", "");
+//        }
+//        return null;
+//    }
 
     /**
      * 打开算法
@@ -194,25 +258,36 @@ public class IotServiceImpl implements IotService {
             jsonObject.put("target", algorithm_resultUrl);          //算法结果发送得服务器
             jsonObject.put("algorithm_api", para.getString("algorithm_url"));    //算法服务器地址
             //待调试--算法编码
-            //["object_detection","cross_detection","helmet_detection","call_smoke_detection","belt_mask_detection"]
-            JSONArray ja = new JSONArray();
-            ja.add(para.getString("accesscode"));
-            jsonObject.put("algorithm", ja.toString());
-            JSONObject jo = new JSONObject();
-            JSONObject jo1 = new JSONObject();
-            jo1.put("boundary", para.getString("border"));
-            jo1.put("region", Objects.equals("内部", para.getString("direction")) ? 0 : 1);
-            jo.put("cross_detection", jo1.toJSONString());
-            jsonObject.put("extras", para.getString("border"));
+            String algorithm = "cross_detection"; //para.getString("accesscode");
+            jsonObject.put("algorithm", algorithm);
+
+            JSONObject extras = new JSONObject();
+            if (Objects.equals("object_detection", algorithm)) {
+                Map object_detection = new HashMap();
+                object_detection.put("width_threshold", 80);
+                object_detection.put("length_threshold", 90);
+                extras.put("object_detection", object_detection);
+            } else if (Objects.equals("cross_detection", algorithm)) {
+                Map cross_detection = new HashMap();
+                cross_detection.put("boundary", JSONArray.parseObject(para.getString("border").trim()));
+                cross_detection.put("region", Objects.equals("内部", para.getString("direction")) ? 0 : 1);
+                extras.put("cross_detection", cross_detection);
+            } else if (Objects.equals("helmet_detection", algorithm)) {
+
+            } else if (Objects.equals("call_smoke_detection", algorithm)) {
+
+            } else if (Objects.equals("belt_mask_detection", algorithm)) {
+                Map belt_mask_detection = new HashMap();
+                belt_mask_detection.put("camera_name", para.getString("camera_title"));
+                extras.put("belt_mask_detection", belt_mask_detection);
+            }
+            jsonObject.put("extras", extras.toString());
 
             String result = IotUtils.postOpenAlgorithm(algorithm_url, jsonObject);
             Integer code = JSONObject.parseObject(result).getInteger("code");
             String msg = JSONObject.parseObject(result).getString("msg");
-            String data = JSONObject.parseObject(result).getString("data");
+            //String data = JSONObject.parseObject(result).getString("data");
 
-            //调试时注释下面
-            //Integer code =200;
-            //String msg = "调试";
             Map resultMap = new HashMap();
             if (code == 200) {
                 para.put("state", "运行中");
@@ -236,40 +311,6 @@ public class IotServiceImpl implements IotService {
             resultList.add(resultMap);
         }
         return resultList;
-    }
-
-    /**
-     * 打开算法_back
-     */
-    public List<Map> algorithmOpen1(JSONArray algorithms) {
-        Set<Long> set = new HashSet<>();
-        for (int i = 0; i < algorithms.size(); i++) {
-            set.add(algorithms.getJSONObject(i).getLong("camera_id"));
-        }
-        System.out.println("========================= " + set.size());
-        for (Long camera_id : set) {
-            Camera camera = cameraDao.queryById(camera_id);
-            JSONObject jsonObject = new JSONObject();
-            if (StringUtils.isEmpty(camera.getCameraIndex())) {
-                jsonObject.put("camera_id", camera.getId());
-            } else {
-                jsonObject.put("camera_id", camera.getCameraIndex());
-            }
-            jsonObject.put("camera_name", camera.getTitle());
-            jsonObject.put("fps", camera.getFramerate());
-            jsonObject.put("resolution_ratio", camera.getResolution());
-            jsonObject.put("video_stream", camera.getVideoa());
-            jsonObject.put("codec", camera.getCodec());
-            jsonObject.put("target_address", algorithm_url);          //算法后端配置服务器
-            jsonObject.put("target", algorithm_resultUrl);
-
-            //待调试--算法编码
-            jsonObject.put("algorithm_api", "");    //算法服务器地址
-            List list = new ArrayList();
-            jsonObject.put("algorithm", "");
-            jsonObject.put("extras", "");
-        }
-        return null;
     }
 
     /**
@@ -365,7 +406,6 @@ public class IotServiceImpl implements IotService {
     public void algorithmResult(JSONObject jo, String path) {
         jo.put("imgpath", path);
         long a = algorithmresultDao.addInst(jo);
-        System.out.println("aaaaaaaaaaaa" + a);
     }
 
     @Override
@@ -373,14 +413,280 @@ public class IotServiceImpl implements IotService {
         this.algorithmalarmDao.addInst((JSONObject) JSONObject.toJSON(algorithmalarm));
     }
 
-
-    /**
-     * 判断视频地址是否可用
-     */
-    public Boolean checkUrl(String url) {
-        return true;
+    @Override
+    public void confirmState(JSONArray jsonArray) {
+        iotDao.confirmState(jsonArray);
     }
 
+    @Override
+    public void missState(JSONArray jsonArray) {
+        iotDao.misstate(jsonArray);
+    }
+
+    @Override
+    public JSONObject algorithmhome() {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("base", iotDao.base());
+        jsonObject.put("totality", iotDao.totality());
+
+        Map history_alarm = new HashMap();
+        List<Integer> days = new ArrayList<>();
+        List<Integer> by = new ArrayList<>();
+        List<Integer> sy = new ArrayList<>();
+        List<String> tb = new ArrayList<>();
+        List<JSONObject> bys = iotDao.by();
+        List<JSONObject> sys = iotDao.sy();
+
+        for (JSONObject byJson : bys) {
+            days.add(byJson.getInteger("days"));
+        }
+        List<Integer> syDays = new ArrayList<>();
+        for (JSONObject syJson : sys) {
+            syDays.add(syJson.getInteger("days"));
+        }
+        if (days != null) {
+            for (int i = 0; i < days.size(); i++) {
+                Integer flagDay = days.get(i);
+                Integer bytmp = 0;
+                for (int j = 0; j < bys.size(); j++) {
+                    if (flagDay == bys.get(j).getInteger("days")) {
+                        bytmp = bys.get(j).getInteger("num");
+                        by.add(bytmp);
+                        break;
+                    }
+                }
+                Integer sytmp = 0;
+                for (int n = 0; n < sys.size(); n++) {
+                    if (syDays.contains(flagDay)) {
+                        if (flagDay == sys.get(n).getInteger("days")) {
+                            sytmp = sys.get(n).getInteger("num");
+                            sy.add(sytmp);
+                            break;
+                        }
+                    } else {
+                        sy.add(sytmp);
+                    }
+                }
+                if (sytmp == 0) {
+                    tb.add(0 + "");
+                } else {
+                    tb.add(new DecimalFormat("#.00").format((double) (bytmp - sytmp) / sytmp * 100));
+                }
+            }
+        }
+        history_alarm.put("day", days);
+        history_alarm.put("by", by);
+        history_alarm.put("sy", sy);
+        history_alarm.put("tb", tb);
+        jsonObject.put("history_alarm", history_alarm);
+
+        int alarmTotal = iotDao.alarmTotal();
+        List<JSONObject> list = iotDao.alarmGroup();
+        JSONObject today_warning = new JSONObject();
+        Map a = new HashMap();
+        a.put("zywz", 0);
+        a.put("xwwz", 0);
+        a.put("pdyc", 0);
+        a.put("hxyj", 0);
+        a.put("qcaq", 0);
+        a.put("pbwz", 0);
+        a.put("xyyj", 0);
+        a.put("smyj", 0);
+        Map b = new HashMap();
+        b.put("fypd", 0);
+        b.put("wdaqm", 0);
+        b.put("pp", 0);
+        b.put("hx", 0);
+        b.put("qc", 0);
+        b.put("ryyj", 0);
+        b.put("xy", 0);
+        b.put("sm", 0);
+        for (int i = 0; i < list.size(); i++) {
+            Long algorithm_id = list.get(i).getLong("algorithm_id");
+            int num = list.get(i).getInteger("num");
+            if (algorithm_id == 1) {
+                b.put("fypd", num);
+                a.put("zywz", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 2) {
+                b.put("wdaqm", num);
+                a.put("xwwz", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 3) {
+                b.put("pp", num);
+                a.put("pdyc", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 4) {
+                b.put("hx", num);
+                a.put("hxyj", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 5) {
+                b.put("qc", num);
+                a.put("qcaq", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 6) {
+                b.put("ryyj", num);
+                a.put("pbwz", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 7) {
+                b.put("xy", num);
+                a.put("xyyj", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            } else if (algorithm_id == 8) {
+                b.put("sm", num);
+                a.put("smyj", new DecimalFormat("#.00").format((double) num / alarmTotal * 100));
+            }
+        }
+        today_warning.put("a", a);
+        today_warning.put("b", b);
+        jsonObject.put("today_warning", today_warning);
+
+        List<JSONObject> today_alarm = iotDao.bjsAndQrsGroup();
+        jsonObject.put("today_alarm", today_alarm);
+
+        return jsonObject;
+    }
+
+    @Override
+    public List<JSONObject> cameraindexlist(JSONArray parm) {
+        String region_id = parm.getString(0);
+        String algorithm_id = parm.getString(1);
+        String title = parm.getString(2);
+
+        return iotDao.cameraindexlist(region_id, algorithm_id, title);
+    }
+
+    @Override
+    public List<JSONObject> alarmcount() {
+        return iotDao.alarmcount();
+    }
+
+    @Override
+    public List<JSONObject> alarmdtl(Long algorithm_id) {
+        return iotDao.alarmdtl(algorithm_id);
+    }
+
+    @Override
+    public List<JSONObject> deviceslist() {
+        List<JSONObject> regions = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            JSONObject region = new JSONObject();
+            region.put("region_id", "8" + i);
+            region.put("region_title", "位置" + (i + 1));
+            List<JSONObject> ways = new ArrayList<>();
+            JSONObject way = new JSONObject();
+            way.put("camera_id", "12" + (i + 1));
+            way.put("camera_title", "摄像机" + (i + 1));
+            way.put("algorithm_id", i + 1);
+            way.put("algorithm_title", "蒸汽跑冒监测" + i);
+            if (i == 0) {
+                way.put("state", "异常");
+            } else {
+                way.put("state", "正常");
+            }
+            way.put("pushaddress", "http://111111111111111");
+            ways.add(way);
+            region.put("ways", ways);
+            regions.add(region);
+        }
+
+
+//        JSONObject region = new JSONObject();
+//        region.put("region_id", "80");
+//        region.put("region_title", "位置1");
+//        List<JSONObject> ways = new ArrayList<>();
+//        JSONObject way1 = new JSONObject();
+//        way1.put("camera_id", "121");
+//        way1.put("camera_title", "摄像机1");
+//        way1.put("algorithm_id", "121");
+//        way1.put("algorithm_title", "蒸汽跑冒监测");
+//        ways.add(way1);
+//        region.put("ways", ways);
+//        regions.add(region);
+//
+//        JSONObject region2 = new JSONObject();
+//        region2.put("region_id", "80");
+//        region2.put("region_title", "位置1");
+//        List<JSONObject> ways2 = new ArrayList<>();
+//        JSONObject way2 = new JSONObject();
+//        way2.put("camera_id", "121");
+//        way2.put("camera_title", "摄像机1");
+//        way2.put("algorithm_id", "121");
+//        way2.put("algorithm_title", "蒸汽跑冒监测");
+//        ways2.add(way2);
+//        region2.put("ways", ways2);
+//        regions.add(region2);
+//
+//        JSONObject region3 = new JSONObject();
+//        region3.put("region_id", "80");
+//        region3.put("region_title", "位置1");
+//        List<JSONObject> ways3 = new ArrayList<>();
+//        JSONObject way3 = new JSONObject();
+//        way3.put("camera_id", "121");
+//        way3.put("camera_title", "摄像机1");
+//        way3.put("algorithm_id", "121");
+//        way3.put("algorithm_title", "蒸汽跑冒监测");
+//        ways3.add(way3);
+//        region3.put("ways", ways3);
+//        regions.add(region3);
+//
+//        JSONObject region4 = new JSONObject();
+//        region4.put("region_id", "80");
+//        region4.put("region_title", "位置1");
+//        List<JSONObject> ways4 = new ArrayList<>();
+//        JSONObject way4 = new JSONObject();
+//        way4.put("camera_id", "121");
+//        way4.put("camera_title", "摄像机1");
+//        way4.put("algorithm_id", "121");
+//        way4.put("algorithm_title", "蒸汽跑冒监测");
+//        ways4.add(way4);
+//        region4.put("ways", ways4);
+//        regions.add(region4);
+
+        return regions;
+    }
+
+    @Override
+    public List<JSONObject> otherCameralist(JSONArray jsonArray) {
+        List<JSONObject> allList = iotDao.allCameraList();
+        List<JSONObject> liveList = jsonArray.toJavaList(JSONObject.class);
+        List<JSONObject> list = new ArrayList<>();
+        for (int i = 0; i < allList.size(); i++) {
+            String camera_id = allList.get(i).getString("camera_id");
+            String algorithm_id = allList.get(i).getString("algorithm_id");
+            if (liveList == null || liveList.size() < 1) {
+                list.add(allList.get(i));
+            } else {
+                for (int j = 0; j < liveList.size(); j++) {
+                    String l_camera_id = liveList.get(j).getString("id");
+                    String l_algorithm_id = liveList.get(j).getString("algorithm_id");
+                    if (Objects.equals(camera_id, l_camera_id) && Objects.equals(algorithm_id, l_algorithm_id)) {
+                        continue;
+                    } else {
+                        list.add(allList.get(i));
+                        break;
+                    }
+                }
+            }
+        }
+        return list;
+    }
+	
+	@Override
+    public JSONObject realcameraindexlist() {
+
+        JSONObject jsonObject = new JSONObject();
+        List<JSONObject> realCameraList = iotDao.realCameraIndexlist();
+        if (realCameraList != null && realCameraList.size() > 0) {
+            jsonObject.put("total", realCameraList.size());
+            jsonObject.put("list", realCameraList);
+        }
+        return jsonObject;
+    }
+	
+    @Override
+    public Object realAlarmList(JSONObject jsonObj) {
+        int totalRec = iotDao.countRealAlarmList(jsonObj);
+        jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
+        List<JSONObject> list = iotDao.realAlarmList(jsonObj);
+        jsonObj.put("pageData", list);
+        jsonObj.put("totalRec", totalRec);
+
+        return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
+    }
     /*    *//**
      * 获取模型
      *//*
@@ -395,17 +701,12 @@ public class IotServiceImpl implements IotService {
         return modInfo;
     }
 
-    *//**
-     * 获取实体
-     *//*
-    private ModInfo getModInfo(JSONObject jsonObject) {
-        JSONObject result = IotUtils.getModelInfo(iot_url, iot_apikey, jsonObject);
-        ModInfo modInfo = null;
-        if (result != null) {
-            modInfoDao.addInst(result);
-            modInfo = result.toJavaObject(ModInfo.class);
-        }
-        return modInfo;
-    }*/
+    */
 
+    /**
+     * 判断视频地址是否可用
+     */
+    public Boolean checkUrl(String url) {
+        return true;
+    }
 }

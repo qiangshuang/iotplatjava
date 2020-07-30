@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.face.dao.FaceDao">
+
+
+    <select id="countAcsdev" resultType="java.lang.Integer">
+        select count(*) from sync_acsdev
+        <where>
+            <if test="title!=null and title!=''">
+                acsDevName like concat('%',#{title},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listAcsdevByName" resultType="java.util.Map">
+        select * from sync_acsdev
+        <where>
+            <if test="title!=null and title!=''">
+                acsDevName like concat('%',#{title},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <select id="countGateway" resultType="java.lang.Integer">
+        select count(*) from face_gateway
+        <where>
+            <if test="title!=null and title!=''">
+                title like concat('%',#{title},'%')
+            </if>
+            <if test="regionIndexCode!=null and regionIndexCode!=''">
+                and regionIndexCode = #{regionIndexCode}
+            </if>
+            <if test="region_id!=null and region_id!=0">
+                and region_id = #{region_id}
+            </if>
+        </where>
+    </select>
+    <select id="listGatewayByName" resultType="java.util.Map">
+        select * from face_gateway
+        <where>
+            <if test="title!=null and title!=''">
+                title like concat('%',#{title},'%')
+            </if>
+            <if test="regionIndexCode!=null and regionIndexCode!=''">
+                and regionIndexCode = #{regionIndexCode}
+            </if>
+            <if test="region_id!=null and region_id!=0">
+                and region_id = #{region_id}
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+
+    <insert id="insertGateway" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        insert into face_gateway
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <update id="updateGateway">
+        UPDATE face_gateway
+        <trim prefix="set" suffixOverrides=",">
+            <if test="title!=null and title!=''">
+                title = #{title},
+            </if>
+            <if test="firm!=null and firm!=''">
+                firm = #{firm},
+            </if>
+            <if test="region_id!=null and region_id!=0">
+                region_id = #{region_id},
+            </if>
+            <if test="region_title!=null and region_title!=''">
+                region_title = #{region_title},
+            </if>
+            <if test="regionIndexCode!=null and regionIndexCode!=''">
+                regionIndexCode = #{regionIndexCode},
+            </if>
+            <if test="acsDevIndexCode!=null and acsDevIndexCode!=''">
+                acsDevIndexCode = #{acsDevIndexCode},
+            </if>
+            <if test="updated!=null and updated!=0">
+                updated = #{updated},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <select id="listRegionByName" resultType="java.util.Map">
+        select * from region
+        <where>
+            <if test="title!=null and title!=''">
+                title like concat('%',#{title},'%')
+            </if>
+        </where>
+    </select>
+
+    <delete id="deleteGatewayById">
+        delete from face_gateway
+        <where>
+            id in
+            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
+                #{jsonObj}
+            </foreach>
+        </where>
+    </delete>
+
+    <insert id="insertPolicy" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        insert into face_policy
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <select id="countPolicy" resultType="java.lang.Integer">
+        select count(*) from (
+        select t1.*,t2.title region_title,t3.title gateway_title,
+        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.cardnumber from face_policy t1
+        left join region t2 on t1.region_id=t2.id
+        left join face_gateway t3 on t1.gateway_id=t3.id
+        left join org t4 on t1.org_id=t4.id
+        left join user t5 on t1.user_id=t5.id )t
+        <where>
+            <if test="org_id!=null and org_id!=''">
+                and org_id = #{org_id}
+            </if>
+            <if test="starttime!=null and starttime!=0 and endtime!=null and endtime!=0 ">
+                and ((starttime >= #{starttime} and #{endtime} > starttime)
+                or ( #{starttime} >= starttime and endtime >= #{endtime} ))
+            </if>
+            <if test="user_title!=null and user_title!=''">
+                and user_title like concat('%',#{user_title},'%')
+            </if>
+            <if test="gateway_title!=null and gateway_title!=''">
+                and gateway_title like concat('%',#{gateway_title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="cardnumber!=null and cardnumber!=''">
+                and cardnumber like concat('%',#{cardnumber},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listPolicy" resultType="java.util.Map">
+        select * from 
+        (select t1.*,t2.title region_title,t3.title gateway_title,
+        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.cardnumber from face_policy t1
+        left join region t2 on t1.region_id=t2.id
+        left join face_gateway t3 on t1.gateway_id=t3.id
+        left join org t4 on t1.org_id=t4.id
+        left join user t5 on t1.user_id=t5.id )t
+        <where>
+            <if test="org_id!=null and org_id!=''">
+                and org_id = #{org_id}
+            </if>
+            <if test="starttime!=null and starttime!=0 and endtime!=null and endtime!=0 ">
+                and ((starttime >= #{starttime} and #{endtime} > starttime)
+                or ( #{starttime} >= starttime and endtime >= #{endtime} ))
+            </if>
+            <if test="user_title!=null and user_title!=''">
+                and user_title like concat('%',#{user_title},'%')
+            </if>
+            <if test="gateway_title!=null and gateway_title!=''">
+                and gateway_title like concat('%',#{gateway_title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="cardnumber!=null and cardnumber!=''">
+                and cardnumber like concat('%',#{cardnumber},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <insert id="insertEvent">
+        insert into face_history
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <update id="updateGatewayState">
+        update face_gateway set state='门开' where acsDevIndexCode = #{acsDevIndexCode}
+    </update>
+
+    <select id="findPolicyById" resultType="java.util.Map">
+        select * from face_policy where id=#{id}
+    </select>
+
+    <update id="updatePolicyState">
+        update face_policy set state = #{state} where id = #{id}
+    </update>
+
+    <delete id="deletePolicyById">
+        delete from face_policy
+        <where>
+            id in
+            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
+                #{jsonObj}
+            </foreach>
+        </where>
+
+    </delete>
+
+    <select id="findGatewayById" resultType="java.util.Map">
+        select * from face_gateway where id=#{id}
+    </select>
+
+    <select id="countHistory" resultType="java.lang.Integer">
+        select count(*) from face_history
+        <where>
+            <if test="parent_id!=null and parent_id!=0">
+                and parent_id = #{parent_id}
+            </if>
+            <if test="state!=null and state!=''">
+                state = #{state}
+            </if>
+            <if test="starttime!=null and starttime!=0">
+                and visittime >= #{starttime}
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                and #{endtime} >= visittime
+            </if>
+            <if test="visit_title!=null and visit_title!=''">
+                and visit_title like concat('%',#{visit_title},'%')
+            </if>
+            <if test="gateway_title!=null and gateway_title!=''">
+                and gateway_title like concat('%',#{gateway_title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                and mobile like concat('%',#{mobile},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listHistory" resultType="java.util.Map">
+        select * from face_history
+        <where>
+            <if test="parent_id!=null and parent_id!=0">
+                and parent_id = #{parent_id}
+            </if>
+            <if test="state!=null and state!=''">
+                state = #{state}
+            </if>
+            <if test="starttime!=null and starttime!=0">
+                and visittime >= #{starttime}
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                and #{endtime} >= visittime
+            </if>
+            <if test="visit_title!=null and visit_title!=''">
+                and visit_title like concat('%',#{visit_title},'%')
+            </if>
+            <if test="gateway_title!=null and gateway_title!=''">
+                and gateway_title like concat('%',#{gateway_title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                and mobile like concat('%',#{mobile},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <select id="getUserByIdnumber" resultType="com.alibaba.fastjson.JSONObject">
+        select * from user where idnumber = #{idnumber} limit 1
+    </select>
+
+    <select id="countUser" resultType="java.lang.Integer">
+        select count(*) from user
+        <where>
+            <if test="parent_id!=null and parent_id!=''">
+                and parent_id = #{parent_id}
+            </if>
+            <if test="title!=null and title!=''">
+                title like concat('%',#{title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber = #{idnumber}
+            </if>
+        </where>
+    </select>
+    <select id="listUserByName" resultType="java.util.Map">
+        select * from user
+        <where>
+            <if test="parent_id!=null and parent_id!=''">
+                and parent_id = #{parent_id}
+            </if>
+            <if test="title!=null and title!=''">
+                and title like concat('%',#{title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber = #{idnumber}
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <insert id="insertVisit" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        insert into face_visit
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <select id="countVisit" resultType="java.lang.Integer">
+        select count(*) from (
+        select t1.*,t2.title,t2.gender,t2.idnumber,t2.cardnumber,
+        t2.mobile from face_visit t1
+        left join user t2 on t1.visit_id=t2.id
+        ) t
+        <where>
+            <if test="visit_id !=null and visit_id!= 0">
+                and visit_id = #{visit_id}
+            </if>
+            <if test="starttime!=null and starttime!=0">
+                and conftime >= #{starttime}
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                and #{endtime} >= conftime
+            </if>
+            <if test="title!=null and title!=''">
+                and title like concat('%',#{title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="cardnumber!=null and cardnumber!=''">
+                and cardnumber like concat('%',#{cardnumber},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                and mobile like concat('%',#{mobile},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listVisitByName" resultType="java.util.Map">
+        select * from (
+        select t1.*,t2.title,t2.gender,t2.idnumber,t2.cardnumber,
+        t2.mobile,t2.photo from face_visit t1
+        left join user t2 on t1.visit_id=t2.id
+        ) t
+        <where>
+            <if test="visit_id !=null and visit_id!= 0">
+                and visit_id = #{visit_id}
+            </if>
+            <if test="starttime!=null and starttime!=0">
+                and conftime >= #{starttime}
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                and #{endtime} >= conftime
+            </if>
+            <if test="title!=null and title!=''">
+                and user_title like concat('%',#{user_title},'%')
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                and idnumber like concat('%',#{idnumber},'%')
+            </if>
+            <if test="cardnumber!=null and cardnumber!=''">
+                and cardnumber like concat('%',#{cardnumber},'%')
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                and mobile like concat('%',#{mobile},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <delete id="deleteVisitById">
+        delete from face_visit
+        <where>
+            id in
+            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
+                #{jsonObj}
+            </foreach>
+        </where>
+    </delete>
+
+    <select id="findVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_visit where visit_id = #{userId} order by updated desc limit 1
+    </select>
+
+	<update id="updateVisit">
+        UPDATE face_visit
+        <trim prefix="set" suffixOverrides=",">
+            <if test="visit_id!=null and visit_id!=''">
+                visit_id = #{visit_id},
+            </if>
+            <if test="interview_ids!=null and interview_ids!=''">
+                interview_ids = #{interview_ids},
+            </if>
+            <if test="interview_titles!=null and interview_titles!=''">
+                interview_titles = #{interview_titles},
+            </if>
+            <if test="conftime!=null and conftime!=0">
+                conftime = #{conftime},
+            </if>
+            <if test="starttime!=null and starttime!=0">
+                starttime = #{starttime},
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                endtime = #{endtime},
+            </if>
+            <if test="updated!=null and updated!=0">
+                updated = #{updated},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+
+	<select id="listVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_visit where visit_id = #{userId} and id!=#{id}
+    </select>
+
+    <update id="updateVisitState">
+        update face_visit set state=#{state} where id=#{id}
+    </update>
+
+    <select id="findVisitById" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_visit where id = #{id}
+    </select>
+
+        <insert id="insertUserCard" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        insert into user_card
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <select id="exitsCardByNo" resultType="java.lang.Integer">
+        select count(*) as count from user_card where cardno = #{cardno}
+    </select>
+
+    <update id="updateUserCardnumber">
+        update user set cardnumber = cardnumber + #{num} where id = #{id}
+    </update>
+
+
+    <select id="findCards" resultType="com.alibaba.fastjson.JSONObject">
+        select * from user_card
+        <where>
+            id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <delete id="deleteCardByIds">
+        delete from user_card
+        <where>
+            id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+
+    </delete>
+
+    <update id="updateCardState">
+        update user_card set state=#{state}
+        <where>
+            id in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+    <select id="countCard" resultType="java.lang.Integer">
+        select count(*) num from user_card
+        <where>
+            <if test="cardno !=null and cardno!= ''">
+                and cardno = #{cardno}
+            </if>
+            <if test="state!=null and state!=''">
+                and state = #{state}
+            </if>
+            <if test="user_name!=null and user_name!=''">
+                and user_name like concat('%',#{user_name},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listCard" resultType="java.util.Map">
+        select * from user_card
+        <where>
+            <if test="cardno !=null and cardno!= ''">
+                and cardno = #{cardno}
+            </if>
+            <if test="state!=null and state!=''">
+                and state = #{state}
+            </if>
+            <if test="user_name!=null and user_name!=''">
+                and user_name like concat('%',#{user_name},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <select id="findRegionByIndexCode" resultType="java.util.Map">
+        select id from region where indexCode = #{regionIndexCode} limit 1
+    </select>
+</mapper>

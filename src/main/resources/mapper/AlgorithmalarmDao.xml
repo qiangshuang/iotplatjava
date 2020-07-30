@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.AlgorithmalarmDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.Algorithmalarm" id="AlgorithmalarmMap">
+        <result property="id" column="id" jdbcType="BIGINT"/> 
+        <result property="alarmTime" column="alarm_time" jdbcType="BIGINT"/> 
+        <result property="algorithmId" column="algorithm_id" jdbcType="BIGINT"/> 
+        <result property="algorithmName" column="algorithm_name" jdbcType="VARCHAR"/> 
+        <result property="cameraId" column="camera_id" jdbcType="BIGINT"/> 
+        <result property="cameraName" column="camera_name" jdbcType="VARCHAR"/> 
+        <result property="state" column="state" jdbcType="VARCHAR"/> 
+        <result property="describion" column="describion" jdbcType="VARCHAR"/> 
+        <result property="region" column="region" jdbcType="VARCHAR"/> 
+        <result property="alarmImg" column="alarm_img" jdbcType="VARCHAR"/> 
+        <result property="grade" column="grade" jdbcType="VARCHAR"/> 
+        <result property="indate" column="indate" jdbcType="BIGINT"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="AlgorithmalarmMap">
+            select * from algorithmalarm where id=#{id}
+        </select>
+        
+        
+        
+        <select id="countAlgorithmalarmList" resultType="java.lang.Integer">
+            select count(distinct id) from algorithmalarm 
+
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+        </select>
+        
+        
+        <select id="algorithmalarmList" resultType="java.util.Map">
+            select algorithmalarm.`id`,algorithmalarm.`alarm_time`,algorithmalarm.`algorithm_name`,algorithmalarm.`camera_name`,algorithmalarm.`grade`,algorithmalarm.`describion`,algorithmalarm.`indate`,algorithmalarm.`state`,algorithmalarm.`algorithm_id`,algorithmalarm.`camera_id`,algorithmalarm.`region`,algorithmalarm.`alarm_img` from algorithmalarm 
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+                order by 
+                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </if> 
+            <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+                limit #{jsonObj.startIndex},#{jsonObj.rop}
+            </if>
+        </select>
+        <!-- xxxxxxxxxxxxxxx -->
+<!-- 没有处理的BtnMap:报警记录确认,/confirmState,confirmState -->
+<!-- xxxxxxxxxxxxxxx -->
+<!-- xxxxxxxxxxxxxxx -->
+<!-- 没有处理的BtnMap:报警记录误报,/misstate,misstate -->
+<!-- xxxxxxxxxxxxxxx -->
+
+        
+            <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
+                insert into algorithmalarm
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach> 
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE algorithmalarm SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+</mapper>

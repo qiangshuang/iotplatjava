@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Dtype)设备类型
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Dtype implements Serializable {
+    private static final long serialVersionUID = 22L;
     // 主键ID
     private Long id ;
     // 设备类型

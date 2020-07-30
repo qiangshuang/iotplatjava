@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.RoleDataDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.RoleData" id="RoleDataMap">
+        <result property="id" column="id" jdbcType="BIGINT"/> 
+        <result property="roleId" column="role_id" jdbcType="BIGINT"/> 
+        <result property="scopeTable" column="scope_table" jdbcType="VARCHAR"/> 
+        <result property="scopeIds" column="scope_ids" jdbcType="VARCHAR"/> 
+        <result property="sort" column="sort" jdbcType="INTEGER"/> 
+        <result property="memo" column="memo" jdbcType="VARCHAR"/> 
+        <result property="cs1" column="cs1" jdbcType="VARCHAR"/> 
+        <result property="cs2" column="cs2" jdbcType="VARCHAR"/> 
+        <result property="cs1Title" column="cs1_title" jdbcType="VARCHAR"/> 
+        <result property="idsTitle" column="ids_title" jdbcType="VARCHAR"/> 
+        <result property="opName" column="op_name" jdbcType="VARCHAR"/> 
+        <result property="version" column="version" jdbcType="INTEGER"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="RoleDataMap">
+            select * from role_data where id=#{id}
+        </select>
+        
+        
+        
+        <select id="roleDataQuery" resultType="java.util.Map">
+            select role_data.`id`,role_data.`role_id`,role_data.`scope_table`,role_data.`scope_ids`,role_data.`sort`,role_data.`memo`,role_data.`version`,role_data.`cs1`,role_data.`cs2`,role_data.`op_name`,role_data.`cs1_title`,role_data.`ids_title` from role_data 
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test="item.op == 'like' ">    
+                    and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and ${item.tb}.`${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and ${item.tb}.`${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+                order by 
+                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </if> 
+        </select>
+        
+        
+            <insert id="roleDataSetRelation" parameterType="java.util.Map" >
+                <if test="jsonObj.role_data_delqps!=null and jsonObj.role_data_delqps.size()>0">
+                delete from role_data 
+                  <where> 
+                  <foreach collection="jsonObj.role_data_delqps" item="item" index="index" >
+                    <if test="item.op == 'like' ">    
+                        and `${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                        and `${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>    
+                        and `${item.name}` in 
+                        <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                        </foreach>
+                    </if>
+                  </foreach>
+                  </where>
+                </if>
+                insert ignore into role_data
+                   <foreach collection="jsonObj.role_data[0].keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.role_data" item="item"  separator=",">  
+                       <foreach collection="jsonObj.role_data[0].keys" item="key" open="(" close=")" separator=",">  
+                            #{item[${key}]}  
+                       </foreach>
+                   </foreach>
+            </insert>
+            
+        
+        
+            <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
+                insert into role_data
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach> 
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE role_data SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+</mapper>

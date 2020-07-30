@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Pusher)推送人员
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Pusher implements Serializable {
+    private static final long serialVersionUID = 42L;
     // 主键id
     private Long id ;
     // 算法ID

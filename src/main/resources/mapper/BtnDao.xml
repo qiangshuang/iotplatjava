@@ -1,163 +1,124 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ipincloud.iotbj.srv.dao.BtnDao">
-
     <resultMap type="com.ipincloud.iotbj.srv.domain.Btn" id="BtnMap">
-        <result property="id" column="id" jdbcType="INTEGER"/>
-        <result property="title" column="title" jdbcType="VARCHAR"/>
-        <result property="pageId" column="page_id" jdbcType="INTEGER"/>
-        <result property="pageTitle" column="page_title" jdbcType="VARCHAR"/>
-        <result property="path" column="path" jdbcType="VARCHAR"/>
-        <result property="sort" column="sort" jdbcType="INTEGER"/>
-        <result property="memo" column="memo" jdbcType="VARCHAR"/>
-        <result property="pagePath" column="page_path" jdbcType="VARCHAR"/>
-        <result property="srvt" column="srvt" jdbcType="VARCHAR"/>
-        <result property="tbns" column="tbns" jdbcType="VARCHAR"/>
-        <result property="needLogin" column="need_login" jdbcType="VARCHAR"/>
-        <result property="encode" column="encode" jdbcType="VARCHAR"/>
-        <result property="rbac" column="rbac" jdbcType="VARCHAR"/>
-        <result property="dataRange" column="data_range" jdbcType="VARCHAR"/>
-        <result property="version" column="version" jdbcType="INTEGER"/>
+        <result property="id" column="id" jdbcType="BIGINT"/> 
+        <result property="title" column="title" jdbcType="VARCHAR"/> 
+        <result property="pageId" column="page_id" jdbcType="BIGINT"/> 
+        <result property="pageTitle" column="page_title" jdbcType="VARCHAR"/> 
+        <result property="path" column="path" jdbcType="VARCHAR"/> 
+        <result property="sort" column="sort" jdbcType="INTEGER"/> 
+        <result property="memo" column="memo" jdbcType="VARCHAR"/> 
+        <result property="pagePath" column="page_path" jdbcType="VARCHAR"/> 
+        <result property="srvt" column="srvt" jdbcType="VARCHAR"/> 
+        <result property="tbns" column="tbns" jdbcType="VARCHAR"/> 
+        <result property="needLogin" column="need_login" jdbcType="VARCHAR"/> 
+        <result property="encode" column="encode" jdbcType="VARCHAR"/> 
+        <result property="rbac" column="rbac" jdbcType="VARCHAR"/> 
+        <result property="dataRange" column="data_range" jdbcType="VARCHAR"/> 
+        <result property="version" column="version" jdbcType="INTEGER"/> 
     </resultMap>
+        
+        <select id="queryById" resultMap="BtnMap">
+            select * from btn where id=#{id}
+        </select>
+        
+        
+        <select id="queryByUserId" resultMap="BtnMap">
+            select btn.* 
+            from btn join page on page.id=btn.page_id join role_page on role_page.page_id= page.id  join user_role on user_role.role_id=role_page.role_id  where user_role.user_id= #{userId} order by btn.page_id asc,btn.sort asc
+        </select>
+        
+        
+        
+        <select id="countBtnList" resultType="java.lang.Integer">
+            select count(distinct id) from btn 
 
-    <!--查询单个-->
-    <select id="queryById" resultMap="BtnMap">
-        select
-          id, title, page_id, page_title, path, sort, memo, page_path, srvt, tbns, need_login, encode, rbac, data_range, version
-        from iotbj.btn
-        where id = #{id}
-    </select>
-
-    <!--查询指定行数据-->
-    <select id="queryAllByLimit" resultMap="BtnMap">
-        select
-          id, title, page_id, page_title, path, sort, memo, page_path, srvt, tbns, need_login, encode, rbac, data_range, version
-        from iotbj.btn
-        limit #{offset}, #{limit}
-    </select>
-
-    <select id="queryByUserId" resultMap="BtnMap">
-        select
-          btn.* 
-        from btn join role_btn on role_btn.btn_id= btn.id  join user_role on user_role.role_id=role_btn.role_id  where user_role.user_id= #{userId} order by btn.page_id asc,btn.sort asc
-    </select>
-
-   
-
-
-    <!--通过实体作为筛选条件查询-->
-    <select id="queryAll" resultMap="BtnMap">
-        select
-          id, title, page_id, page_title, path, sort, memo, page_path, srvt, tbns, need_login, encode, rbac, data_range, version
-        from iotbj.btn
-        <where>
-            <if test="id != null">
-                and id = #{id}
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
             </if>
-            <if test="title != null and title != ''">
-                and title = #{title}
+            </where>
+        </select>
+        
+        
+        <select id="btnList" resultType="java.util.Map">
+            select btn.`id`,btn.`title` from btn 
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
             </if>
-            <if test="pageId != null">
-                and page_id = #{pageId}
+            </where>
+            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+                order by 
+                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </if> 
+            <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+                limit #{jsonObj.startIndex},#{jsonObj.rop}
             </if>
-            <if test="pageTitle != null and pageTitle != ''">
-                and page_title = #{pageTitle}
-            </if>
-            <if test="path != null and path != ''">
-                and path = #{path}
-            </if>
-            <if test="sort != null">
-                and sort = #{sort}
-            </if>
-            <if test="memo != null and memo != ''">
-                and memo = #{memo}
-            </if>
-            <if test="pagePath != null and pagePath != ''">
-                and page_path = #{pagePath}
-            </if>
-            <if test="srvt != null and srvt != ''">
-                and srvt = #{srvt}
-            </if>
-            <if test="tbns != null and tbns != ''">
-                and tbns = #{tbns}
-            </if>
-            <if test="needLogin != null and needLogin != ''">
-                and need_login = #{needLogin}
-            </if>
-            <if test="encode != null and encode != ''">
-                and encode = #{encode}
-            </if>
-            <if test="rbac != null and rbac != ''">
-                and rbac = #{rbac}
-            </if>
-            <if test="dataRange != null and dataRange != ''">
-                and data_range = #{dataRange}
-            </if>
-            <if test="version != null">
-                and version = #{version}
-            </if>
-        </where>
-    </select>
-
-    <!--新增所有列-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into iotbj.btn(title, page_id, page_title, path, sort, memo, page_path, srvt, tbns, need_login, encode, rbac, data_range, version)
-        values (#{title}, #{pageId}, #{pageTitle}, #{path}, #{sort}, #{memo}, #{pagePath}, #{srvt}, #{tbns}, #{needLogin}, #{encode}, #{rbac}, #{dataRange}, #{version})
-    </insert>
-
-    <!--通过主键修改数据-->
-    <update id="update">
-        update iotbj.btn
-        <set>
-            <if test="title != null and title != ''">
-                title = #{title},
-            </if>
-            <if test="pageId != null">
-                page_id = #{pageId},
-            </if>
-            <if test="pageTitle != null and pageTitle != ''">
-                page_title = #{pageTitle},
-            </if>
-            <if test="path != null and path != ''">
-                path = #{path},
-            </if>
-            <if test="sort != null">
-                sort = #{sort},
-            </if>
-            <if test="memo != null and memo != ''">
-                memo = #{memo},
-            </if>
-            <if test="pagePath != null and pagePath != ''">
-                page_path = #{pagePath},
-            </if>
-            <if test="srvt != null and srvt != ''">
-                srvt = #{srvt},
-            </if>
-            <if test="tbns != null and tbns != ''">
-                tbns = #{tbns},
-            </if>
-            <if test="needLogin != null and needLogin != ''">
-                need_login = #{needLogin},
-            </if>
-            <if test="encode != null and encode != ''">
-                encode = #{encode},
-            </if>
-            <if test="rbac != null and rbac != ''">
-                rbac = #{rbac},
-            </if>
-            <if test="dataRange != null and dataRange != ''">
-                data_range = #{dataRange},
-            </if>
-            <if test="version != null">
-                version = #{version},
-            </if>
-        </set>
-        where id = #{id}
-    </update>
-
-    <!--通过主键删除-->
-    <delete id="deleteById">
-        delete from iotbj.btn where id = #{id}
-    </delete>
-
+        </select>
+        
+        
+            <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
+                insert into btn
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach> 
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE btn SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
 </mapper>

@@ -1,37 +1,48 @@
 package com.ipincloud.iotbj.srv.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.srv.domain.Role;
-import com.ipincloud.iotbj.srv.dao.RoleDao;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.service.RoleService;
 import com.ipincloud.iotbj.utils.ParaUtils;
 //(Role)角色 服务实现类
-//generate by redcloud,2020-07-07 10:18:16
+//generate by redcloud,2020-07-24 19:59:20
 @Service("RoleService")
 public class RoleServiceImpl implements RoleService {
     @Resource
     private RoleDao roleDao;
+    @Resource
+    private RolePageDao rolePageDao;
+    @Resource
+    private RoleBtnDao roleBtnDao;
+    @Resource
+    private UserRoleDao userRoleDao;
+
     //@param id 主键 
     //@return 实例对象Role 
     @Override 
     public Role queryById(Long id){
-        this.roleDao.queryById(id); 
+        return this.roleDao.queryById(id); 
     } 
 
     //@param jsonObj 过滤条件等 
     //@return 对象查询Role 分页 
     @Override
-    public List<Map> roleList(JSONObject jsonObj){
+    public Map roleList(JSONObject jsonObj){
 
-        int totalRec = this.countRoleList(jsonObj);
-        int startIndex = ParaUtils.checkStartIndex(jsonObj,totalRec)
-        list<Map> pageData = this.roleDao.roleList(jsonObj)
-        list<Map> retMap = new HashMap();
+        int totalRec = this.roleDao.countRoleList(jsonObj);
+        jsonObj = ParaUtils.checkStartIndex(jsonObj,totalRec);
+        List<Map> pageData = this.roleDao.roleList(jsonObj);
+        Map retMap = new HashMap();
         retMap.put("pageData",pageData);
         retMap.put("totalRec",totalRec);
         retMap.put("cp",jsonObj.get("cp"));
@@ -45,8 +56,9 @@ public class RoleServiceImpl implements RoleService {
     @Override 
     public JSONObject addInst( JSONObject jsonObj){
         
-        Long genId = this.roleDao.addInst(jsonObj);
-        jsonObj.put("id",genId);
+            jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,title,is_edit,sort,memo,version,addtime,enable");
+            this.roleDao.addInst(jsonObj);
+        // jsonObj.put("id",genId);
         return jsonObj;
             
     } 
@@ -55,17 +67,7 @@ public class RoleServiceImpl implements RoleService {
     //@return 影响记录数Role 
     @Override 
     public void updateInst(JSONObject jsonObj){
-        return this.roleDao.updateInst(jsonObj); 
-    } 
-
-    //@param jsonObj 调用参数  
-    //@return 影响记录数 
-    @Override 
-    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
-    public Integer deletesInst(JSONObject jsonObj){
-        Integer delNum1 = this.roleDao.deletesInst(jsonObj); 
-        Integer delNum2 = new com.ipincloud.iotbj.srv.dao.Dao().deletesInst(jsonObj); 
-        return delNum1+delNum2;
+        jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,title,is_edit,sort,memo,version,addtime,enable");        this.roleDao.updateInst(jsonObj); 
     } 
 
     //@param jsonObj 过滤条件等 
@@ -77,21 +79,36 @@ public class RoleServiceImpl implements RoleService {
         
     }
     
+    //@param jsonObj 调用参数  
+    //@return 影响记录数 
+    @Override 
+    @Transactional(isolation = Isolation.REPEATABLE_READ,propagation = Propagation.REQUIRED,rollbackFor = Exception.class)
+    public Integer deletesRoleRolePageRoleBtnUserRoleInst(JSONObject jsonObj){
+        Integer delNum1 = this.roleDao.deletesInst(jsonObj); 
+        Integer delNum2=0;
+        delNum2 = this.rolePageDao.deletesInst(jsonObj); 
+        delNum1 = delNum1+delNum2;
+        delNum2 = this.roleBtnDao.deletesInst(jsonObj); 
+        delNum1 = delNum1+delNum2;
+        delNum2 = this.userRoleDao.deletesInst(jsonObj); 
+        delNum1 = delNum1+delNum2;
+        return delNum1;
+    } 
+
     //@param jsonObj 过滤条件等 
     //@return 实例对象Role 
     @Override 
-    public List<Map> roleUserRoleMmlist JSONObject jsonObj){
+    public Map roleUserRoleMmlist(JSONObject jsonObj){
          int totalRec = this.roleDao.countRoleUserRoleMmlist(jsonObj); 
         jsonObj.put("totalRec",totalRec);
-        int startIndex = ParaUtils.checkStartIndex(jsonObj,totalRec);
-        list<Map> pageData = this.roleDao.roleUserRoleMmlist(jsonObj);
+        jsonObj = ParaUtils.checkStartIndex(jsonObj,totalRec);
+        List<Map> pageData = this.roleDao.roleUserRoleMmlist(jsonObj);
 
-        list<Map> retMap = new HashMap();
+        Map retMap = new HashMap();
         retMap.put("pageData",pageData);
         retMap.put("totalRec",totalRec);
         retMap.put("cp",jsonObj.get("cp"));
         retMap.put("rop",jsonObj.get("rop"));
         return retMap;
     }
-    
-}
+    }

@@ -5,17 +5,17 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(IotmanDao)网关管理 表数据库访问层
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public interface IotmanDao {
     //@param id 主键 
     //@return 实例对象Iotman 
     Iotman queryById(Long id);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Iotman 
-    Long addInst(@Param("jsonObj") JSONObject jsonObj);
+    int addInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Iotman 
-    void updateInst(@Param("jsonObj") JSONObject jsonObj);
+    int updateInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象 
     List<Map> iotmanList(@Param("jsonObj") JSONObject jsonObj);

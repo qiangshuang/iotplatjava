@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(PersonDao) 表数据库访问层
-//generate by redcloud,2020-07-07 10:18:16
+//generate by redcloud,2020-07-24 09:50:31
 public interface PersonDao {
     //@param id 主键 
     //@return 实例对象Person 
@@ -16,4 +16,10 @@ public interface PersonDao {
     //@param jsonObj 过滤条件等 
     //@return 总条数list 
     Integer countPersonList(@Param("jsonObj") JSONObject jsonObj);
+    //@param jsonObj 过滤条件等 
+    //@return 实例对象Person 
+    int addInst(@Param("jsonObj") JSONObject jsonObj);
+    //@param jsonObj 过滤条件等 
+    //@return 实例对象Person 
+    int updateInst(@Param("jsonObj") JSONObject jsonObj);
 }

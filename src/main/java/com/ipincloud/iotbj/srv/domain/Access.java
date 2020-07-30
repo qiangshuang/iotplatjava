@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Access)门禁编辑
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:19
 public class Access implements Serializable {
+    private static final long serialVersionUID = 1L;
     // 自增ID
     private Long id ;
 

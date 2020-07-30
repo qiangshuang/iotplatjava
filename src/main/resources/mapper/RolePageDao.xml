@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.RolePageDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.RolePage" id="RolePageMap">
+        <result property="roleId" column="role_id" jdbcType="BIGINT"/> 
+        <result property="pageId" column="page_id" jdbcType="BIGINT"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="RolePageMap">
+            select * from role_page where id=#{id}
+        </select>
+        
+        
+        
+            <insert id="rolePageMmjoin" parameterType="java.util.Map" >
+                insert ignore into role_page
+                   <foreach collection="jsonObj.role_page[0].keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.role_page" item="itemone" index="index" separator=",">  
+                        <foreach collection="jsonObj.role_page[0].keys" item="key" open="(" close=")" separator=",">  
+                            #{itemone.${key}}  
+                       </foreach>
+                   </foreach>
+            </insert>
+            
+        
+        
+            <delete id="rolePageMmsub" parameterType="java.util.Map" >
+                delete from role_page 
+                   <where>
+                   <foreach collection="jsonObj.qps" item="item" index="index" >
+                    <if test="item.op == 'like' ">    
+                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                        and ${item.tb}.`${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>    
+                        and ${item.tb}.`${item.name}` in 
+                        <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                        </foreach>
+                    </if>
+                   </foreach>
+                   </where>
+            </delete>
+            
+        
+        
+            <delete id="deletesInst" parameterType="java.util.Map" >
+            <if test="jsonObj.role_page!=null and jsonObj.role_page.size()>0">
+            delete from role_page 
+              <where> 
+              <foreach collection="jsonObj.role_page" item="item" index="index" >
+                <if test='item.op == "like" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+              </foreach>
+              </where>
+            </if>
+            </delete>
+
+            
+        
+        
+            <insert id="addInst" parameterType="java.util.Map" >
+                insert into role_page
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach>
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE role_page SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+</mapper>

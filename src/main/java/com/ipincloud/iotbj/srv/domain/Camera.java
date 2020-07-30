@@ -8,10 +8,13 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Camera)摄像机
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Camera implements Serializable {
+    private static final long serialVersionUID = 16L;
     // 主键id
     private Long id ;
+    // 摄像机标识
+    private String cameraIndex ;
     // 设备名称
     private String title ;
     // 区域ID
@@ -45,6 +48,8 @@ public class Camera implements Serializable {
     // 算法id
     @JSONField(name = "algorithms_id")
     private Long algorithmsId ;
+    // 推流地址
+    private String pushaddress ;
 
     public Long getId() {
         return id ;
@@ -52,6 +57,14 @@ public class Camera implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCameraIndex() {
+        return cameraIndex ;
+    }
+
+    public void setCameraIndex(String cameraIndex) {
+        this.cameraIndex = cameraIndex;
     }
 
     public String getTitle() {
@@ -172,6 +185,14 @@ public class Camera implements Serializable {
 
     public void setAlgorithmsId(Long algorithmsId) {
         this.algorithmsId = algorithmsId;
+    }
+
+    public String getPushaddress() {
+        return pushaddress ;
+    }
+
+    public void setPushaddress(String pushaddress) {
+        this.pushaddress = pushaddress;
     }
 
 }

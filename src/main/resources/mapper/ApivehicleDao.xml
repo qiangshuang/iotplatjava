@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.vehicle.dao.ApiVehicleDao">
+
+    <select id="countSyncDevice" resultType="java.lang.Integer">
+        select count(*) from sync_device
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
+    </select>
+    <select id="listSyncDevice" resultType="java.util.Map">
+        select * from sync_device
+        <where>
+            <if test="name!=null and name!=''">
+                name like concat('%',#{name},'%')
+            </if>
+        </where>
+        <if test="startIndex!=null and rop!=null">
+            limit #{startIndex},#{rop}
+        </if>
+    </select>
+
+    <insert id="insertVehicleGate">
+        insert into vehicle_gate
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <update id="updateGateState">
+        update vehicle_gate set state='开启' where id = #{id}
+    </update>
+</mapper>

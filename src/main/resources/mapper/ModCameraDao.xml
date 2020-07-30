@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.ModCameraDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.ModCamera" id="ModCameraMap">
+        <result property="cameraIndex" column="camera_index" jdbcType="VARCHAR"/> 
+        <result property="firmType" column="firm_type" jdbcType="VARCHAR"/> 
+        <result property="hikCameraIndex" column="hik_camera_index" jdbcType="VARCHAR"/> 
+        <result property="cameraName" column="camera_name" jdbcType="VARCHAR"/> 
+        <result property="capabilitySet" column="capability_set" jdbcType="VARCHAR"/> 
+        <result property="ptz" column="ptz" jdbcType="CHAR"/> 
+        <result property="recordLocation" column="record_location" jdbcType="INTEGER"/> 
+        <result property="transType" column="trans_type" jdbcType="INTEGER"/> 
+        <result property="status" column="status" jdbcType="INTEGER"/> 
+        <result property="regionPath" column="region_path" jdbcType="VARCHAR"/> 
+        <result property="channelNo" column="channel_no" jdbcType="VARCHAR"/> 
+        <result property="transPtz" column="trans_ptz" jdbcType="VARCHAR"/> 
+        <result property="hikUrl" column="hik_url" jdbcType="VARCHAR"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="ModCameraMap">
+            select * from mod_camera where id=#{id}
+        </select>
+        
+        
+        
+            <insert id="addInst" parameterType="java.util.Map" >
+                insert into mod_camera
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach>
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE mod_camera SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+</mapper>

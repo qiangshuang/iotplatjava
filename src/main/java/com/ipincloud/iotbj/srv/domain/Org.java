@@ -8,8 +8,9 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Org)
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Org implements Serializable {
+    private static final long serialVersionUID = 36L;
     // 自增ID
     private Long id ;
     // 机构类型
@@ -31,6 +32,8 @@ public class Org implements Serializable {
     private String parentTitle ;
     // 部门名称
     private String title ;
+    // 部门唯一标识
+    private String orgIndexCode ;
 
     public Long getId() {
         return id ;
@@ -102,6 +105,14 @@ public class Org implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getOrgIndexCode() {
+        return orgIndexCode ;
+    }
+
+    public void setOrgIndexCode(String orgIndexCode) {
+        this.orgIndexCode = orgIndexCode;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.ipincloud.iotbj.api.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.service.IotService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @RestController
@@ -35,7 +37,7 @@ public class IotController {
         if (Objects.equals("camerasync", hy)) {
             list = iotService.deviceSync(jo);
         }
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @ApiOperation("摄像机开启")
@@ -51,7 +53,7 @@ public class IotController {
                 list = iotService.deviceOpen(ids);
             }
         }
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @ApiOperation("摄像机关闭")
@@ -66,8 +68,9 @@ public class IotController {
             if (ids.size() > 0) {
                 list = iotService.deviceClose(ids);
             }
+
         }
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @ApiOperation("摄像机重启")
@@ -83,15 +86,15 @@ public class IotController {
                 list = iotService.deviceRestart(ids);
             }
         }
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @ApiOperation("算法开启")
     @PostMapping("algorithmopen")
     public Object algorithmOpen(@RequestBody String bodyStr) {
         JSONArray ja = JSONObject.parseArray(bodyStr);
-        List<Map> list = iotService.algorithmOpen1(ja);
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        List<Map> list = iotService.algorithmOpen(ja);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @PostMapping("算法关闭")
@@ -106,7 +109,7 @@ public class IotController {
                 list = iotService.algorithmClose(ids);
             }
         }
-        return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
     @ApiOperation("算法重启")
@@ -122,7 +125,7 @@ public class IotController {
                 list = iotService.algorithmRestart(ids);
             }
         }
-       return new ResponseBean(200,"SUCCESS", "操作成功",list);
+        return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
 
@@ -132,59 +135,141 @@ public class IotController {
                                   @RequestParam("message") String message, @RequestParam(value = "img", required = false) MultipartFile img) {
         String path = "";
         if (img != null) {
-            path = System.getProperty("user.dir") + "/upload/" + new Date().getTime() + img.getOriginalFilename() + ".jpg";
-            File dir = new File(path);
-            if (!dir.getParentFile().exists()) {// 判断目录是否存在
-                dir.getParentFile().mkdir();
+            String originFileName = img.getOriginalFilename();
+            String suffixName = originFileName.substring(originFileName.lastIndexOf("."));
+
+            String uuId = UUID.randomUUID().toString();
+            Date date = new Date();
+            String dateStr = new SimpleDateFormat("yyyyMMdd").format(date);
+
+            String runPath = System.getProperty("user.dir") + "/classes/upload";
+            // FileUtils.getRootPath();
+            String retPath = String.format("/%s/%d/%s/%s%s", "algorithmresult", 0, dateStr, uuId, suffixName);
+            String fullfilPath = runPath + retPath;
+
+            // 文件对象
+            //logger.debug("debug",runPath+":"+fullfilPath);
+            File dest = new File(fullfilPath);
+            // 判断路径是否存在，如果不存在则创建
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdirs();
             }
-            File newFile = new File(path);
             try {
-                img.transferTo(newFile);
+                // 保存到服务器中
+                img.transferTo(dest);
+                path = String.format("%s;%s;0;%d;;%d", originFileName, retPath, 0, System.currentTimeMillis());
             } catch (Exception e) {
                 e.printStackTrace();
-				return new ResponseBean(200,"FAILED", "文件上传失败",null);
+                return new ResponseBean(200, "FAILED", "文件上传不成功", "");
             }
         }
-        //{"cross_detection":{"num":1,"preds":[{"sim":false,"box":[0.5680555555555555,0.48203125,0.6236111111111111,0.55390625]}]}}
         JSONObject all = new JSONObject();
         all.put("camera_id", camera_id);
         all.put("result", result);
         all.put("message", message);
         all.put("imgpath", path);
-        System.out.println(all.toJSONString());
         all = algorithmresultService.addInst(all);
-        return new ResponseBean(200,"SUCCESS", "操作成功",all);
+        return new ResponseBean(200, "SUCCESS", "操作成功", all);
     }
 
     @ApiOperation("算法首页")
     @PostMapping("/algorithmhome")
     public Object algorithmhome() {
-        String str = "{\"base\":{\"jrls\":15,\"sfmxsl\":12,\"sxtsl\":5},\"history_alarm\":{\"by\":[1,2,3,4,5,29,10,26,15,15,1,1,1,1,1],\"day\":[1,3,5,7,9,11,13,15,17,19,1,1,1,1,1],\"sy\":[11,12,13,14,15,20,23,25,29,25,25,24,21,21,25],\"tb\":[6,7,8,9,10,12,20,16,15,35,12,18,25,18,24]},\"today_alarm\":{\"bjs\":[10,30,1,1,11],\"qrs\":[5,20,30,2,2]},\"today_warning\":{\"a\":{\"hxyj\":3.6,\"pbwz\":11.2,\"pdyc\":3.6,\"qcaq\":5.4,\"smyj\":2.2,\"xwwz\":2.1,\"xyyj\":3.3,\"zywz\":5.1},\"b\":{\"fypd\":31,\"hx\":36,\"pp\":36,\"qc\":54,\"ryyj\":50,\"sm\":20,\"wdaqm\":21,\"xy\":100}},\"totality\":{\"bjs\":100,\"fzr\":20,\"gbsl\":100,\"jrls\":400,\"kqsl\":200,\"sxtsl\":300,\"ycsl\":200,\"yxzsl\":300}}";
-        JSONObject data = JSONObject.parseObject(str);
-        return new ResponseBean(200,"SUCCESS", "操作成功",data);
+        JSONObject data = iotService.algorithmhome();
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
 
     @ApiOperation("报警统计")
     @PostMapping("/alarmcount")
     public Object alarmcount() {
-        String str = "{\"data\":[{\"algorithm_id\":122,\"algorithm_name\":\"堵煤监测\",\"algorithm_num\":2},{\"algorithm_id\":124,\"algorithm_name\":\"安全帽\",\"algorithm_num\":1},{\"algorithm_id\":121,\"algorithm_name\":\"人员越界\",\"algorithm_num\":0},{\"algorithm_id\":123,\"algorithm_name\":\"皮带撕裂\",\"algorithm_num\":0},{\"algorithm_id\":125,\"algorithm_name\":\"工作服\",\"algorithm_num\":0},{\"algorithm_id\":126,\"algorithm_name\":\"明火监测\",\"algorithm_num\":0},{\"algorithm_id\":127,\"algorithm_name\":\"吸烟\",\"algorithm_num\":0}],\"msg\":\"操作已成功\",\"status\":\"SUCCESS\"}";
-        JSONObject data = JSONObject.parseObject(str);
-        return new ResponseBean(200,"SUCCESS", "操作成功",data);
+        List<JSONObject> data = iotService.alarmcount();
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
 
     @ApiOperation("报警明细")
     @PostMapping("/alarmdtl")
-    public Object alarmdtl() {
-        String str = "{\"data\":[{\"id\":1,\"alarm_time\":1594200201000,\"algorithm_id\":122,\"algorithm_name\":\"堵煤监测\",\"camera_id\":111,\"camera_name\":\"C21A2\",\"state\":\"未确认\",\"describion\":\"堵煤监测\",\"region\":\"\",\"alarm_img\":\"1594200201\",\"grade\":\"一般警告\",\"indate\":0},{\"id\":2,\"alarm_time\":1594200201000,\"algorithm_id\":122,\"algorithm_name\":\"堵煤监测\",\"camera_id\":111,\"camera_name\":\"C21A2\",\"state\":\"未确认\",\"describion\":\"堵煤监测\",\"region\":\"\",\"alarm_img\":\"1594200201\",\"grade\":\"一般警告\",\"indate\":0},{\"id\":6,\"alarm_time\":1594200976000,\"algorithm_id\":124,\"algorithm_name\":\"安全帽\",\"camera_id\":111,\"camera_name\":\"C21A1\",\"state\":\"未确认\",\"describion\":\"1\",\"region\":\"1\",\"alarm_img\":\"1594200976\",\"grade\":\"严重警告\",\"indate\":1594200976000}],\"msg\":\"操作已成功\",\"status\":\"SUCCESS\"}";
-        JSONObject data = JSONObject.parseObject(str);
-        return new ResponseBean(200,"SUCCESS", "操作成功",data);
+    public Object alarmdtl(@RequestBody String bodyStr) {
+        if (bodyStr == null) {
+            return new ResponseBean(200, "FAILED", "参数有误", null);
+        }
+        Long algorithm_id = Long.valueOf(bodyStr.trim());
+        List<JSONObject> data = iotService.alarmdtl(algorithm_id);
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
 
     @ApiOperation("摄像机首页")
     @PostMapping("/cameraindexlist")
-    public Object cameraindexlist() {
-        String str = "{\"data\":[{\"id\":121,\"title\":\"摄像机1\",\"videoa\":\"http://192.168.3.8:8000/live/01_192168003027_101.flv\",\"state\":\"运行中\",\"pushaddress\":\"\",\"border\":\"[[0.17666666666666667,0.16666666666666666],[0.5633333333333334,0.41333333333333333],[0.4033333333333333,0.86],[0.15,0.6066666666666667],[0.17333333333333334,0.18]]\",\"box\":\"[0.49722222222222223,0.42734375,0.6097222222222223,0.47890625]\"}],\"msg\":\"操作已成功\",\"status\":\"SUCCESS\"}";
-        JSONObject data = JSONObject.parseObject(str);
-        return new ResponseBean(200,"SUCCESS", "操作成功",data);
+    public Object cameraindexlist(@RequestBody String bodyStr) {
+        JSONArray parm = JSONArray.parseArray(bodyStr);
+        if (parm == null) {
+            return new ResponseBean(200, "FAILED", "参数不正确", null);
+        }
+        List<JSONObject> data = iotService.cameraindexlist(parm);
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
+
+    @ApiOperation("算法预警确定")
+    @PostMapping("/confirmState")
+    public Object confirmState(@RequestBody String bodyStr) {
+        JSONArray jsonArray = JSONArray.parseArray(bodyStr);
+        iotService.confirmState(jsonArray);
+        return new ResponseBean(200, "SUCCESS", "操作成功", null);
+    }
+
+    @ApiOperation("算法预警误报")
+    @PostMapping("/misstate")
+    public Object misstate(@RequestBody String bodyStr) {
+        JSONArray jsonArray = JSONArray.parseArray(bodyStr);
+        iotService.missState(jsonArray);
+        return new ResponseBean(200, "SUCCESS", "操作成功", null);
+    }
+
+    @ApiOperation("实时监控设备列表")
+    @PostMapping("/deviceslist")
+    public Object deviceslist() {
+        List<JSONObject> data = iotService.deviceslist();
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
+    }
+
+    @ApiOperation("其他摄像机列表")
+    @PostMapping("/othercameralist")
+    public Object othercameralist(@RequestBody String bodyStr) {
+        JSONArray jsonArray = JSONArray.parseArray(bodyStr);
+        if (jsonArray == null) {
+            return new ResponseBean(200, "FAILED", "参数不正确", null);
+        }
+        List<JSONObject> data = iotService.otherCameralist(jsonArray);
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
+    }
+	
+	@ApiOperation("实时报警明细")
+    @PostMapping("/realalarmdtl")
+    public Object realalarmdtl(@RequestBody String bodyStr) {
+        JSONObject jsonObject = JSON.parseObject(bodyStr);
+        if (jsonObject == null) {
+            return new ResponseBean(200, "FAILED", "参数有误", null);
+        }
+        //Long algorithm_id = Long.valueOf(bodyStr.trim());
+        Long algorithm_id = jsonObject.getLong("algorithm_id");
+        List<JSONObject> data = iotService.alarmdtl(algorithm_id);
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
+    }
+	
+    @ApiOperation("实时摄像机")
+    @PostMapping("/realcameraindexlist")
+    public Object realcameraindexlist() {
+        JSONObject data = iotService.realcameraindexlist();
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
+    }
+	
+    @ApiOperation("实时预警列表")
+    @PostMapping("/realAlarmlist")
+    public Object realAlarmlist(@RequestBody String bodyStr) {
+        JSONObject jsonObject = JSON.parseObject(bodyStr);
+        if (jsonObject == null) {
+            return new ResponseBean(200, "FAILED", "参数有误", null);
+        }
+        return iotService.realAlarmList(jsonObject);
+    }
+
 }

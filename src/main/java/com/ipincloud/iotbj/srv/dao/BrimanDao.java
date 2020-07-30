@@ -5,14 +5,14 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(BrimanDao)网桥管理 表数据库访问层
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public interface BrimanDao {
     //@param id 主键 
     //@return 实例对象Briman 
     Briman queryById(Long id);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Briman 
-    void updateInst(@Param("jsonObj") JSONObject jsonObj);
+    int updateInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象 
     List<Map> brimanList(@Param("jsonObj") JSONObject jsonObj);
@@ -21,7 +21,7 @@ public interface BrimanDao {
     Integer countBrimanList(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Briman 
-    Long addInst(@Param("jsonObj") JSONObject jsonObj);
+    int addInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 影响记录数 
     Integer deletesInst(@Param("jsonObj") JSONObject jsonObj);

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(RoleDao)角色 表数据库访问层
-//generate by redcloud,2020-07-07 10:18:16
+//generate by redcloud,2020-07-24 19:59:20
 public interface RoleDao {
     //@param id 主键 
     //@return 实例对象Role 
@@ -18,13 +18,10 @@ public interface RoleDao {
     Integer countRoleList(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Role 
-    Long addInst(@Param("jsonObj") JSONObject jsonObj);
+    int addInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Role 
-    void updateInst(@Param("jsonObj") JSONObject jsonObj);
-    //@param jsonObj 过滤条件等 
-    //@return 影响记录数 
-    Integer deletesInst(@Param("jsonObj") JSONObject jsonObj);
+    int updateInst(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Role 
     List<Map> roleQuery(@Param("jsonObj") JSONObject jsonObj);
@@ -34,4 +31,7 @@ public interface RoleDao {
     //@param jsonObj 过滤条件等 
     //@return 总条数 
     Integer countRoleUserRoleMmlist(@Param("jsonObj") JSONObject jsonObj);
+    //@param jsonObj 过滤条件等 
+    //@return 影响记录数 
+    Integer deletesInst(@Param("jsonObj") JSONObject jsonObj);
 }

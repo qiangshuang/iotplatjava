@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import com.alibaba.fastjson.JSONObject;
 //(RoleDataDao) 表数据库访问层
-//generate by redcloud,2020-07-07 10:18:16
+//generate by redcloud,2020-07-24 19:59:20
 public interface RoleDataDao {
     //@param id 主键 
     //@return 实例对象RoleData 
@@ -16,4 +16,10 @@ public interface RoleDataDao {
     //@param jsonObj 过滤条件等 
     //@return JSONObject 
     void roleDataSetRelation(@Param("jsonObj") JSONObject jsonObj);
+    //@param jsonObj 过滤条件等 
+    //@return 实例对象RoleData 
+    int addInst(@Param("jsonObj") JSONObject jsonObj);
+    //@param jsonObj 过滤条件等 
+    //@return 实例对象RoleData 
+    int updateInst(@Param("jsonObj") JSONObject jsonObj);
 }

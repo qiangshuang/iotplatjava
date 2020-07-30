@@ -8,18 +8,27 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Algorithmacc)算法接入
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Algorithmacc implements Serializable {
+    private static final long serialVersionUID = 8L;
     // 自增ID
     private Long id ;
     // 请求地址：
     private String address ;
     // 算法接入：
     private String accessmode ;
+    // 预警等级
+    @JSONField(name = "warning_level")
+    private String warningLevel ;
+    // 关联人脸识别
+    @JSONField(name = "relation_face")
+    private String relationFace ;
     // 算法名称：
     private String title ;
     // 算法描述：
     private String describion ;
+    // 算法标识
+    private String accesscode ;
 
     public Long getId() {
         return id ;
@@ -45,6 +54,22 @@ public class Algorithmacc implements Serializable {
         this.accessmode = accessmode;
     }
 
+    public String getWarningLevel() {
+        return warningLevel ;
+    }
+
+    public void setWarningLevel(String warningLevel) {
+        this.warningLevel = warningLevel;
+    }
+
+    public String getRelationFace() {
+        return relationFace ;
+    }
+
+    public void setRelationFace(String relationFace) {
+        this.relationFace = relationFace;
+    }
+
     public String getTitle() {
         return title ;
     }
@@ -59,6 +84,14 @@ public class Algorithmacc implements Serializable {
 
     public void setDescribion(String describion) {
         this.describion = describion;
+    }
+
+    public String getAccesscode() {
+        return accesscode ;
+    }
+
+    public void setAccesscode(String accesscode) {
+        this.accesscode = accesscode;
     }
 
 }

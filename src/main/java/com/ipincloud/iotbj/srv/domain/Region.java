@@ -8,15 +8,20 @@ import java.sql.Timestamp;
 import com.alibaba.fastjson.annotation.JSONField;
 
 //(Region)区域
-//generate by redcloud,2020-07-07 10:18:15
+//generate by redcloud,2020-07-24 19:59:20
 public class Region implements Serializable {
+    private static final long serialVersionUID = 43L;
     // 自增ID
     private Long id ;
-    // 区域名称：
+    // 区域名称
     private String title ;
-    // 上级ID：
+    // 上级ID
     @JSONField(name = "parent_id")
     private Long parentId ;
+    // 唯一标识
+    private String indexCode ;
+    // 父标识
+    private String parentIndexCode ;
 
     public Long getId() {
         return id ;
@@ -40,6 +45,22 @@ public class Region implements Serializable {
 
     public void setParentId(Long parentId) {
         this.parentId = parentId;
+    }
+
+    public String getIndexCode() {
+        return indexCode ;
+    }
+
+    public void setIndexCode(String indexCode) {
+        this.indexCode = indexCode;
+    }
+
+    public String getParentIndexCode() {
+        return parentIndexCode ;
+    }
+
+    public void setParentIndexCode(String parentIndexCode) {
+        this.parentIndexCode = parentIndexCode;
     }
 
 }

@@ -2,12 +2,15 @@ package com.ipincloud.iotbj.api.utils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ipincloud.iotbj.utils.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -15,6 +18,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,19 +26,22 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class IotUtils {
     private static final Logger log = LoggerFactory.getLogger(IotUtils.class);
 
-    /**
-     * 1.获取模型信息（POST请求application/json）
-     */
+
+    //1 获取模型信息（POST请求application/json）
     public static JSONObject getModInfo(String url, String apikey, JSONObject jsonObject) {
         url += "/modelInfo";
-        //String result = doPost(url, apikey, jsonObject);
-        String result = "{\"code\":0,\"data\":{\"modIndex\":\"cameraIndex\",\"modDesc\":\"\",\"modKey\":\"xjwtCZ7EBEb3\",\"modIndexType\":\"string\",\"modIndexLen\":32,\"modName\":\"摄像头\",\"userName\":\"iotadmin\",\"modId\":\"7de297a36e54435486187233ca08f6a3\"},\"message\":\"success\"}";
+        String result = doPost(url, apikey, jsonObject);
         JSONObject jo = JSONObject.parseObject(result);
         if (jo.getInteger("code") == 0) {
             jo = jo.getJSONObject("data");
@@ -42,9 +49,7 @@ public class IotUtils {
         return jo;
     }
 
-    /**
-     * 2 获取模型密钥（GET请求）
-     */
+    //2 获取模型密钥（GET请求）
     public static String getModelKey(String url, String apikey, JSONObject jsonObject) {
         url += "/modelKey";
         JSONObject jo = JSONObject.parseObject(doGet(url, apikey, jsonObject));
@@ -56,13 +61,10 @@ public class IotUtils {
     }
 
 
-    /**
-     * 3 获取摄像头实体列表（POST请求application/json）
-     */
+    //3 获取摄像头实体列表（POST请求application/json）
     public static JSONArray getCameraEntityList(String url, String apikey, JSONObject jsonObject) {
         url += "/entityList";
-        //String result = doPost(url, apikey, jsonObject);
-        String result = "{\"code\":0,\"data\":{\"total\":1,\"pageNo\":1,\"pageSize\":10,\"list\":[{\"regionPath\":\"根节点/廊坊电厂/大门\",\"transType\":\"1\",\"hikCameraIndex\":\"fa23438760f648cb8789ffdfc3ea3609\",\"capabilitySet\":\"event_body,event_audio,io,MixMixedRoot,event_face,event_veh_compare,event_veh,event_veh_recognition,event_ias,face,event_heat,drawFrameInPlayBack,record,vss,ptz,event_io,net,maintenance,event_device,status,PlayConvert\",\"recordLocation\":\"1\",\"cameraName\":\"Camera 01\",\"firmType\":\"海康威视\",\"cameraIndex\":\"bc39d07579d04df7a86214c03b6b2019\",\"status\":\"1\"}]},\"message\":\"success\"}";
+        String result = doPost(url, apikey, jsonObject);
         JSONObject jo = JSONObject.parseObject(result);
         if (jo.getInteger("code") == 1001) {
             String modKey = getModelKey(url, apikey, jsonObject);
@@ -76,10 +78,10 @@ public class IotUtils {
         return ja;
     }
 
-    /*
+    //4 根据摄像头标识进行云台控制（POST请求application/json）
     public static String getPtzControl(String url, String apikey, String modId, String modKey, String cameraIndex, String command, int action, int speed) {
         url += "/service/invoke/cameras/ptzControl";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("cameraIndex", cameraIndex);
@@ -95,7 +97,7 @@ public class IotUtils {
     //5	摄像头获取预览流url（POST请求application/json）
     public static String getPreviewURLs(String url, String apikey, String modId, String modKey, String cameraIndex, int streamType, int transmode, String protocol) {
         url += "/service/invoke/cameras/previewURLs";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("cameraIndex", cameraIndex);
@@ -116,7 +118,7 @@ public class IotUtils {
     public static String getPlaybackURLs(String url, String apikey, String modId, String modKey, String cameraIndex, String protocol, String expand,
                                          Date beginTime, Date endTime) {
         url += "/service/invoke/cameras/playbackURLs";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("cameraIndex", cameraIndex);
@@ -131,7 +133,7 @@ public class IotUtils {
     //7	获取门禁的实体列表（POST请求application/json）
     public static String getDoorEntityList(String url, String apikey, String modId, String modKey, int pageNum, int pageSize, String entityId, String attrIndex, String type, String value) {
         url += "/entityList";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("pageNum", pageNum);
@@ -155,7 +157,7 @@ public class IotUtils {
     //8	门禁反控（POST请求application/json）
     public static String getDoorControl(String url, String apikey, String modId, String modKey, String doorIndex, int controlType) {
         url += "/service/invoke/door/control";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("doorIndex", doorIndex);
@@ -167,7 +169,7 @@ public class IotUtils {
     //9	获取人员实体列表（POST请求application/json）
     public static String getUserEntityList(String url, String apikey, String modId, String modKey, int pageNum, int pageSize) {
         url += "/entityList";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("pageNum", pageNum);
@@ -180,14 +182,14 @@ public class IotUtils {
     //10 获取人员的历史位置信息（POST请求application/json）
     public static String getUserEntityList(String url, String apikey, String modId, String modKey, Date beginTime, Date endTime, int pageNum, int pageSize, String order) {
         url += "/entity/history";
-        Map<String, Object> params = new HashMap<>();
+        JSONObject params = new JSONObject();
         params.put("modId", modId);
         params.put("modKey", modKey);
         params.put("pageNum", pageNum);
         params.put("pageSize", pageSize);
         String str = doPost(url, apikey, params);
         return str;
-    }*/
+    }
 
     //11 打开算法接口（打开一个和多个算法都可以）
     public static String postOpenAlgorithm(String url, JSONObject jsonObject) {
@@ -210,9 +212,23 @@ public class IotUtils {
         return str;
     }
 
+    //14 打开摄像头
+    public static String postOpenCamera(String url, JSONObject jsonObject) {
+        url += "/open_camera";
+        String str = doPost(url, jsonObject);
+        return str;
+    }
+
+    //15 关闭摄像头
+    public static String postCloseCamera(String url, JSONObject jsonObject) {
+        url += "/close_camera";
+        String str = doPost(url, jsonObject);
+        return str;
+    }
+
     public static String doPost(String url, String apikey, JSONObject params) {
         // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = wrapClient();
         CloseableHttpResponse response = null;
         String result = "";
         try {
@@ -236,7 +252,7 @@ public class IotUtils {
             if (response.getStatusLine().getStatusCode() == 200) {
                 result = EntityUtils.toString(response.getEntity(), "utf-8");
             }
-            log.info("接口调用成功 -  url：{}，apikey：{}，params：{}，result：{}", url, apikey, params, result);
+            log.info("调用北向接口成功 -  url：{}，apikey：{}，params：{}，result：{}", url, apikey, params, result);
         } catch (Exception e) {
             log.error("接口调用失败 -  url：{}，params：{}", url, params, e);
             e.printStackTrace();
@@ -245,7 +261,7 @@ public class IotUtils {
                 response.close();
                 httpClient.close();
             } catch (IOException e) {
-                log.error("接口调用失败 -  url：{}，params：{}", url, params, e);
+                log.error("调用北向接口失败 -  url：{}，params：{}", url, params, e);
                 e.printStackTrace();
             }
         }
@@ -254,7 +270,7 @@ public class IotUtils {
 
     public static String doGet(String url, String apikey, JSONObject params) {
         // 创建Httpclient对象
-        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpClient httpClient = wrapClient();
         String result = "";
         CloseableHttpResponse response = null;
         try {
@@ -298,6 +314,14 @@ public class IotUtils {
         try {
             URL url = new URL(uri);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            trustAllHttpsCertificates();
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String urlHostName, SSLSession session) {
+                    return true;
+                }
+            });
+
             connection.setDoInput(true); // 设置可输入
             connection.setDoOutput(true); // 设置该连接是可以输出的
             connection.setRequestMethod("POST"); // 设置请求方式
@@ -322,4 +346,52 @@ public class IotUtils {
         }
         return result.toString();
     }
+
+    private static void trustAllHttpsCertificates() throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManager[] trustAllCerts = new TrustManager[1];
+        trustAllCerts[0] = new TrustAllManager();
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, null);
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+    }
+
+    private static class TrustAllManager implements X509TrustManager {
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
+
+        public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+        }
+
+        public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+        }
+    }
+
+    public static CloseableHttpClient wrapClient() {
+        try {
+            SSLContext ctx = SSLContext.getInstance("TLS");
+            X509TrustManager tm = new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(X509Certificate[] arg0,
+                                               String arg1) throws CertificateException {
+                }
+
+                public void checkServerTrusted(X509Certificate[] arg0,
+                                               String arg1) throws CertificateException {
+                }
+            };
+            ctx.init(null, new TrustManager[]{tm}, null);
+            SSLConnectionSocketFactory ssf = new SSLConnectionSocketFactory(
+                    ctx, NoopHostnameVerifier.INSTANCE);
+            CloseableHttpClient httpclient = HttpClients.custom()
+                    .setSSLSocketFactory(ssf).build();
+            return httpclient;
+        } catch (Exception e) {
+            return HttpClients.createDefault();
+        }
+    }
+
 }
