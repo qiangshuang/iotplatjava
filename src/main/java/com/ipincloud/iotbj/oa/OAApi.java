@@ -43,7 +43,7 @@ public class OAApi {
     String appHost = "http://10.69.202.101:8089";
 
 
-    static String execute(HttpRequestBase requestBase) throws OAException {
+    public static String execute(HttpRequestBase requestBase) throws OAException {
         // 获得Http客户端(可以理解为:你得先有一个浏览器;注意:实际上HttpClient与浏览器是不一样的)
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         // 创建Get请求

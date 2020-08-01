@@ -45,6 +45,16 @@ public class FileUtils {
         return tArr[1];
     }
 
+    public static String getFullFilePath(String saveFileInfo) {
+        String[] tArr = saveFileInfo.split(";");
+        if (tArr.length < 1 || "".equals(tArr[1])) {
+            return "";
+        }
+        String runPath = System.getProperty("user.dir") + "/classes/upload";
+        String imgFullPath = runPath + tArr[1];
+        return imgFullPath;
+    }
+
 
     public static String readFileStr(String priKeyPath) {
         BufferedReader reader = null;
