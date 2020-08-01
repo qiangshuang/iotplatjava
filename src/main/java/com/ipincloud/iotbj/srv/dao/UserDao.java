@@ -17,7 +17,7 @@ public interface UserDao {
     //@param userName 账号
     //@return 实例对象User 
     User queryByUsername(String userName);
-
+    User queryByPersonId(Long personId);
     //已处理，查看服务:/useraccount
     //@param jsonObj 过滤条件等 
     //@return 实例对象User 

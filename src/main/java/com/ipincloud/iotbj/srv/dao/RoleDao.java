@@ -10,6 +10,7 @@ public interface RoleDao {
     //@param id 主键 
     //@return 实例对象Role 
     Role queryById(Long id);
+    User queryByThirdUUID(String thirdUUID);
     //@param jsonObj 过滤条件等 
     //@return 实例对象 
     List<Map> roleList(@Param("jsonObj") JSONObject jsonObj);

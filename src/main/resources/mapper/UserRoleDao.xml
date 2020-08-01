@@ -4,12 +4,15 @@
     <resultMap type="com.ipincloud.iotbj.srv.domain.UserRole" id="UserRoleMap">
         <result property="userId" column="user_id" jdbcType="BIGINT"/> 
         <result property="roleId" column="role_id" jdbcType="BIGINT"/> 
+        <result property="thirdUUID" column="thirdUUID" jdbcType="VARCHAR"/> 
     </resultMap>
         
         <select id="queryById" resultMap="UserRoleMap">
             select * from user_role where id=#{id}
         </select>
-        
+        <select id="queryByThirdUUID" resultType="com.alibaba.fastjson.JSONObject">
+            select * from user_role where thirdUUID=#{thirdUUID}
+        </select>
         
         
             <insert id="userRoleMmjoin" parameterType="java.util.Map" >

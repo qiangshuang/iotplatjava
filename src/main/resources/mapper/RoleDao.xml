@@ -10,13 +10,16 @@
         <result property="version" column="version" jdbcType="INTEGER"/> 
         <result property="addtime" column="addtime" jdbcType="BIGINT"/> 
         <result property="enable" column="enable" jdbcType="VARCHAR"/> 
+        <result property="thirdUUID" column="thirdUUID" jdbcType="VARCHAR"/> 
     </resultMap>
         
         <select id="queryById" resultMap="RoleMap">
             select * from role where id=#{id}
         </select>
         
-        
+        <select id="queryByThirdUUID" resultType="com.alibaba.fastjson.JSONObject">
+            select * from role where thirdUUID=#{thirdUUID}
+        </select>
         
         <select id="countRoleList" resultType="java.lang.Integer">
             select count(distinct id) from role 

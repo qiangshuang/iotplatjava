@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.AccesslogDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.Accesslog" id="AccesslogMap">
+        <result property="id" column="id" jdbcType="BIGINT"/> 
+        <result property="accesstime" column="accesstime" jdbcType="VARCHAR"/> 
+        <result property="equipment" column="equipment" jdbcType="VARCHAR"/> 
+        <result property="title" column="title" jdbcType="VARCHAR"/> 
+        <result property="gender" column="gender" jdbcType="VARCHAR"/> 
+        <result property="org" column="org" jdbcType="VARCHAR"/> 
+        <result property="cardno" column="cardno" jdbcType="VARCHAR"/> 
+        <result property="idnumber" column="idnumber" jdbcType="VARCHAR"/> 
+        <result property="mobile" column="mobile" jdbcType="VARCHAR"/> 
+        <result property="state" column="state" jdbcType="VARCHAR"/> 
+        <result property="capturephoto" column="capturephoto" jdbcType="VARCHAR"/> 
+        <result property="basementphoto" column="basementphoto" jdbcType="VARCHAR"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="AccesslogMap">
+            select * from accesslog where id=#{id}
+        </select>
+        
+        
+        
+        <select id="accesslogQuery" resultType="java.util.Map">
+            select  from accesslog 
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test="item.op == 'like' ">    
+                    and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and ${item.tb}.`${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and ${item.tb}.`${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+                order by 
+                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </if> 
+        </select>
+        
+        
+            <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
+                insert into accesslog
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach> 
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE accesslog SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+</mapper>

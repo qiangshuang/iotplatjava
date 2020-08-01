@@ -36,7 +36,13 @@
             where  user_name= #{userName}
         </select>
         
-        
+        <select id="queryByPersonId" resultType="com.alibaba.fastjson.JSONObject">
+            select
+              *
+            from user
+            where  personId= #{personId}
+        </select>
+
         
             <insert id="addInst" parameterType="java.util.Map" >
                 insert into user
@@ -93,7 +99,7 @@
         
         
         <select id="userList" resultType="java.util.Map">
-            select user.`mobile`,user.`user_name`,user.`id`,user.`title`,user.`parent_id`,user.`lastlogin`,user.`job_title`,user.`parent_title`,user.`job_id`,user.`thirdin`,user.`created`,user.`updated`,user.`photo`,user.`idnumber`,user.`cardnumber`,user.`mcardno`,user.`gender` from user 
+            select * from user 
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >

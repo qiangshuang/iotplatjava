@@ -95,13 +95,14 @@ public class JWTFilter extends BasicHttpAuthenticationFilter{
             return false;
         }else{ //login check,permit check at controlller...
             
-            Subject currentUser = SecurityUtils.getSubject();
-            if(currentUser. isAuthenticated()){
-                return true;
-            }else{
-                this.response401(request, response);
-                return false;
-            }
+            return true;//8.2不在检查。
+            // Subject currentUser = SecurityUtils.getSubject();
+            // if(currentUser. isAuthenticated()){
+            //     return true;
+            // }else{
+            //     this.response401(request, response);
+            //     return false;
+            // }
         }
     }
 

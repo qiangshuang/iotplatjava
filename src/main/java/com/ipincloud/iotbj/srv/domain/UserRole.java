@@ -18,6 +18,8 @@ public class UserRole implements Serializable {
     @JSONField(name = "role_id")
     private Long roleId ;
 
+    private String thirdUUID;
+    
     public Long getUserId() {
         return userId ;
     }
@@ -32,6 +34,13 @@ public class UserRole implements Serializable {
 
     public void setRoleId(Long roleId) {
         this.roleId = roleId;
+    }
+
+    public void getThirdUUID(){
+        return thirdUUID;
+    }
+    public void setThirdUUID(String thirdUUId){
+        this.thirdUUID = thirdUUID;
     }
 
 }

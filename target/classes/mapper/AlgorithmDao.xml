@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.srv.dao.AlgorithmDao">
+    <resultMap type="com.ipincloud.iotbj.srv.domain.Algorithm" id="AlgorithmMap">
+        <result property="id" column="id" jdbcType="BIGINT"/> 
+        <result property="cameraId" column="camera_id" jdbcType="BIGINT"/> 
+        <result property="algorithmId" column="algorithm_id" jdbcType="BIGINT"/> 
+        <result property="pushtimeStart" column="pushtime_start" jdbcType="BIGINT"/> 
+        <result property="pushtimeEnd" column="pushtime_end" jdbcType="BIGINT"/> 
+        <result property="algorithmTitle" column="algorithm_title" jdbcType="VARCHAR"/> 
+        <result property="cameraTitle" column="camera_title" jdbcType="VARCHAR"/> 
+        <result property="border" column="border" jdbcType="VARCHAR"/> 
+        <result property="direction" column="direction" jdbcType="VARCHAR"/> 
+        <result property="distinguish" column="distinguish" jdbcType="INTEGER"/> 
+        <result property="state" column="state" jdbcType="VARCHAR"/> 
+        <result property="framerate" column="framerate" jdbcType="VARCHAR"/> 
+        <result property="resolution" column="resolution" jdbcType="VARCHAR"/> 
+        <result property="videoa" column="videoa" jdbcType="VARCHAR"/> 
+        <result property="codec" column="codec" jdbcType="VARCHAR"/> 
+        <result property="algorithmUrl" column="algorithm_url" jdbcType="VARCHAR"/> 
+        <result property="userIds" column="user_ids" jdbcType="VARCHAR"/> 
+        <result property="userTitles" column="user_titles" jdbcType="VARCHAR"/> 
+        <result property="opentime" column="opentime" jdbcType="BIGINT"/> 
+    </resultMap>
+        
+        <select id="queryById" resultMap="AlgorithmMap">
+            select * from algorithm where id=#{id}
+        </select>
+        
+        
+        
+        <select id="countAlgorithmList" resultType="java.lang.Integer">
+            select count(distinct id) from algorithm 
+
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+        </select>
+        
+        
+        <select id="algorithmList" resultType="java.util.Map">
+            select algorithm.`id`,algorithm.`camera_id`,algorithm.`algorithm_id`,algorithm.`pushtime_start`,algorithm.`pushtime_end`,algorithm.`algorithm_title`,algorithm.`camera_title`,algorithm.`border`,algorithm.`direction`,algorithm.`distinguish`,algorithm.`state`,algorithm.`framerate`,algorithm.`resolution`,algorithm.`videoa`,algorithm.`codec`,algorithm.`algorithm_url`,algorithm.`user_ids`,algorithm.`user_titles`,algorithm.`opentime` from algorithm 
+            <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index" >
+                <if test='item.op == "like" and item.val != null and item.val !="" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "&gt;=" '>    
+                    and `${item.name}` &gt;= #{item.val}
+                </if>
+                <if test='item.op == "&lt;=" '>    
+                    and `${item.name}` &lt;= #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+                </foreach>
+            </if>
+            </where>
+            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+                order by 
+                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </if> 
+            <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+                limit #{jsonObj.startIndex},#{jsonObj.rop}
+            </if>
+        </select>
+        
+        
+            <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
+                insert into algorithm
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        ${key}  
+                   </foreach>
+                   values
+                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
+                        #{jsonObj[${key}]}  
+                   </foreach> 
+            </insert>
+            
+        
+        
+            <update id="updateInst" parameterType="java.util.Map" >
+               UPDATE algorithm SET  
+               <foreach collection="jsonObj.keys" item="key" separator=","> 
+                   <if test="key != 'id' ">   
+                   ${key} = #{jsonObj[${key}]}
+                   </if>
+               </foreach>  
+               where id = #{jsonObj.id}
+            </update>
+            
+        
+        
+            <delete id="deletesInst" parameterType="java.util.Map" >
+            <if test="jsonObj.algorithm!=null and jsonObj.algorithm.size()>0">
+            delete from algorithm 
+              <where> 
+              <foreach collection="jsonObj.algorithm" item="item" index="index" >
+                <if test='item.op == "like" '>    
+                    and `${item.name}` like concat('%',#{item.val},'%')
+                </if>
+                <if test='item.op == "=" or item.op == "" or item.op == null '>    
+                    and `${item.name}` = #{item.val}
+                </if>
+                <if test='item.op == "in" '>    
+                    and `${item.name}` in 
+                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    </foreach>
+                </if>
+              </foreach>
+              </where>
+            </if>
+            </delete>
+
+            
+        
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ipincloud.iotbj.api.dao.ResourceDao">
+
+    <insert id="insertOrUpdateOrg">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from org where orgIndexCode = #{info.orgIndexCode}
+        </selectKey>
+        <if test="count==0">
+            insert into org (orgIndexCode,title, parentOrgIndexCode,type,stop,data_scope)
+            values
+            (#{info.orgIndexCode}, #{info.orgName}, #{info.parentOrgIndexCode},'部门','f','f')
+        </if>
+        <if test="count>0">
+            UPDATE org SET title =#{info.orgName},
+            parentOrgIndexCode=#{info.parentOrgIndexCode}
+            WHERE orgIndexCode=#{info.orgIndexCode}
+        </if>
+    </insert>
+
+    <update id="updateOrgOther">
+        update org t1, org t2 set t1.parent_id=t2.id,t1.parent_title=t2.title where t1.parentOrgIndexCode=t2.orgIndexCode
+    </update>
+
+    <insert id="insertOrUpdateRegion">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from region where indexCode = #{info.indexCode}
+        </selectKey>
+        <if test="count==0">
+            insert into region (indexCode,title, parentIndexCode)
+            values
+            (#{info.indexCode}, #{info.name}, #{info.parentIndexCode})
+        </if>
+        <if test="count>0">
+            UPDATE region SET title=#{info.name},
+            parentIndexCode=#{info.parentIndexCode}
+            WHERE indexCode= #{info.indexCode}
+        </if>
+    </insert>
+
+    <update id="updateResionOther">
+        update region t1 ,region t2 set t1.parent_id=t2.id where t1.parentIndexCode=t2.indexCode
+    </update>
+
+    <insert id="insertOrUpdateUser">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from user where personId = #{info.personId}
+        </selectKey>
+        <if test="count==0">
+            insert into user (title,mobile,gender,idnumber,personId,user_name)
+            values
+            (#{info.personName}, #{info.phone}, #{info.gender},#{info.certificateNo},#{info.personId},#{jobNo})
+        </if>
+        <if test="count>0">
+            UPDATE user SET title =#{info.personName},
+            mobile=#{info.phoneNo},
+            gender=#{info.gender},
+            idnumber=#{info.certificateNo},
+            personId=#{info.personId}
+            WHERE org_code=#{info.orgIndexCode}
+        </if>
+    </insert>
+
+    <select id="exitsUserbyPersonId" resultType="java.lang.Integer">
+        select count(*) as count from user where personId = #{personId}
+    </select>
+
+</mapper>

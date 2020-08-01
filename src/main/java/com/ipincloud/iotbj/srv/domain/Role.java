@@ -29,6 +29,8 @@ public class Role implements Serializable {
     // 是否启用
     private String enable ;
 
+    private String thirdUUID;
+
     public Long getId() {
         return id ;
     }
@@ -93,5 +95,11 @@ public class Role implements Serializable {
         this.enable = enable;
     }
 
+    public void getThirdUUID(){
+        return thirdUUID;
+    }
+    public void setThirdUUID(String thirdUUId){
+        this.thirdUUID = thirdUUID;
+    }
 }
 

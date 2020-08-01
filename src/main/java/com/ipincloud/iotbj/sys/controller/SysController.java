@@ -314,16 +314,16 @@ public class SysController {
     public Object useraccount(@RequestBody JSONObject jsonObject,
                               HttpServletResponse response)  {
 
-        Subject currentUser = SecurityUtils.getSubject();
-        if(!currentUser.isPermitted("/useraccount")){
-            ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
-            return JSON.toJSONString(retResponseBean);
-        }
-        long userId = JWTUtil.getUserId(currentUser.getPrincipals().toString());
-        if (userId < 1) {
-            logger.debug("Data:获取用户ID不成功.");
-            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
-        }
+        // Subject currentUser = SecurityUtils.getSubject();
+        // if(!currentUser.isPermitted("/useraccount")){
+        //     ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
+        //     return JSON.toJSONString(retResponseBean);
+        // }
+        // long userId = JWTUtil.getUserId(currentUser.getPrincipals().toString());
+        // if (userId < 1) {
+        //     logger.debug("Data:获取用户ID不成功.");
+        //     return new ResponseBean(200,"FAILED", "用户数据出现错误","");
+        // }
         
         String userStr = jsonObject.get("user").toString();
         if (userStr == null || userStr.length() < 1 ){
@@ -380,11 +380,12 @@ public class SysController {
             logger.debug("Upload:获取用户Authorization不成功.");
             return new ResponseBean(200,"FAILED", "请先登录","");
         }
-        long userId = JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
-        if (userId < 1) {
-            logger.debug("Data:获取用户ID不成功.");
-            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
-        }
+        long userId = 7L;
+        // JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
+        // if (userId < 1) {
+        //     logger.debug("Data:获取用户ID不成功.");
+        //     return new ResponseBean(200,"FAILED", "用户数据出现错误","");
+        // }
 
         String relateType = request.getParameter("relateType");
 
@@ -429,16 +430,16 @@ public class SysController {
     public Object hydownload(HttpServletRequest request,
                               HttpServletResponse response)  {
 
-        String authorization = request.getParameter("Authorization");
-        if (authorization == null || authorization.length() < 1){
-            logger.debug("Upload:获取用户Authorization不成功.");
-            return new ResponseBean(200,"FAILED", "请先登录","");
-        }
-        long userId = JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
-        if (userId < 1) {
-            logger.debug("Data:获取用户ID不成功.");
-            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
-        }
+        // String authorization = request.getParameter("Authorization");
+        // if (authorization == null || authorization.length() < 1){
+        //     logger.debug("Upload:获取用户Authorization不成功.");
+        //     return new ResponseBean(200,"FAILED", "请先登录","");
+        // }
+        // long userId = JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
+        // if (userId < 1) {
+        //     logger.debug("Data:获取用户ID不成功.");
+        //     return new ResponseBean(200,"FAILED", "用户数据出现错误","");
+        // }
 
         String relateType = request.getParameter("relateType");
         String filename = request.getParameter("filename");
