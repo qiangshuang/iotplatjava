@@ -192,6 +192,7 @@
                 and cardnumber like concat('%',#{cardnumber},'%')
             </if>
         </where>
+        order by t.id desc
         <if test="startIndex!=null and rop!=null">
             limit #{startIndex},#{rop}
         </if>
@@ -292,6 +293,7 @@
                 and mobile like concat('%',#{mobile},'%')
             </if>
         </where>
+        order by id desc
         <if test="startIndex!=null and rop!=null">
             limit #{startIndex},#{rop}
         </if>

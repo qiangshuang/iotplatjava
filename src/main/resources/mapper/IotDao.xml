@@ -87,18 +87,13 @@
     </select>
 
     <select id="cameraindexlist" resultType="com.alibaba.fastjson.JSONObject">
-        <!--SELECT t1.id,t1.title,t1.videoa,t1.state,t1.pushaddress,t2.border,t3.box,
-        t1.region_id,t2.algorithm_id FROM camera t1
-        left join algorithm t2 on t1.id=t2.camera_id
-        left join algorithmalarm t3 on t1.id=t3.camera_id and -->
         select t1.id,t1.algorithm_id,t1.algorithm_title,t1.border,t2.title,t2.videoa,t2.state,t2.pushaddress,
-        t2.region_id,t2.region_title,t3.box from algorithm t1
-        left join camera t2 on t1.camera_id=t2.id and t2.state='运行中' and t1.state='运行中'
-        left join algorithmalarm t3 on t1.camera_id=t3.camera_id
-                and t1.algorithm_id=t3.algorithm_id
+        t2.region_id,t2.region_title from algorithm t1
+        left join camera t2 on t1.camera_id=t2.id
         <where>
+                and t1.state='运行中'
             <if test="region_id!=null and region_id!=''">
-                t2.region_id=#{region_id}
+                and t2.region_id=#{region_id}
             </if>
             <if test="algorithm_id!=null and algorithm_id!=''">
                 and t1.algorithm_id=#{algorithm_id}
@@ -107,7 +102,6 @@
                 and t2.title like concat('%',#{title},'%')
             </if>
         </where>
-        <!--GROUP BY t1.id,t1.title,t1.videoa,t1.state,t1.pushaddress,t2.border,t3.box,t1.region_id,t2.algorithm_id-->
     </select>
 
     <select id="alarmcount" resultType="com.alibaba.fastjson.JSONObject">

@@ -10,6 +10,7 @@ import com.ipincloud.iotbj.srv.dao.OrgDao;
 import com.ipincloud.iotbj.srv.dao.UserDao;
 import com.ipincloud.iotbj.srv.dao.UserRoleDao;
 import com.ipincloud.iotbj.srv.domain.Org;
+import com.ipincloud.iotbj.srv.domain.User;
 import com.ipincloud.iotbj.srv.service.OrgService;
 import com.ipincloud.iotbj.utils.FileUtils;
 import com.ipincloud.iotbj.utils.ParaUtils;
@@ -239,8 +240,17 @@ public class OrgServiceImpl implements OrgService {
         jsonObjSecond.put("id", jsonObjFirst.get("id"));
         this.userDao.updateInst(jsonObjSecond);
 
+
+        String personId = jsonObjSecond.getString("personId");
+        User user = null;
+        if (StringUtils.isEmpty(personId)) {
+            user = userDao.queryById(jsonObjSecond.getLong("id"));
+            personId = user.getPersonId();
+        }
+
         if (hikEnable) {
             JSONObject person = new JSONObject();
+            person.put("personId", personId);
             person.put("personName", jsonObjSecond.getString("title"));
             if (Objects.equals("男", jsonObjSecond.getString("gender"))) {
                 person.put("gender", "1");
@@ -257,6 +267,11 @@ public class OrgServiceImpl implements OrgService {
             } else {
                 person.put("jobNo", jsonObjSecond.getString("jobno"));
             }
+            String str = "";
+            if (StringUtils.isNotEmpty(jsonObjSecond.getString("photo"))) {
+                str = FileUtils.readImgBase64Code(jsonObjSecond.getString("photo"));
+            }
+            person.put("faces", str);
             ApiService.updatePerson(person);
         }
     }
