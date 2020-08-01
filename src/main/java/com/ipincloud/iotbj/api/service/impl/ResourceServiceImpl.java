@@ -241,6 +241,8 @@ public class ResourceServiceImpl implements ResourceService {
                 auditLog.setGender(account.getGender());
                 auditLog.setCreated(System.currentTimeMillis());
                 auditLog.setUpdated(System.currentTimeMillis());
+            } else {
+                auditLog.setCertificateNum(doorEvent.params.events.get(0).data.ExtEventCardNo + "");
             }
 
             resourceDao.saveAuditLog(auditLog);
