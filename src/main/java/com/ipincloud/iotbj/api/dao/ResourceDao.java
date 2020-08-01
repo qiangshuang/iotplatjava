@@ -23,5 +23,7 @@ public interface ResourceDao {
 
     int saveAuditLog(AuditLog auditLog);
 
-    int insertVehicleHistory(JSONObject vehicle_history);
+    int insertVehicleHistory(@Param("jsonObj") JSONObject jsonObj);
+
+    String queryGateTitle(@Param("gateIndex") String gateIndex);
 }

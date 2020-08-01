@@ -38,25 +38,20 @@ public class ShiroConfig {
 
         Map<String, String> filterRuleMap = new LinkedHashMap<String, String>();
         // 所有的请求通过我们自己的JWT filter
-        filterRuleMap.put("/**", "jwt");
+//        filterRuleMap.put("/**", "jwt");
         // 访问401和404页面不通过我们的Filter
         filterRuleMap.put("/401", "anon");
         filterRuleMap.put("/404", "anon");
         filterRuleMap.put("/login", "anon");
         filterRuleMap.put("/logout", "anon");
         filterRuleMap.put("/static", "anon");
-		
-		filterRuleMap.put("/algorithmresult", "anon");
+        filterRuleMap.put("/face/**", "anon");
+        filterRuleMap.put("/algorithmresult", "anon");
         filterRuleMap.put("/eventRcvFace", "anon");
         filterRuleMap.put("/eventRcvVehicle", "anon");
-
-        filterRuleMap.put("/doc.html", "anon");
-        filterRuleMap.put("/swagger-resources/**", "anon");
-        filterRuleMap.put("/v2/api-docs", "anon");
-        filterRuleMap.put("/v2/api-docs-ext", "anon");
-        filterRuleMap.put("/webjars/**", "anon");
-		
-		
+        filterRuleMap.put("/menu", "anon");
+        filterRuleMap.put("/onauth", "anon");
+        filterRuleMap.put("/**", "jwt");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return shiroFilterFactoryBean;

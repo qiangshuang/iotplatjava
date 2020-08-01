@@ -28,15 +28,15 @@ public class VehicleServiceImpl implements VehicleService {
     @Value("${hikEnable}")
     private boolean hikEnable;
 
-    //@param id 主键 
-    //@return 实例对象Vehicle 
+    //@param id 主键
+    //@return 实例对象Vehicle
     @Override
     public Vehicle queryById(Long id) {
         return this.vehicleDao.queryById(id);
     }
 
-    //@param jsonObj 调用参数 
-    //@return 实例对象Vehicle 
+    //@param jsonObj 调用参数
+    //@return 实例对象Vehicle
     @Override
     public JSONObject addInst(JSONObject jsonObj) {
         jsonObj = ParaUtils.removeSurplusCol(jsonObj, "id,title,category,starttime,endtime,owner,idnumber,mobile,pic,created,updated");
@@ -73,8 +73,8 @@ public class VehicleServiceImpl implements VehicleService {
 
     }
 
-    //@param jsonObj 调用参数 
-    //@return 影响记录数Vehicle 
+    //@param jsonObj 调用参数
+    //@return 影响记录数Vehicle
     @Override
     public void updateInst(JSONObject jsonObj) {
         jsonObj = ParaUtils.removeSurplusCol(jsonObj, "id,title,category,starttime,endtime,owner,idnumber,mobile,pic,created,updated");
@@ -91,8 +91,8 @@ public class VehicleServiceImpl implements VehicleService {
         }
     }
 
-    //@param jsonObj 过滤条件等 
-    //@return 对象查询Vehicle 分页 
+    //@param jsonObj 过滤条件等
+    //@return 对象查询Vehicle 分页
     @Override
     public Map vehicleList(JSONObject jsonObj) {
         int totalRec = this.vehicleDao.countVehicleList(jsonObj);
@@ -107,8 +107,8 @@ public class VehicleServiceImpl implements VehicleService {
     }
 
 
-    //@param jsonObj 调用参数  
-    //@return 影响记录数 
+    //@param jsonObj 调用参数
+    //@return 影响记录数
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Integer deletesVehicleInst(JSONObject jsonObj) {

@@ -59,6 +59,10 @@ public class Algorithm implements Serializable {
     // 开启时间
     private Long opentime ;
 
+    private String accesscode;
+    private String pushaddress;
+    private String region_title;
+
     public Long getId() {
         return id ;
     }
@@ -211,5 +215,28 @@ public class Algorithm implements Serializable {
         this.opentime = opentime;
     }
 
+    public String getAccesscode() {
+        return accesscode;
+    }
+
+    public void setAccesscode(String accesscode) {
+        this.accesscode = accesscode;
+    }
+
+    public String getPushaddress() {
+        return pushaddress;
+    }
+
+    public void setPushaddress(String pushaddress) {
+        this.pushaddress = pushaddress;
+    }
+
+    public String getRegion_title() {
+        return region_title;
+    }
+
+    public void setRegion_title(String region_title) {
+        this.region_title = region_title;
+    }
 }
 

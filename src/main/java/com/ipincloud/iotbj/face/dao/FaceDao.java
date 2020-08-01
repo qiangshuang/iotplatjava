@@ -97,4 +97,8 @@ public interface FaceDao {
     List<JSONObject> findGatewayByIndexCode(String acsDevIndexCode);
 
     JSONObject findUserByPersonId(String personId);
+
+    List<JSONObject> listPolicyByIds(@Param("jsonObj") JSONArray jsonObj);
+
+    int insertOrUpdatePolicy(@Param("jsonObj") JSONObject jsonObj);
 }

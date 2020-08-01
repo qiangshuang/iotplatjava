@@ -32,11 +32,6 @@ public class SensorTrigger implements Serializable {
     @JSONField(name = "stream_title")
     private String streamTitle ;
 
-    private String equtitle ;
-
-    @JSONField(name = "equ_ids")
-    private String equIds ;
-
     public Long getId() {
         return id ;
     }
@@ -109,20 +104,5 @@ public class SensorTrigger implements Serializable {
         this.streamTitle = streamTitle;
     }
 
-    public String getEqutitle() {
-        return equtitle ;
-    }
-
-    public void setEqutitle(String equtitle) {
-        this.equtitle = equtitle;
-    }
-
-    public String getEquIds() {
-        return equIds ;
-    }
-
-    public void setEquIds(String equIds) {
-        this.equIds = equIds;
-    }
 }
 

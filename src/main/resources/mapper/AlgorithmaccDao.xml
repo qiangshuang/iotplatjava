@@ -48,7 +48,7 @@
         
         
         <select id="algorithmaccList" resultType="java.util.Map">
-            select algorithmacc.`id`,algorithmacc.`address`,algorithmacc.`title`,algorithmacc.`accessmode`,algorithmacc.`describion`,algorithmacc.`accesscode` from algorithmacc 
+            select * from algorithmacc
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >

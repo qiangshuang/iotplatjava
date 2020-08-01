@@ -17,16 +17,10 @@
         <result property="created" column="created" jdbcType="BIGINT"/> 
         <result property="updated" column="updated" jdbcType="BIGINT"/> 
         <result property="equId" column="equ_id" jdbcType="VARCHAR"/> 
-        <result property="streamTitle" column="steam_title" jdbcType="VARCHAR"/> 
-        <result property="devcode" column="devcode" jdbcType="VARCHAR"/> 
-        
     </resultMap>
         
         <select id="queryById" resultMap="SensorMap">
             select * from sensor where id=#{id}
-        </select>
-        <select id="querybyDevcode" resultMap="SensorMap">
-            select * from sensor where equ_id=#{devcode}
         </select>
         
         
@@ -79,9 +73,6 @@
                     <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
                     </foreach>
                 </if>
-                <if test='item.op == "instr" '>   
-                    and instr(concat(',',`${item.name}`,','),concat(',',#{item.val}, ','))
-                </if>
                 </foreach>
             </if>
             </where>
@@ -89,7 +80,7 @@
         
         
         <select id="sensorList" resultType="java.util.Map">
-            select * from sensor 
+            select sensor.`titel`,sensor.`id`,sensor.`product_ids`,sensor.`category_id`,sensor.`firm_id`,sensor.`region_id`,sensor.`region_title`,sensor.`stream_id`,sensor.`ipandport`,sensor.`equipment`,sensor.`accesscode`,sensor.`site`,sensor.`created`,sensor.`updated`,sensor.`equ_id` from sensor 
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >
@@ -110,9 +101,6 @@
                     <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
                     </foreach>
                 </if>
-                <if test='item.op == "instr" '>   
-                    and instr(concat(',',`${item.name}`,','),concat(',',#{item.val}, ','))
-                </if>
                 </foreach>
             </if>
             </where>
@@ -127,8 +115,6 @@
             </if>
         </select>
         
-        
-
         
             <delete id="deletesInst" parameterType="java.util.Map" >
             <if test="jsonObj.sensor!=null and jsonObj.sensor.size()>0">

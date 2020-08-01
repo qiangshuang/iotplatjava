@@ -1,12 +1,12 @@
 server:
-  port: 8088
-  tomcat:
-    uri-encoding: UTF-8
+  port: 8089
+  #tomcat:
+  #  uri-encoding: UTF-8
 spring:
   datasource:
-    url: jdbc:mysql://192.168.3.8:3306/iotbj1?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://127.0.0.1:3306/iotbj1?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
     username: root
-    password: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   http:
     multipart:
@@ -14,7 +14,8 @@ spring:
       max-request-size: 10000Mb
 mybatis:
    mapperLocations: classpath:/mapper/*.xml
-   
+
+
 mqtt:
   host: tcp://loraserver.bdiot.tech
   clientid: mqtt_subscribe_
@@ -22,28 +23,27 @@ mqtt:
   password: admin
   topic: application/3/device/347b686900420037/rx
   timeout: 1500
-  
+
 #是否调用海康接口
-hikEnable: false
+hikEnable: true
 
 #本地返回地址
-localhostUri: http://192.168.3.88:8088
+localhostUri: http://10.69.202.101:8089
 
 algorithm:
-  url: http://192.168.11.55:8087 #算法后端URL
-  resultUrl: http://192.168.13.53:8080/algorithmresult #算法后端结果发送URL
+  push: 10.69.212.11:8089 #视频流地址
+  url: http://10.69.212.11:8087 #算法后端URL
+  resultUrl: http://10.69.202.99:8087/algorithmresult #算法后端结果发送URL
 iot:
-  url: https://192.168.11.58:10443/restapi/iot/iotinfomgr #北向服务URL
-  apikey: 368BWJwLj898LNI9VGNkv96BuAJST2ho #北向服务APIKEY
-
-app-version: dev
-
-
-#订阅事件返回地址
-eventAdress: http://192.168.3.8:8088
+  url: https://10.69.206.70:10443/restapi/iot/iotinfomgr #北向服务URL
+  apikey: KWrgSTHd36CHMa3wlNSECTkckMntDK6U #北向服务APIKEY
 
 oa:
-  baseUrl: http://10.69.206.23
+  baseUrl: http://10.69.206.48      # http://10.69.206.23
   appId: Potc5cAAaXVlQASwU233NraEEo5KXAat
   tenantId: lfdc
   secret: 79246cdd-dfa2-47ad-9252-289b78b8947e
+
+app-version:
+
+

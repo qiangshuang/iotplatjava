@@ -2,208 +2,215 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ipincloud.iotbj.srv.dao.UserDao">
     <resultMap type="com.ipincloud.iotbj.srv.domain.User" id="UserMap">
-        <result property="mobile" column="mobile" jdbcType="VARCHAR"/> 
-        <result property="userName" column="user_name" jdbcType="VARCHAR"/> 
-        <result property="pwd" column="pwd" jdbcType="VARCHAR"/> 
-        <result property="id" column="id" jdbcType="BIGINT"/> 
-        <result property="title" column="title" jdbcType="VARCHAR"/> 
-        <result property="parentId" column="parent_id" jdbcType="BIGINT"/> 
-        <result property="parentTitle" column="parent_title" jdbcType="VARCHAR"/> 
-        <result property="lastlogin" column="lastlogin" jdbcType="BIGINT"/> 
-        <result property="jobTitle" column="job_title" jdbcType="VARCHAR"/> 
-        <result property="jobId" column="job_id" jdbcType="BIGINT"/> 
-        <result property="thirdin" column="thirdin" jdbcType="VARCHAR"/> 
-        <result property="created" column="created" jdbcType="BIGINT"/> 
-        <result property="updated" column="updated" jdbcType="BIGINT"/> 
-        <result property="photo" column="photo" jdbcType="VARCHAR"/> 
-        <result property="idnumber" column="idnumber" jdbcType="VARCHAR"/> 
-        <result property="jobno" column="jobno" jdbcType="VARCHAR"/> 
-        <result property="cardnumber" column="cardnumber" jdbcType="INTEGER"/> 
-        <result property="mcardno" column="mcardno" jdbcType="VARCHAR"/> 
-        <result property="gender" column="gender" jdbcType="VARCHAR"/> 
-        <result property="personId" column="personId" jdbcType="VARCHAR"/> 
+        <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="pwd" column="pwd" jdbcType="VARCHAR"/>
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
+        <result property="parentTitle" column="parent_title" jdbcType="VARCHAR"/>
+        <result property="lastlogin" column="lastlogin" jdbcType="BIGINT"/>
+        <result property="jobTitle" column="job_title" jdbcType="VARCHAR"/>
+        <result property="jobId" column="job_id" jdbcType="BIGINT"/>
+        <result property="thirdin" column="thirdin" jdbcType="VARCHAR"/>
+        <result property="created" column="created" jdbcType="BIGINT"/>
+        <result property="updated" column="updated" jdbcType="BIGINT"/>
+        <result property="photo" column="photo" jdbcType="VARCHAR"/>
+        <result property="idnumber" column="idnumber" jdbcType="VARCHAR"/>
+        <result property="cardnumber" column="cardnumber" jdbcType="INTEGER"/>
+        <result property="mcardno" column="mcardno" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="personId" column="personId" jdbcType="VARCHAR"/>
     </resultMap>
-        
-        <select id="queryById" resultMap="UserMap">
+
+    <select id="queryById" resultMap="UserMap">
             select * from user where id=#{id}
         </select>
-        
-        
-        <select id="queryByUsername" resultMap="UserMap">
+
+
+    <select id="queryByUsername" resultMap="UserMap">
             select
               *
             from user
             where  user_name= #{userName}
         </select>
-        
-        
-        
-            <insert id="addInst" parameterType="java.util.Map" >
-                insert into user
-                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
-                        ${key}  
-                   </foreach>
-                   values
-                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
-                        #{jsonObj[${key}]}  
-                   </foreach>
-            </insert>
-            
-        
-        
-            <update id="updateInst" parameterType="java.util.Map" >
-               UPDATE user SET  
-               <foreach collection="jsonObj.keys" item="key" separator=","> 
-                   <if test="key != 'id' ">   
-                   ${key} = #{jsonObj[${key}]}
-                   </if>
-               </foreach>  
-               where id = #{jsonObj.id}
-            </update>
-            
-        
-        
-        <select id="countUserList" resultType="java.lang.Integer">
-            select count(distinct id) from user 
 
-            <where>
+
+    <insert id="addInst" parameterType="java.util.Map">
+        insert into user
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+
+    <update id="updateInst" parameterType="java.util.Map">
+        UPDATE user SET
+        <foreach collection="jsonObj.keys" item="key" separator=",">
+            <if test="key != 'id' ">
+                ${key} = #{jsonObj[${key}]}
+            </if>
+        </foreach>
+        where id = #{jsonObj.id}
+    </update>
+
+
+    <select id="countUserList" resultType="java.lang.Integer">
+        select count(distinct id) from user
+
+        <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
-                <foreach collection="jsonObj.qps" item="item" index="index" >
-                <if test='item.op == "like" and item.val != null and item.val !="" '>    
-                    and `${item.name}` like concat('%',#{item.val},'%')
-                </if>
-                <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                    and `${item.name}` = #{item.val}
-                </if>
-                <if test='item.op == "&gt;=" '>    
-                    and `${item.name}` &gt;= #{item.val}
-                </if>
-                <if test='item.op == "&lt;=" '>    
-                    and `${item.name}` &lt;= #{item.val}
-                </if>
-                <if test='item.op == "in" '>    
-                    and `${item.name}` in 
-                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
-                    </foreach>
-                </if>
-                </foreach>
-            </if>
-            </where>
-        </select>
-        
-        
-        <select id="userList" resultType="java.util.Map">
-            select user.`mobile`,user.`user_name`,user.`id`,user.`title`,user.`parent_id`,user.`lastlogin`,user.`job_title`,user.`parent_title`,user.`job_id`,user.`thirdin`,user.`created`,user.`updated`,user.`photo`,user.`idnumber`,user.`cardnumber`,user.`mcardno`,user.`gender` from user 
-            <where>
-            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
-                <foreach collection="jsonObj.qps" item="item" index="index" >
-                <if test='item.op == "like" and item.val != null and item.val !="" '>    
-                    and `${item.name}` like concat('%',#{item.val},'%')
-                </if>
-                <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                    and `${item.name}` = #{item.val}
-                </if>
-                <if test='item.op == "&gt;=" '>    
-                    and `${item.name}` &gt;= #{item.val}
-                </if>
-                <if test='item.op == "&lt;=" '>    
-                    and `${item.name}` &lt;= #{item.val}
-                </if>
-                <if test='item.op == "in" '>    
-                    and `${item.name}` in 
-                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
-                    </foreach>
-                </if>
-                </foreach>
-            </if>
-            </where>
-            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
-                order by 
-                <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
-                    `${item.name}` ${item.orderV}
-                </foreach>
-            </if> 
-            <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
-                limit #{jsonObj.startIndex},#{jsonObj.rop}
-            </if>
-        </select>
-        
-        
-        
-            <select id="countUserUserRoleListJoin" resultType="java.lang.Integer">
-                select count(user.id) from user join user_role on user.id=user_role.user_id 
-                <where>
-                <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
-                    <foreach collection="jsonObj.qps" item="item" index="index" >
-                    <if test="item.op == 'like' ">    
-                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test='item.op == "like" and item.val != null and item.val !="" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
                     </if>
-                    <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                        and ${item.tb}.`${item.name}` = #{item.val}
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
                     </if>
-                    <if test='item.op == "in" '>    
-                        and ${item.tb}.`${item.name}` in 
-                        <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    <if test='item.op == "&gt;=" '>
+                        and `${item.name}` &gt;= #{item.val}
+                    </if>
+                    <if test='item.op == "&lt;=" '>
+                        and `${item.name}` &lt;= #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
                         </foreach>
                     </if>
-                    </foreach>
-                </if>
-                </where>
-            </select>
-            
-        
-            <select id="userUserRoleListJoin" resultType="java.util.Map">
-                select user.`mobile`,user.`id`,user.`title`,user.`user_name`,user.`parent_id`,user.`parent_title`,user.`lastlogin`,user.`created`,user.`job_title`,user.`job_id` from user join user_role on user.id=user_role.user_id 
-                <where>
-                <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
-                    <foreach collection="jsonObj.qps" item="item" index="index" >
-                    <if test="item.op == 'like' ">    
-                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="userList" resultType="java.util.Map">
+        select
+        user.`mobile`,user.`user_name`,user.`id`,user.`title`,user.`parent_id`,user.`lastlogin`,user.`job_title`,user.`parent_title`,user.`job_id`,user.`thirdin`,user.`created`,user.`updated`,user.`photo`,user.`idnumber`,user.`cardnumber`,user.`mcardno`,user.`gender`
+        from user
+        <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test='item.op == "like" and item.val != null and item.val !="" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
                     </if>
-                    <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                        and ${item.tb}.`${item.name}` = #{item.val}
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
                     </if>
-                    <if test='item.op == "in" '>    
-                        and ${item.tb}.`${item.name}` in 
-                        <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                    <if test='item.op == "&gt;=" '>
+                        and `${item.name}` &gt;= #{item.val}
+                    </if>
+                    <if test='item.op == "&lt;=" '>
+                        and `${item.name}` &lt;= #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
                         </foreach>
                     </if>
-                    </foreach>
-                </if>
-                </where>
-                <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
-                    order by 
-                    <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
-                        `${item.name}` ${item.orderV}
-                    </foreach>
-                </if> 
-                <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
-                    limit #{jsonObj.startIndex},#{jsonObj.rop}
-                </if>
-            </select>
-            
-        
-            <delete id="deletesInst" parameterType="java.util.Map" >
-            <if test="jsonObj.user!=null and jsonObj.user.size()>0">
-            delete from user 
-              <where> 
-              <foreach collection="jsonObj.user" item="item" index="index" >
-                <if test='item.op == "like" '>    
-                    and `${item.name}` like concat('%',#{item.val},'%')
-                </if>
-                <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                    and `${item.name}` = #{item.val}
-                </if>
-                <if test='item.op == "in" '>    
-                    and `${item.name}` in 
-                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
-                    </foreach>
-                </if>
-              </foreach>
-              </where>
+                </foreach>
             </if>
-            </delete>
+        </where>
+        <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 ">
+            order by
+            <foreach item="item" collection="jsonObj.sps" index="index" separator=",">
+                `${item.name}` ${item.orderV}
+            </foreach>
+        </if>
+        <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
+        </if>
+    </select>
 
-            
-        
+
+    <select id="countUserUserRoleListJoin" resultType="java.lang.Integer">
+        select count(user.id) from user join user_role on user.id=user_role.user_id
+        <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test="item.op == 'like' ">
+                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and ${item.tb}.`${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and ${item.tb}.`${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+
+    <select id="userUserRoleListJoin" resultType="java.util.Map">
+        select
+        user.`mobile`,user.`id`,user.`title`,user.`user_name`,user.`parent_id`,user.`parent_title`,user.`lastlogin`,user.`created`,user.`job_title`,user.`job_id`
+        from user join user_role on user.id=user_role.user_id
+        <where>
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test="item.op == 'like' ">
+                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and ${item.tb}.`${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and ${item.tb}.`${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 ">
+            order by
+            <foreach item="item" collection="jsonObj.sps" index="index" separator=",">
+                `${item.name}` ${item.orderV}
+            </foreach>
+        </if>
+        <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
+        </if>
+    </select>
+
+
+    <delete id="deletesInst" parameterType="java.util.Map">
+        <if test="jsonObj.user!=null and jsonObj.user.size()>0">
+            delete from user
+            <where>
+                <foreach collection="jsonObj.user" item="item" index="index">
+                    <if test='item.op == "like" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </where>
+        </if>
+    </delete>
+
+    <select id="queryByIdnumber" resultMap="UserMap">
+        select * from user where idnumber = #{idnumber}
+    </select>
+
+
 </mapper>

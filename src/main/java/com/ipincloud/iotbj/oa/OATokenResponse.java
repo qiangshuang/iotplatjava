@@ -1,4 +1,4 @@
- package com.ipincloud.iotbj.oa;
+package com.ipincloud.iotbj.oa;
 
 public class OATokenResponse {
     public String errcode;

@@ -1,4 +1,4 @@
- package com.ipincloud.iotbj.oa;
+package com.ipincloud.iotbj.oa;
 
 public class OAException extends RuntimeException {
     public String code;

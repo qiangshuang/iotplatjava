@@ -133,12 +133,7 @@ public class MqttPushClient {
      */
     public static void subscribe(String topic,int qos){
         try {
-            MqttClient client = MqttPushClient.getClient();
-			if(client!=null){
-				client.subscribe(topic, qos);
-			}else{
-				log.error("MqttClient为空");
-			}
+            MqttPushClient.getClient().subscribe(topic, qos);
         } catch (MqttException e) {
             e.printStackTrace();
         }

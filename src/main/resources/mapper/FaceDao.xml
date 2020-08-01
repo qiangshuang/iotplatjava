@@ -46,6 +46,12 @@
             <if test="regionIndexCode!=null and regionIndexCode!=''">
                 and regionIndexCode = #{regionIndexCode}
             </if>
+            <if test="doorIndexCode!=null and doorIndexCode!=''">
+                and doorIndexCode = #{doorIndexCode}
+            </if>
+            <if test="regionIndexCode!=null and regionIndexCode!=''">
+                and regionIndexCode = #{regionIndexCode}
+            </if>
             <if test="region_id!=null and region_id!=0">
                 and region_id = #{region_id}
             </if>
@@ -137,9 +143,11 @@
             <if test="org_id!=null and org_id!=''">
                 and org_id = #{org_id}
             </if>
-            <if test="starttime!=null and starttime!=0 and endtime!=null and endtime!=0 ">
-                and ((starttime >= #{starttime} and #{endtime} > starttime)
-                or ( #{starttime} >= starttime and endtime >= #{endtime} ))
+            <if test="starttime!=null and starttime!=0">
+                and #{starttime} >= starttime
+            </if>
+            <if test="endtime!=null and endtime!=0">
+                and endtime >= #{endtime}
             </if>
             <if test="user_title!=null and user_title!=''">
                 and user_title like concat('%',#{user_title},'%')
@@ -156,7 +164,7 @@
         </where>
     </select>
     <select id="listPolicy" resultType="java.util.Map">
-        select * from 
+        select * from
         (select t1.*,t2.title region_title,t3.title gateway_title,
         t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.cardnumber from face_policy t1
         left join region t2 on t1.region_id=t2.id
@@ -189,7 +197,7 @@
         </if>
     </select>
 
-    <insert id="insertEvent">
+    <insert id="insertEvent" useGeneratedKeys="true" keyProperty="jsonObj.id">
         insert into face_history
         <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
             ${key}
@@ -369,7 +377,7 @@
     <select id="listVisitByName" resultType="java.util.Map">
         select * from (
         select t1.*,t2.title,t2.gender,t2.idnumber,t2.cardnumber,
-        t2.mobile,t2.photo from face_visit t1
+        t2.mobile from face_visit t1
         left join user t2 on t1.visit_id=t2.id
         ) t
         <where>
@@ -400,21 +408,7 @@
         </if>
     </select>
 
-    <delete id="deleteVisitById">
-        delete from face_visit
-        <where>
-            id in
-            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
-                #{jsonObj}
-            </foreach>
-        </where>
-    </delete>
-
-    <select id="findVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
-        select * from face_visit where visit_id = #{userId} order by updated desc limit 1
-    </select>
-
-	<update id="updateVisit">
+    <update id="updateVisit">
         UPDATE face_visit
         <trim prefix="set" suffixOverrides=",">
             <if test="visit_id!=null and visit_id!=''">
@@ -442,7 +436,21 @@
         where id = #{id}
     </update>
 
-	<select id="listVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
+    <delete id="deleteVisitById">
+        delete from face_visit
+        <where>
+            id in
+            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
+                #{jsonObj}
+            </foreach>
+        </where>
+    </delete>
+
+    <select id="findVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_visit where visit_id = #{userId} order by updated desc limit 1
+    </select>
+
+    <select id="listVisitByUser" resultType="com.alibaba.fastjson.JSONObject">
         select * from face_visit where visit_id = #{userId} and id!=#{id}
     </select>
 
@@ -454,7 +462,7 @@
         select * from face_visit where id = #{id}
     </select>
 
-        <insert id="insertUserCard" useGeneratedKeys="true" keyProperty="jsonObj.id">
+    <insert id="insertUserCard" useGeneratedKeys="true" keyProperty="jsonObj.id">
         insert into user_card
         <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
             ${key}
@@ -537,7 +545,72 @@
         </if>
     </select>
 
-    <select id="findRegionByIndexCode" resultType="java.util.Map">
-        select id from region where indexCode = #{regionIndexCode} limit 1
+
+    <select id="findRegionByIndexCode" resultType="com.alibaba.fastjson.JSONObject">
+        select * from region where indexCode = #{regionIndexCode} limit 1
     </select>
+
+    <select id="findVisitByInterview" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_visit
+        <where>
+            <if test="state!=null and state!=''">
+                state = #{state}
+            </if>
+            <if test="userId!=null and userId!=0 and userName!=null and userName!=''">
+                and interview_ids like concat('%',#{userId},'%')
+                and interview_titles like concat('%',#{userName},'%')
+            </if>
+        </where>
+        order by created desc
+    </select>
+
+    <select id="findGatewayByName" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_gateway where title like concat('%'#{doorName},'%')
+    </select>
+
+    <select id="findGatewayByIndexCode" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_gateway where acsDevIndexCode = #{acsDevIndexCode}
+    </select>
+
+    <select id="findUserByPersonId" resultType="com.alibaba.fastjson.JSONObject">
+        select * from user where personId = #{personId} limit 1
+    </select>
+
+    <select id="listPolicyByIds" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_policy
+        <where>
+            id in
+            <foreach collection="jsonObj" item="jsonObj" index="index" open="(" separator="," close=")">
+                #{jsonObj}
+            </foreach>
+        </where>
+
+    </select>
+
+    <insert id="insertOrUpdatePolicy" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from face_policy where gateway_id = #{jsonObj.gateway_id} and user_id=
+            #{jsonObj.user_id}
+        </selectKey>
+        <if test="count==0">
+            insert into face_policy
+            <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+                ${key}
+            </foreach>
+            values
+            <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+                #{jsonObj[${key}]}
+            </foreach>
+        </if>
+        <if test="count>0">
+            UPDATE face_policy SET
+            <foreach collection="jsonObj.keys" item="key" separator=",">
+                <if test="key != 'id' ">
+                    ${key} = #{jsonObj[${key}]}
+                </if>
+            </foreach>
+            where gateway_id = #{jsonObj.gateway_id} and user_id=
+            #{jsonObj.user_id}
+        </if>
+    </insert>
 </mapper>

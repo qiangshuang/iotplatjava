@@ -10,7 +10,6 @@ public interface SensorTriggerDao {
     //@param id 主键 
     //@return 实例对象SensorTrigger 
     SensorTrigger queryById(Long id);
-    List<SensorTrigger> queryAll();
     //@param jsonObj 过滤条件等 
     //@return 实例对象 
     List<Map> sensorTriggerList(@Param("jsonObj") JSONObject jsonObj);

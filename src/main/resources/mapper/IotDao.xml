@@ -10,7 +10,7 @@
         select count(*) from mod_camera where cameraIndex= #{cameraIndex}
     </select>
 
-	<update id="confirmState">
+    <update id="confirmState">
         update algorithmalarm set state='已确认'
         <where>
             id in
@@ -30,7 +30,7 @@
         </where>
     </update>
 
-	<select id="base" resultType="com.alibaba.fastjson.JSONObject">
+    <select id="base" resultType="com.alibaba.fastjson.JSONObject">
         select sum(t.jrls) jrls, sum(t.sxtsl) sxtsl,sum(t.sfmxsl) sfmxsl
         from (
         select count(*) jrls,0 sxtsl,0 sfmxsl from algorithm
@@ -79,7 +79,7 @@
 
     <select id="bjsAndQrsGroup" resultType="com.alibaba.fastjson.JSONObject">
         select algorithm_id,algorithm_name,sum(bjs) bjs,sum(qrs) qrs from (
-        select algorithm_id,algorithm_name,count(*) as bjs, 0 as qrs 
+        select algorithm_id,algorithm_name,count(*) as bjs, 0 as qrs
         from algorithmalarm where FROM_UNIXTIME(alarm_time/1000,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') GROUP BY algorithm_id,algorithm_name
         union all
         select algorithm_id,algorithm_name,0 as bjs,  count(*) asqrs from algorithmalarm where state='已确认' and FROM_UNIXTIME(alarm_time/1000,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') GROUP BY algorithm_id,algorithm_name
@@ -120,61 +120,5 @@
             and algorithm_id= #{algorithm_id}
         </if>
         ORDER BY alarm_time desc
-    </select>
-
-     <select id="allCameraList" resultType="com.alibaba.fastjson.JSONObject">
-        select t1.id,t1.algorithm_id,t1.algorithm_title,t2.id camera_id,t2.title camera_title,t2.region_id,t2.region_title,t2.pushaddress,t2.videoa
-        from algorithm t1 left join camera t2 on t1.camera_id= t2.id
-    </select>
-
-    <select id="realCameraIndexlist" resultType="com.alibaba.fastjson.JSONObject">
-        SELECT t1.id,t1.title,t1.videoa,t1.state,t1.pushaddress,t2.border,t3.box,
-        t1.region_id,t2.algorithm_id FROM camera t1 ,algorithm t2  ,algorithmalarm t3
-        where t2.camera_id=t1.id and t3.camera_id=t1.id and t3.state='未确认'
-    </select>
-
-<select id="countRealAlarmList" resultType="java.lang.Integer">
-        select count(*) num from algorithmalarm
-        <where>
-            <if test="algorithm_id!=null and algorithm_id!=''">
-                and algorithm_id = #{algorithm_id}
-            </if>
-            <if test="region_id!=null and region_id!=''">
-                and region_id = #{region_id}
-            </if>
-            <if test="state!=null and state!=''">
-                and state = #{state}
-            </if>
-            <if test="starttime!=null and starttime!=''">
-                and alarm_time >= #{starttime}
-            </if>
-            <if test="endtime!=null and endtime!=''">
-                and #{endtime}>= alarm_time
-            </if>
-        </where>
-    </select>
-    <select id="realAlarmList" resultType="com.alibaba.fastjson.JSONObject">
-        select t1.*,t2.border from algorithmalarm t1 left join algorithm t2  
-        on t1.algorithm_id=t2.algorithm_id and t1.camera_id =t2.camera_id
-        <where>
-            <if test="algorithm_id!=null and algorithm_id!=''">
-                and algorithm_id = #{algorithm_id}
-            </if>
-            <if test="region_id!=null and region_id!=''">
-                and region_id = #{region_id}
-            </if>
-            <if test="state!=null and state!=''">
-                and state = #{state}
-            </if>
-            <if test="starttime!=null and starttime!=''">
-                and alarm_time >= #{starttime}
-            </if>
-            <if test="endtime!=null and endtime!=''">
-                and #{endtime}>= alarm_time
-            </if>
-        </where>
-        <if test="startIndex!=null and rop!=null">
-            limit #{startIndex},#{rop}
-        </if>
     </select>
 </mapper>

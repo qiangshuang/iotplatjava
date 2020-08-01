@@ -52,8 +52,6 @@ public class User implements Serializable {
     private String personId;
 
     private String userGroup;
-    
-    private  String jobno;
 
     public String getMobile() {
         return mobile;
@@ -219,12 +217,5 @@ public class User implements Serializable {
         return "外来访客".equals(userGroup);
     }
 
-    public String getJobno() {
-        return jobno;
-    }
-
-    public void setJobno(String jobno) {
-        this.jobno = jobno;
-    }
 }
 
