@@ -74,6 +74,7 @@ public class ResourceServiceImpl implements ResourceService {
             Long tim = data.getTime();
             System.out.println(tim);
             map.put("tenantId", "lfdc");
+            map.put("gateName", auditLog.getGateName());
             map.put("userId", auditLog.getUserID());
             map.put("time", tim.toString());
             map.put("inOut", auditLog.getExtEventInOut().toString());
@@ -222,26 +223,29 @@ public class ResourceServiceImpl implements ResourceService {
         AuditLog auditLog = new AuditLog();
         auditLog.setSrcName(doorEvent.params.events.get(0).srcName);
         auditLog.setExtEventInOut(doorEvent.params.events.get(0).data.ExtEventInOut);
+        auditLog.setGateName(doorEvent.params.events.get(0).srcName);
         auditLog.setHappenTime(doorEvent.params.events.get(0).happenTime);
         int eventType = doorEvent.params.events.get(0).eventType.intValue();
         if (eventType == 196893 || eventType == 197162) {
             auditLog.setResult("允许通过");
         }
         if (doorEvent.params.events.get(0).data.ExtEventCardNo != null) {
-            User account = resourceDao.getAccountByCertificateNum(auditLog.getMobiles());
+            User account = resourceDao.getAccountByCertificateNum(doorEvent.params.events.get(0).data.ExtEventCardNo.toString());
             if (account != null) {
                 auditLog.setUserID(account.getPersonId());
                 auditLog.setName(account.getTitle());
                 auditLog.setNo(account.getUserName());
-                auditLog.setMobiles(account.getPhoto());
+                auditLog.setMobiles(account.getMobile());
                 auditLog.setCertificateNum(account.getIdnumber());
                 auditLog.setUserGroup(account.getUserGroup());
                 auditLog.setGender(account.getGender());
+                auditLog.setCreated(System.currentTimeMillis());
+                auditLog.setUpdated(System.currentTimeMillis());
+            }
 
-                resourceDao.saveAuditLog(auditLog);
-                if (!account.isGuest() && AUDIT_DOOR_NAME_SET.contains(auditLog.getSrcName())) {
-                    commitAuditLog2IAM(auditLog);
-                }
+            resourceDao.saveAuditLog(auditLog);
+            if (account != null && !account.isGuest() && AUDIT_DOOR_NAME_SET.contains(auditLog.getSrcName())) {
+                commitAuditLog2IAM(auditLog);
             }
         }
         return null;
