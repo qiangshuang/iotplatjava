@@ -283,22 +283,26 @@ public class FaceServiceImpl implements FaceService {
                 }
                 //添加资源信息
                 if (StringUtils.isNotEmpty(policy.getString("acsDevIndexCode"))) {
-                    JSONObject resourceInfo = new JSONObject();
                     //resourceInfo.put("resourceIndexCode", policy.getString("acsDevIndexCode"));
                     //resourceInfo.put("resourceType", "acsDevice");
                     List<JSONObject> doors = faceDao.findGatewayByIndexCode(policy.getString("acsDevIndexCode"));
-                    resourceInfo.put("resourceIndexCode", doors.get(0).getString("doorIndexCode"));
-                    resourceInfo.put("resourceType", doors.get(0).getString("channelType"));
-                    JSONArray channelNos = new JSONArray();
+                    //JSONObject resourceInfo = new JSONObject();
                     if (doors != null) {
                         for (int k = 0; k < doors.size(); k++) {
+                            JSONObject resourceInfo = new JSONObject();
+                            resourceInfo.put("resourceIndexCode", doors.get(k).getString("doorIndexCode"));
+                            resourceInfo.put("resourceType", doors.get(k).getString("channelType"));
+                            JSONArray channelNos = new JSONArray();
                             channelNos.add(doors.get(k).getInteger("channelNo"));
+                            resourceInfo.put("channelNos", channelNos);
+                            resourceInfos.add(resourceInfo);
                         }
+
                     } else {
-                        channelNos.add(1);
+                        //channelNos.add(1);
                     }
-                    resourceInfo.put("channelNos", channelNos);
-                    resourceInfos.add(resourceInfo);
+                    //resourceInfo.put("channelNos", channelNos);
+                    //resourceInfos.add(resourceInfo);
                 } else {
                     break;
                 }
@@ -317,7 +321,7 @@ public class FaceServiceImpl implements FaceService {
             }
         }
         if (hikEnable) {
-            ApiService.authDownload(resourceInfos, personInfos,true);
+            ApiService.authDownload(resourceInfos, personInfos, true);
             ApiService.authDownloadSearchList(resourceInfos, personIds);
         }
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
@@ -421,7 +425,7 @@ public class FaceServiceImpl implements FaceService {
         }
         //调用第三方接口进行删除权限
         if (hikEnable) {
-            ApiService.authDownload(resourceInfos, personInfos,true);
+            ApiService.authDownload(resourceInfos, personInfos, true);
             //ApiService.authDownloadSearchList(resourceInfos, personIds);
         }
 

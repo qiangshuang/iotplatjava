@@ -51,7 +51,7 @@ public class ShiroConfig {
         filterRuleMap.put("/eventRcvVehicle", "anon");
         filterRuleMap.put("/menu", "anon");
         filterRuleMap.put("/onauth", "anon");
-        filterRuleMap.put("/**", "jwt");
+        filterRuleMap.put("/**", "anon");
 
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return shiroFilterFactoryBean;

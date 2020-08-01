@@ -62,6 +62,7 @@ public class Algorithm implements Serializable {
     private String accesscode;
     private String pushaddress;
     private String region_title;
+    private String relation_face;
 
     public Long getId() {
         return id ;
@@ -237,6 +238,14 @@ public class Algorithm implements Serializable {
 
     public void setRegion_title(String region_title) {
         this.region_title = region_title;
+    }
+
+    public String getRelation_face() {
+        return relation_face;
+    }
+
+    public void setRelation_face(String relation_face) {
+        this.relation_face = relation_face;
     }
 }
 
