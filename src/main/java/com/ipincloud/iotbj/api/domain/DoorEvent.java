@@ -34,7 +34,7 @@ public class DoorEvent {
 
     @Data
     public static class EventData {
-        public int ExtEventCardNo;
-        public int ExtEventInOut;
+        public Number ExtEventCardNo;
+        public Number ExtEventInOut;
     }
 }

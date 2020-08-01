@@ -227,7 +227,7 @@ public class ResourceServiceImpl implements ResourceService {
         if (eventType == 196893 || eventType == 197162) {
             auditLog.setResult("允许通过");
         }
-        if (doorEvent.params.events.get(0).data.ExtEventCardNo > 0) {
+        if (doorEvent.params.events.get(0).data.ExtEventCardNo != null) {
             User account = resourceDao.getAccountByCertificateNum(auditLog.getMobiles());
             if (account != null) {
                 auditLog.setUserID(account.getPersonId());
