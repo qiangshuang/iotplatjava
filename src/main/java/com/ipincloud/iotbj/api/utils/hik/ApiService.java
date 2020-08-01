@@ -209,6 +209,17 @@ public class ApiService {
     public static JSONObject updatePerson(JSONObject jsonObject) {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_UPDATE_PERSON, JSON.toJSONString(jsonObject));
+        //修改人脸信息
+        updateFace(jsonObject);
+        return result.data;
+    }
+    //修改人臉
+    public static JSONObject updateFace(JSONObject jsonObject) {
+        JSONObject face = new JSONObject();
+        face.put("personId", jsonObject.getString("personId"));
+        face.put("faceData", jsonObject.getString("faces"));
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_ADD_FACE, JSON.toJSONString(face));
         return result.data;
     }
 
