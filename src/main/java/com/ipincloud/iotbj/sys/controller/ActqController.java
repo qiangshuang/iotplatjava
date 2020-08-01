@@ -154,11 +154,11 @@
                     return JSON.toJSONString(retResponseBean);
                 }
 
-                Subject currentUser = SecurityUtils.getSubject();
-                if(!currentUser.isPermitted(hyVal)){
-                    ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
-                    return JSON.toJSONString(retResponseBean);
-                }
+//                Subject currentUser = SecurityUtils.getSubject();
+//                if(!currentUser.isPermitted(hyVal)){
+//                    ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
+//                    return JSON.toJSONString(retResponseBean);
+//                }
                 jsonObj.remove("_hy");
                 switch(hyVal){
 

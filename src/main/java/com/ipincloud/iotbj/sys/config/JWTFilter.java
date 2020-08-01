@@ -127,30 +127,30 @@ public class JWTFilter extends BasicHttpAuthenticationFilter{
         return super.preHandle(request, response);
     }
 
-    // move to controller ...
-    private void responseNoPermit(ServletRequest req, ServletResponse resp) {
-        
-        PrintWriter out = null;
-        HttpServletResponse res = (HttpServletResponse) resp;
-        try {
-
-            res.setCharacterEncoding("UTF-8");
-            res.setContentType("application/json");
-
-            out = res.getWriter();
-
-            ResponseBean responseBean = new ResponseBean(200,"FAILED", "用户没有权限访问该服务", null);
-            out.println(JSON.toJSONString(responseBean));
-
-        } catch (Exception e) {
-
-        } finally {
-            if (null != out) {
-                out.flush();
-                out.close();
-            }
-        }
-    }
+//    // move to controller ...
+//    private void responseNoPermit(ServletRequest req, ServletResponse resp) {
+//
+//        PrintWriter out = null;
+//        HttpServletResponse res = (HttpServletResponse) resp;
+//        try {
+//
+//            res.setCharacterEncoding("UTF-8");
+//            res.setContentType("application/json");
+//
+//            out = res.getWriter();
+//
+//            ResponseBean responseBean = new ResponseBean(200,"FAILED", "用户没有权限访问该服务", null);
+//            out.println(JSON.toJSONString(responseBean));
+//
+//        } catch (Exception e) {
+//
+//        } finally {
+//            if (null != out) {
+//                out.flush();
+//                out.close();
+//            }
+//        }
+//    }
     /**
      * 将非法请求跳转到 /401
      */

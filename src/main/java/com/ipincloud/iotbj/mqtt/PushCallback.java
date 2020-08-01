@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PushCallback implements MqttCallback {
     
     private static Logger log = LoggerFactory.getLogger(PushCallback.class);

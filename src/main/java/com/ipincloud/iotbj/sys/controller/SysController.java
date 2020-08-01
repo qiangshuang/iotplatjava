@@ -314,17 +314,17 @@ public class SysController {
     public Object useraccount(@RequestBody JSONObject jsonObject,
                               HttpServletResponse response)  {
 
-        Subject currentUser = SecurityUtils.getSubject();
-        if(!currentUser.isPermitted("/useraccount")){
-            ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
-            return JSON.toJSONString(retResponseBean);
-        }
-        long userId = JWTUtil.getUserId(currentUser.getPrincipals().toString());
-        if (userId < 1) {
-            logger.debug("Data:获取用户ID不成功.");
-            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
-        }
-        
+//        Subject currentUser = SecurityUtils.getSubject();
+//        if(!currentUser.isPermitted("/useraccount")){
+//            ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
+//            return JSON.toJSONString(retResponseBean);
+//        }
+//        long userId = JWTUtil.getUserId(currentUser.getPrincipals().toString());
+//        if (userId < 1) {
+//            logger.debug("Data:获取用户ID不成功.");
+//            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
+//        }
+//
         String userStr = jsonObject.get("user").toString();
         if (userStr == null || userStr.length() < 1 ){
             logger.debug("Data:没有参数字符串:"+userStr);

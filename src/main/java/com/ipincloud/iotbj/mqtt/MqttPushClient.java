@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
-@Component
+//@Component
 public class MqttPushClient {
     private static Logger log = LoggerFactory.getLogger(MqttPushClient.class);
     
-    @Autowired
+//    @Autowired
     private PushCallback pushCallback;
     
     private static MqttClient client;
