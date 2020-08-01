@@ -245,7 +245,7 @@ public class ApiService {
 //        eventTypes.add(197162);
 //        eventTypes.add(197163);
 
-        String eventDest = "http://10.69.202.120:8089/eventRcvFace";
+        String eventDest = "http://10.69.202.101:8089/eventRcvFace";
         jsonObject.put("eventTypes", eventTypes);
         jsonObject.put("eventDest", eventDest);
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
@@ -260,7 +260,7 @@ public class ApiService {
 
         eventTypes.add(771760131);
         eventTypes.add(771760134);
-        String eventDest = "http://10.69.202.120:8089/eventRcvVehicle";
+        String eventDest = "http://10.69.202.101:8089/eventRcvVehicle";
         jsonObject.put("eventTypes", eventTypes);
         jsonObject.put("eventDest", eventDest);
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
