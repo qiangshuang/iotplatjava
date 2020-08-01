@@ -2,6 +2,7 @@ package com.ipincloud.iotbj.srv.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.ipincloud.iotbj.api.utils.AlgorithmFaceUtils;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
 import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.api.utils.hik.HikException;
@@ -36,6 +37,9 @@ public class OrgServiceImpl implements OrgService {
 
     @Value("${hikEnable}")
     private boolean hikEnable;
+
+    @Value("${algorithm_face.face_register}")
+    private String algorithmFaceRegisterUrl;
 
     //@param id 主键
     //@return 实例对象Org
@@ -209,12 +213,16 @@ public class OrgServiceImpl implements OrgService {
                 list.add(face);
                 person.put("faces", list);
                 personId = ApiService.addPerson(person);
+                if (StringUtils.isEmpty(personId)) {
+                    throw new HikException("海康平台添加人员失败");
+                }
             }
 
         }
-        if (personId!=null) {
+        if (personId != null) {
             jsonObjSecond.put("personId", personId);
             userDao.updateInst(jsonObjSecond);
+            AlgorithmFaceUtils.registerFace(algorithmFaceRegisterUrl, personId, jsonObjSecond.getString("photo"));
         }
 
         return jsonObj;
