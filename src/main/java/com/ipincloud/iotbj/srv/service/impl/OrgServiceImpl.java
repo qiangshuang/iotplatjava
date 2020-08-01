@@ -274,6 +274,9 @@ public class OrgServiceImpl implements OrgService {
             person.put("faces", str);
             ApiService.updatePerson(person);
         }
+        if (personId != null) {
+            AlgorithmFaceUtils.registerFace(algorithmFaceRegisterUrl, personId, jsonObjSecond.getString("photo"));
+        }
     }
 
     //@param jsonObj 调用参数
