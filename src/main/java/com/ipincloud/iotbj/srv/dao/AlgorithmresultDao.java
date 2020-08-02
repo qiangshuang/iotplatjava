@@ -29,5 +29,5 @@ public interface AlgorithmresultDao {
 
     List<String> queryAccesscode();
 
-    JSONObject queryAlgorithmByCidAndAid(Long id, Long id1);
+    JSONObject queryAlgorithmByCidAndAid(@Param("cid") Long cid, @Param("aid") Long aid);
 }

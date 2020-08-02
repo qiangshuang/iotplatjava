@@ -201,12 +201,24 @@ public class IotServiceImpl implements IotService {
             }
             IotUtils.postCloseCamera(algorithm_url, parm);
             try {
-                Thread.sleep(5000L);
+                Thread.sleep(1000L);
             } catch (InterruptedException interruptedException) {
                 interruptedException.printStackTrace();
             }
 
-            IotUtils.postOpenCamera(algorithm_url, parm);
+            JSONObject openparm = new JSONObject();
+            if (StringUtils.isNotEmpty(camera.getCameraIndex())) {
+                openparm.put("camera_id", camera.getCameraIndex());
+            } else {
+                openparm.put("camera_id", camera.getId().toString());
+            }
+            openparm.put("camera_name", camera.getTitle());
+            openparm.put("fps", camera.getFramerate());
+            openparm.put("codec", camera.getCodec());
+            openparm.put("resolution_ratio", camera.getResolution());
+            openparm.put("video_stream", camera.getVideoa());
+            openparm.put("target_address", algorithm_url);
+            IotUtils.postOpenCamera(algorithm_url, openparm);
 
             cameraDao.updateInst(jo);
             list.add(map);

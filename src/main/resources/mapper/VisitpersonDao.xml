@@ -46,7 +46,7 @@
         
         
         <select id="visitpersonList" resultType="java.util.Map">
-            select visitperson.`id`,visitperson.`idno`,visitperson.`name`,visitperson.`gender`,visitperson.`image`,visitperson.`phonenumber` from visitperson 
+            select * from visitperson
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >

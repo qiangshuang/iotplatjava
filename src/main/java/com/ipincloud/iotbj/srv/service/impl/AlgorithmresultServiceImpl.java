@@ -101,42 +101,48 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                             }
                         }
                         algorithmalarm.put("box", box);
+                        //查询对应的路数
+                        JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
+                        algorithmalarm.put("border", StringUtils.isEmpty(algorithmalarm.getString("border")) ? "" : StringUtils.isEmpty(algorithmalarm.getString("border")));
 
                         this.algorithmresultDao.addInstAlgorithmalarm(algorithmalarm);
 
-                        //查询对应的路数
-                        JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
-
-                        JSONObject message = new JSONObject();
-                        message.put("displayType", "microapp");
-                        message.put("msgId", algorithmalarm.getString("id"));
-                        String[] user_ids = algorithm.getString("user_ids").split(",");
-                        List<String> list = new ArrayList<>();
+                        String userIds = algorithm.getString("user_ids");
 
                         String personId = "";
-                        for (int j = 0; j < user_ids.length; j++) {
-                            User user = userDao.queryById((long) Integer.parseInt(user_ids[j]));
-                            if (user != null) {
-                                list.add(user.getPersonId());
-                                personId += user.getPersonId() + ",";
+                        if (StringUtils.isNotEmpty(userIds)) {
+                            String[] users = userIds.split(",");
+                            for (int j = 0; j < users.length; j++) {
+                                if (StringUtils.isNotEmpty(users[j])) {
+                                    User user = userDao.queryById(Long.parseLong(users[j]));
+                                    if (user != null) {
+                                        personId += user.getPersonId() + ",";
+                                    }
+                                }
                             }
                         }
-                        personId = personId.substring(0, personId.length() - 1);
-                        message.put("recipient", personId);
+                        if (StringUtils.isNotEmpty(personId)) {
+                            JSONObject message = new JSONObject();
+                            message.put("displayType", "microapp");
+                            message.put("msgId", algorithmalarm.getString("id"));
+                            message.put("recipient", personId);
 
-                        JSONObject content = new JSONObject();
-                        String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
-                        content.put("type", "text");
-                        content.put("msg", msg);
-                        content.put("url", "");
-                        content.put("redirectUrl", "");
-                        content.put("fun", "IAM");
-                        content.put("title", "摄像头算法报警");
-                        String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
-                        content.put("avatar", imgPath);
+                            JSONObject content = new JSONObject();
+                            String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
+                            content.put("type", "text");
+                            content.put("msg", msg);
+                            content.put("url", "");
+                            content.put("redirectUrl", "");
+                            content.put("fun", "IAM");
+                            content.put("title", "摄像头算法报警");
+                            if(StringUtils.isNotEmpty(jsonObj.getString("imgpaath"))) {
+                                String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
+                                content.put("avatar", imgPath);
+                            }
 
-                        message.put("message", content);
-                        oaApi.sendNewAlarmMessage(message);
+                            message.put("message", content);
+                            oaApi.sendNewAlarmMessage(message);
+                        }
                     }
                 }
             }

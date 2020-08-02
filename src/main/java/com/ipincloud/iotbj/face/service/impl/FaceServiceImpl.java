@@ -562,15 +562,15 @@ public class FaceServiceImpl implements FaceService {
             String[] interviewId = interviewIds.split(",");
             for (int i = 0; i < interviewId.length; i++) {
                 User person = userDao.queryById((long) Integer.parseInt(interviewId[i]));
-                if (user != null) {
+                if (person != null) {
                     targetUserId += person.getPersonId() + ",";
                 }
             }
         }
-        //targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
-        //String targetUserName = visit.getString("interview_titles");
-        targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
-        String targetUserName = "张原";
+        targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
+        String targetUserName = visit.getString("interview_titles");
+        //targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
+        //String targetUserName = "张原";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         String startTime = simpleDateFormat.format(new Date(visit.getLong("starttime")));
         String endTime = simpleDateFormat.format(new Date(visit.getLong("endtime")));
@@ -605,22 +605,24 @@ public class FaceServiceImpl implements FaceService {
 
             Long userId = user.getLong("id");
             JSONObject visit = faceDao.findVisitByUser(userId);
-            Long starttime = visit.getLong("starttime");
-            Long endtime = visit.getLong("endtime");
-            Long now = System.currentTimeMillis();
+            if(visit!=null){
+                Long starttime = visit.getLong("starttime");
+                Long endtime = visit.getLong("endtime");
+                Long now = System.currentTimeMillis();
 
-            user.remove("id");
-            user.put("id", visit.getLong("id"));
-            user.put("visit_id", userId);
+                user.remove("id");
+                user.put("id", visit.getLong("id"));
+                user.put("visit_id", userId);
 
-            user.put("interview_ids", visit.getString("interview_ids"));
-            user.put("interview_titles", visit.getString("interview_titles"));
-            user.put("starttime", starttime);
-            user.put("endtime", endtime);
-            if (now < starttime || now > endtime) {
-                user.put("timemsg", "无有效通行时间");
+                user.put("interview_ids", visit.getString("interview_ids"));
+                user.put("interview_titles", visit.getString("interview_titles"));
+                user.put("starttime", starttime);
+                user.put("endtime", endtime);
+                if (now < starttime || now > endtime) {
+                    user.put("timemsg", "无有效通行时间");
+                }
+                jsonObj.put("user", user);
             }
-            jsonObj.put("user", user);
         }
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
     }

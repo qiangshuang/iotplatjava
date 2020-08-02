@@ -53,7 +53,7 @@
         
         
         <select id="vehicleHistoryList" resultType="java.util.Map">
-            select vehicle_history.`vehicle_id`,vehicle_history.`id`,vehicle_history.`in_gate_id`,vehicle_history.`intime`,vehicle_history.`inpic`,vehicle_history.`out_gate_id`,vehicle_history.`outtime`,vehicle_history.`outpic`,vehicle_history.`state`,vehicle_history.`created`,vehicle_history.`updated`,vehicle_history.`vehicle_title`,vehicle_history.`vahicle_category` from vehicle_history 
+            select * from vehicle_history
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >
