@@ -1,6 +1,5 @@
 package com.ipincloud.iotbj.vehicle.controller;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
 import com.ipincloud.iotbj.vehicle.service.VehicleService;
@@ -26,7 +25,7 @@ public class VehicleController {
 
     @PostMapping("vehiclegateadd")
     public Object vehiclegateadd(@RequestBody String jsonstr) {
-        JSONArray jsonObj =  JSONArray.parseArray(jsonstr);
+        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }

@@ -14,11 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 
-@Component
+//@Component
 public class MqttPushClient {
     private static Logger log = LoggerFactory.getLogger(MqttPushClient.class);
     
-    @Autowired
+//    @Autowired
     private PushCallback pushCallback;
     
     private static MqttClient client;
@@ -133,12 +133,7 @@ public class MqttPushClient {
      */
     public static void subscribe(String topic,int qos){
         try {
-            MqttClient client = MqttPushClient.getClient();
-			if(client!=null){
-				client.subscribe(topic, qos);
-			}else{
-				log.error("MqttClient为空");
-			}
+            MqttPushClient.getClient().subscribe(topic, qos);
         } catch (MqttException e) {
             e.printStackTrace();
         }

@@ -10,7 +10,6 @@ public interface SensorDao {
     //@param id 主键 
     //@return 实例对象Sensor 
     Sensor queryById(Long id);
-    Sensor querybyDevcode(String devcode);
     //@param jsonObj 过滤条件等 
     //@return 实例对象Sensor 
     int addInst(@Param("jsonObj") JSONObject jsonObj);

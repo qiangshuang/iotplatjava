@@ -10,18 +10,14 @@
         <result property="pushway" column="pushway" jdbcType="VARCHAR"/> 
         <result property="created" column="created" jdbcType="BIGINT"/> 
         <result property="updated" column="updated" jdbcType="BIGINT"/> 
-        <result property="streamTitle" column="stream_title" jdbcType="VARCHAR"/>
-        <result property="equtitle" column="equtitle" jdbcType="VARCHAR"/> 
-        <result property="equIds" column="equ_ids" jdbcType="VARCHAR"/> 
+        <result property="streamTitle" column="stream_title" jdbcType="VARCHAR"/> 
     </resultMap>
         
         <select id="queryById" resultMap="SensorTriggerMap">
             select * from sensor_trigger where id=#{id}
         </select>
-        <select id="queryAll" resultMap="SensorTriggerMap">
-            select * from sensor_trigger 
-        </select>
-
+        
+        
         
         <select id="countSensorTriggerList" resultType="java.lang.Integer">
             select count(distinct id) from sensor_trigger 
@@ -53,7 +49,7 @@
         
         
         <select id="sensorTriggerList" resultType="java.util.Map">
-            select * from sensor_trigger 
+            select sensor_trigger.`id`,sensor_trigger.`titel`,sensor_trigger.`stream_id`,sensor_trigger.`cond`,sensor_trigger.`dataval`,sensor_trigger.`pushway`,sensor_trigger.`created`,sensor_trigger.`updated` from sensor_trigger 
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >

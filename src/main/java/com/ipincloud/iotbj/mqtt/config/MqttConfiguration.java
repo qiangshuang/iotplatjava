@@ -8,13 +8,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
-@Data
-@Component
-@Configuration
-@ConfigurationProperties(MqttConfiguration.PREFIX)
+//@Data
+//@Component
+//@Configuration
+//@ConfigurationProperties(MqttConfiguration.PREFIX)
 public class MqttConfiguration {
     
-    @Autowired
+//    @Autowired
     private MqttPushClient mqttPushClient;
     
     public static final String PREFIX = "mqtt";
@@ -30,7 +30,7 @@ public class MqttConfiguration {
         this.clientid = clientid+System.currentTimeMillis();
     }
     
-    @Bean
+//    @Bean
     public MqttPushClient getMqttPushClient(){
          mqttPushClient.getParameters(host, clientid, username, password, timeout,keepalive);
          mqttPushClient.connect();

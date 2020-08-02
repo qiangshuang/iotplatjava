@@ -1,6 +1,5 @@
 package com.ipincloud.iotbj.api.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.service.IotService;
@@ -97,7 +96,8 @@ public class IotController {
         return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }
 
-    @PostMapping("算法关闭")
+    @ApiOperation("算法关闭")
+    @PostMapping("algorithmclose")
     public Object algorithmClose(@RequestBody String bodyStr) {
         JSONObject jo = JSONObject.parseObject(bodyStr);
         String hy = jo.getString("_hy");
@@ -133,6 +133,7 @@ public class IotController {
     @PostMapping("/algorithmresult")
     public Object algorithmResult(@RequestParam("result") String result, @RequestParam("camera_id") String camera_id,
                                   @RequestParam("message") String message, @RequestParam(value = "img", required = false) MultipartFile img) {
+        System.out.println("算法结果返回:"+result);
         String path = "";
         if (img != null) {
             String originFileName = img.getOriginalFilename();
@@ -231,45 +232,5 @@ public class IotController {
         return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
 
-    @ApiOperation("其他摄像机列表")
-    @PostMapping("/othercameralist")
-    public Object othercameralist(@RequestBody String bodyStr) {
-        JSONArray jsonArray = JSONArray.parseArray(bodyStr);
-        if (jsonArray == null) {
-            return new ResponseBean(200, "FAILED", "参数不正确", null);
-        }
-        List<JSONObject> data = iotService.otherCameralist(jsonArray);
-        return new ResponseBean(200, "SUCCESS", "操作成功", data);
-    }
-	
-	@ApiOperation("实时报警明细")
-    @PostMapping("/realalarmdtl")
-    public Object realalarmdtl(@RequestBody String bodyStr) {
-        JSONObject jsonObject = JSON.parseObject(bodyStr);
-        if (jsonObject == null) {
-            return new ResponseBean(200, "FAILED", "参数有误", null);
-        }
-        //Long algorithm_id = Long.valueOf(bodyStr.trim());
-        Long algorithm_id = jsonObject.getLong("algorithm_id");
-        List<JSONObject> data = iotService.alarmdtl(algorithm_id);
-        return new ResponseBean(200, "SUCCESS", "操作成功", data);
-    }
-	
-    @ApiOperation("实时摄像机")
-    @PostMapping("/realcameraindexlist")
-    public Object realcameraindexlist() {
-        JSONObject data = iotService.realcameraindexlist();
-        return new ResponseBean(200, "SUCCESS", "操作成功", data);
-    }
-	
-    @ApiOperation("实时预警列表")
-    @PostMapping("/realAlarmlist")
-    public Object realAlarmlist(@RequestBody String bodyStr) {
-        JSONObject jsonObject = JSON.parseObject(bodyStr);
-        if (jsonObject == null) {
-            return new ResponseBean(200, "FAILED", "参数有误", null);
-        }
-        return iotService.realAlarmList(jsonObject);
-    }
 
 }

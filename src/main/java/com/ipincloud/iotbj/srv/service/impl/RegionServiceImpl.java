@@ -6,7 +6,6 @@ import com.ipincloud.iotbj.srv.dao.RegionDao;
 import com.ipincloud.iotbj.srv.domain.Region;
 import com.ipincloud.iotbj.srv.service.RegionService;
 import com.ipincloud.iotbj.utils.ParaUtils;
-import com.ipincloud.iotbj.utils.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -62,10 +61,7 @@ public class RegionServiceImpl implements RegionService {
 
         jsonObj = ParaUtils.removeSurplusCol(jsonObj, "id,title,parent_id,regionIndexCode,indexCode,parentIndexCode");
         Region region = regionDao.queryById(jsonObj.getLong("parent_id"));
-		String parentIndexCode = "";
-        if (region != null && StringUtils.isNotEmpty(region.getIndexCode())) {
-            parentIndexCode = region.getIndexCode();
-        }
+        String parentIndexCode = region.getIndexCode();
         jsonObj.put("indexCode", UUID.randomUUID().toString());
         jsonObj.put("parentIndexCode", parentIndexCode);
 
@@ -95,12 +91,10 @@ public class RegionServiceImpl implements RegionService {
     public void updateInst(JSONObject jsonObj) {
         jsonObj = ParaUtils.removeSurplusCol(jsonObj, "id,title,parent_id,regionIndexCode,indexCode,parentIndexCode");
         this.regionDao.updateInst(jsonObj);
-		
-        Region regionOne = regionDao.queryById(jsonObj.getLong("id"));
         if (hikEnable) {
             JSONObject region = new JSONObject();
-            region.put("regionIndexCode", regionOne.getIndexCode());
-            region.put("regionName", regionOne.getTitle());
+            region.put("regionIndexCode", jsonObj.getString("indexCode"));
+            region.put("regionName", jsonObj.getString("title"));
             ApiService.updateRegion(region);
         }
     }

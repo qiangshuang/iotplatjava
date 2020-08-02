@@ -42,18 +42,19 @@ public class User implements Serializable {
     private String photo;
     // 身份证号
     private String idnumber;
+
+    private String jobno;
     // 卡片数量
     private Integer cardnumber;
     // 主卡号
     private String mcardno;
+
     // 性别
     private String gender;
     // 用户唯一标识
     private String personId;
 
     private String userGroup;
-    
-    private  String jobno;
 
     public String getMobile() {
         return mobile;
@@ -174,7 +175,13 @@ public class User implements Serializable {
     public void setIdnumber(String idnumber) {
         this.idnumber = idnumber;
     }
+    public String getJobno() {
+        return jobno;
+    }
 
+    public void setJobno(String jobno) {
+        this.jobno = jobno;
+    }
     public Integer getCardnumber() {
         return cardnumber;
     }
@@ -219,12 +226,5 @@ public class User implements Serializable {
         return "外来访客".equals(userGroup);
     }
 
-    public String getJobno() {
-        return jobno;
-    }
-
-    public void setJobno(String jobno) {
-        this.jobno = jobno;
-    }
 }
 

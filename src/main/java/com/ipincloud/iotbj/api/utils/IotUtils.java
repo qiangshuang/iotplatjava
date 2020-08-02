@@ -1,8 +1,10 @@
 package com.ipincloud.iotbj.api.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.utils.StringUtils;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -11,12 +13,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.RequestEntity;
 
 import javax.net.ssl.*;
 import java.io.BufferedReader;
@@ -237,15 +241,19 @@ public class IotUtils {
             httpPost.addHeader("Content-Type", "application/json;charset=UTF-8");
             httpPost.addHeader("apikey", apikey);
             // 创建参数列表
-            if (params != null) {
-                List<NameValuePair> paramList = new ArrayList<>();
-                for (String key : params.keySet()) {
-                    paramList.add(new BasicNameValuePair(key, params.getString(key)));
-                }
-                // 模拟表单
-                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList, "utf-8");
-                httpPost.setEntity(entity);
-            }
+//            if (params != null) {
+//                List<NameValuePair> paramList = new ArrayList<>();
+//                for (String key : params.keySet()) {
+//                    paramList.add(new BasicNameValuePair(key, params.getString(key)));
+//                }
+//                // 模拟表单
+//                UrlEncodedFormEntity entity = new UrlEncodedFormEntity(paramList, "utf-8");
+//                httpPost.setEntity(entity);
+//            }
+
+
+            StringEntity s = new StringEntity(JSON.toJSONString(params), "utf-8");
+            httpPost.setEntity(s);
             // 执行http请求
             response = httpClient.execute(httpPost);
             // 判断返回状态是否为200
@@ -314,14 +322,13 @@ public class IotUtils {
         try {
             URL url = new URL(uri);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
+            //
             trustAllHttpsCertificates();
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
                 public boolean verify(String urlHostName, SSLSession session) {
                     return true;
                 }
             });
-
             connection.setDoInput(true); // 设置可输入
             connection.setDoOutput(true); // 设置该连接是可以输出的
             connection.setRequestMethod("POST"); // 设置请求方式
@@ -393,5 +400,6 @@ public class IotUtils {
             return HttpClients.createDefault();
         }
     }
+
 
 }

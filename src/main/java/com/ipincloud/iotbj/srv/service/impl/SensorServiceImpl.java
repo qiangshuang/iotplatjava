@@ -33,7 +33,7 @@ public class SensorServiceImpl implements SensorService {
     @Override 
     public JSONObject addInst( JSONObject jsonObj){
         
-            jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,product_ids,category_id,firm_id,region_id,region_title,stream_id,ipandport,equipment,accesscode,site,created,updated,equ_id,steam_title,devcode");
+            jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,product_ids,category_id,firm_id,region_id,region_title,stream_id,ipandport,equipment,accesscode,site,created,updated,equ_id");
             this.sensorDao.addInst(jsonObj);
         // jsonObj.put("id",genId);
         return jsonObj;
@@ -44,7 +44,7 @@ public class SensorServiceImpl implements SensorService {
     //@return 影响记录数Sensor 
     @Override 
     public void updateInst(JSONObject jsonObj){
-        jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,product_ids,category_id,firm_id,region_id,region_title,stream_id,ipandport,equipment,accesscode,site,created,updated,equ_id,steam_title,devcode");        this.sensorDao.updateInst(jsonObj); 
+        jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,product_ids,category_id,firm_id,region_id,region_title,stream_id,ipandport,equipment,accesscode,site,created,updated,equ_id");        this.sensorDao.updateInst(jsonObj); 
     } 
 
     //@param jsonObj 过滤条件等 

@@ -1,4 +1,4 @@
-package com.ipincloud.iotbj.sys.domain;
+package com.ipincloud.iotbj.openapi.domain;
 
 import java.io.Serializable;
 import com.alibaba.fastjson.annotation.JSONField;

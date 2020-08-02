@@ -19,7 +19,7 @@ public class UserRole implements Serializable {
     private Long roleId ;
 
     private String thirdUUID;
-    
+
     public Long getUserId() {
         return userId ;
     }
@@ -36,7 +36,7 @@ public class UserRole implements Serializable {
         this.roleId = roleId;
     }
 
-    public void getThirdUUID(){
+    public String getThirdUUID(){
         return thirdUUID;
     }
     public void setThirdUUID(String thirdUUId){

@@ -13,7 +13,6 @@ public interface DataflowDao {
     //@param jsonObj 过滤条件等 
     //@return 实例对象 
     List<Map> dataflowList(@Param("jsonObj") JSONObject jsonObj);
-    List<Dataflow> queryByIds(@Param("ids") String ids);
     //@param jsonObj 过滤条件等 
     //@return 总条数list 
     Integer countDataflowList(@Param("jsonObj") JSONObject jsonObj);

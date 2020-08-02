@@ -16,7 +16,7 @@ public interface ResourceService {
 
     Object syncGateway();
 
-    Object saveEventFace(DoorEvent doorEvent);
-
     Object saveEventVehicle(VehicleEvent vehicleEvent) throws ParseException;
+
+    Object saveEventFace(DoorEvent doorEvent);
 }

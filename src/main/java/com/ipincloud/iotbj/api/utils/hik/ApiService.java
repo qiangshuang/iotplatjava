@@ -5,10 +5,13 @@ import com.ipincloud.iotbj.api.utils.IotUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Component
 public class ApiService {
     private static Logger logger = LoggerFactory.getLogger(ApiService.class);
 
@@ -26,6 +29,8 @@ public class ApiService {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("userName", "iotadmin");
         jsonObject.put("modName", "车辆道闸");
+
+
 
         String url = "https://10.69.206.70:10443/restapi/iot/iotinfomgr/modelInfo";
         String result = IotUtils.doPost(url, apikey, jsonObject);
@@ -61,7 +66,6 @@ public class ApiService {
         JSONObject retJson3 = (JSONObject) JSONObject.parse(result3);
         return retJson3;
     }
-
 
     //车道开闸
     public static JSONObject deviceOpen(JSONObject jsonObject) {
@@ -205,6 +209,17 @@ public class ApiService {
     public static JSONObject updatePerson(JSONObject jsonObject) {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_UPDATE_PERSON, JSON.toJSONString(jsonObject));
+        //修改人脸信息
+        updateFace(jsonObject);
+        return result.data;
+    }
+    //修改人臉
+    public static JSONObject updateFace(JSONObject jsonObject) {
+        JSONObject face = new JSONObject();
+        face.put("personId", jsonObject.getString("personId"));
+        face.put("faceData", jsonObject.getString("faces"));
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_ADD_FACE, JSON.toJSONString(face));
         return result.data;
     }
 
@@ -235,11 +250,11 @@ public class ApiService {
         JSONObject jsonObject = new JSONObject();
         List<Number> eventTypes = new ArrayList<>();
 
-        eventTypes.add(198913);
+        eventTypes.add(196893);
         eventTypes.add(197151);
         eventTypes.add(197160);
-        eventTypes.add(197162);
-        eventTypes.add(197163);
+//        eventTypes.add(197162);
+//        eventTypes.add(197163);
 
         String eventDest = "http://10.69.202.101:8089/eventRcvFace";
         jsonObject.put("eventTypes", eventTypes);
@@ -290,7 +305,7 @@ public class ApiService {
         return result.data;
     }
 
-    public static void fixed(String plateNo){
+    public static void fixed(String plateNo) {
         BaseResponse<List<JSONObject>> parkList = ApiUtil.post(new TypeReference<BaseResponse<List<JSONObject>>>() {
         }, ApiUtil.PATH_VEHICLE_PARK_PARKLIST, JSON.toJSONString(new JSONObject()));
         String parkIndexCode = null;
@@ -327,7 +342,7 @@ public class ApiService {
     }
 
     // 配置员工权限
-    public static void authDownload(Set<JSONObject> resourceInfos, Set<JSONObject> personInfos) {
+    public static void authDownload(Set<JSONObject> resourceInfos, Set<JSONObject> personInfos, Boolean addOrUpdate) {
         int taskTypeCard = 1;
         String taskIdCard = createAuthDownloadTask(taskTypeCard);
         JSONObject jsonObjectCard = new JSONObject();
@@ -336,9 +351,11 @@ public class ApiService {
         jsonObjectCard.put("personInfos", personInfos);
         addAuthDownloadData(jsonObjectCard);
 
-        JSONObject taskCard = new JSONObject();
-        taskCard.put("taskId",taskIdCard);
-        queryAuthDownloadTaskStartAndProgress(taskCard);
+        if (addOrUpdate) {
+            JSONObject taskCard = new JSONObject();
+            taskCard.put("taskId", taskIdCard);
+            queryAuthDownloadTaskStartAndProgress(taskCard);
+        }
 
         int taskTypeFace = 4;
         String taskIdface = createAuthDownloadTask(taskTypeFace);
@@ -348,30 +365,36 @@ public class ApiService {
         jsonObjectFace.put("personInfos", personInfos);
         addAuthDownloadData(jsonObjectFace);
 
-        JSONObject taskFace = new JSONObject();
-        taskFace.put("taskId",taskIdface);
-        queryAuthDownloadTaskStartAndProgress(taskFace);
-
-        List<JSONObject> jsonObjects = new ArrayList<>();
-        for (int i = 0; i < personInfos.size(); i++) {
-            Iterator<JSONObject> iterator = personInfos.iterator();
-            while (iterator.hasNext()){
-                String personId = iterator.next().getString("personId");
-                JSONObject searchParm = new JSONObject();
-                searchParm.put("personId",personId);
-                searchParm.put("personId",personId);
-                //authDownloadSearch()
-            }
+        if (addOrUpdate) {
+            JSONObject taskFace = new JSONObject();
+            taskFace.put("taskId", taskIdface);
+            queryAuthDownloadTaskStartAndProgress(taskFace);
         }
+
     }
 
     //查询单个人员权限配置
-    public  static JSONObject authDownloadSearch(JSONObject jsonObject){
+    public static JSONObject authDownloadSearch() {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
-        }, ApiUtil.PATH_AUTH_ITEM_SINGLE_SEARCH, JSON.toJSONString(jsonObject));
-        return result.data;
+        }, ApiUtil.PATH_AUTH_ITEM_SINGLE_SEARCH, JSON.toJSONString(new JSONObject()));
+        return null;
     }
 
+    public static JSONObject authDownloadSearchList(Set<JSONObject> resourceInfos, Set<String> personIds) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("pageNo", 1);
+        jsonObject.put("pageSize", 1000);
+        jsonObject.put("personIds", personIds);
+        jsonObject.put("resourceInfos", resourceInfos);
+        jsonObject.put("queryType", "door");
+        jsonObject.put("personStatus", new int[]{3});
+        jsonObject.put("cardStatus", new int[]{3});
+        jsonObject.put("personStatus", new int[]{3});
 
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_AUTH_ITEM_LIST_SEARCH, JSON.toJSONString(jsonObject));
+        return result.data;
+
+    }
 
 }

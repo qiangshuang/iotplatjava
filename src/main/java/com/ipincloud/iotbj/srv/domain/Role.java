@@ -95,7 +95,7 @@ public class Role implements Serializable {
         this.enable = enable;
     }
 
-    public void getThirdUUID(){
+    public String getThirdUUID(){
         return thirdUUID;
     }
     public void setThirdUUID(String thirdUUId){

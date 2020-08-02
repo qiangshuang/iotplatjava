@@ -1,4 +1,4 @@
- package com.ipincloud.iotbj.api.domain;
+package com.ipincloud.iotbj.api.domain;
 
 import lombok.Data;
 

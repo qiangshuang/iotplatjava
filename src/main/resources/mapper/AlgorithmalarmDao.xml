@@ -52,7 +52,7 @@
         
         
         <select id="algorithmalarmList" resultType="java.util.Map">
-            select algorithmalarm.`id`,algorithmalarm.`alarm_time`,algorithmalarm.`algorithm_name`,algorithmalarm.`camera_name`,algorithmalarm.`grade`,algorithmalarm.`describion`,algorithmalarm.`indate`,algorithmalarm.`state`,algorithmalarm.`algorithm_id`,algorithmalarm.`camera_id`,algorithmalarm.`region`,algorithmalarm.`alarm_img` from algorithmalarm 
+            select * from algorithmalarm
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >

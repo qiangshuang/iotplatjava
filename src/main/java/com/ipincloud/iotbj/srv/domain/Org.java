@@ -33,7 +33,9 @@ public class Org implements Serializable {
     // 部门名称
     private String title ;
     // 部门唯一标识
-    private String orgIndexCode ;
+    private String orgIndexCode;
+    // 父部门
+    private String parentOrgIndexCode;
 
     public Long getId() {
         return id ;
@@ -115,5 +117,12 @@ public class Org implements Serializable {
         this.orgIndexCode = orgIndexCode;
     }
 
+    public String getParentOrgIndexCode() {
+        return parentOrgIndexCode;
+    }
+
+    public void setParentOrgIndexCode(String parentOrgIndexCode) {
+        this.parentOrgIndexCode = parentOrgIndexCode;
+    }
 }
 

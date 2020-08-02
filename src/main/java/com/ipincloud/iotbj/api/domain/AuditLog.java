@@ -1,8 +1,5 @@
- package com.ipincloud.iotbj.api.domain;
+package com.ipincloud.iotbj.api.domain;
 
-import lombok.Data;
-
-@Data
 public class AuditLog {
     private String happenTime;
     private String userID;
@@ -15,6 +12,10 @@ public class AuditLog {
     private String mobiles;
     private String certificateNum;
     private Number ExtEventInOut;
+    private String gateName;
+    private long created;
+    private long updated;
+
 
     public String getHappenTime() {
         return happenTime;
@@ -102,5 +103,29 @@ public class AuditLog {
 
     public void setExtEventInOut(Number extEventInOut) {
         ExtEventInOut = extEventInOut;
+    }
+
+    public String getGateName() {
+        return gateName;
+    }
+
+    public void setGateName(String gateName) {
+        this.gateName = gateName;
+    }
+
+    public long getCreated() {
+        return created;
+    }
+
+    public void setCreated(long created) {
+        this.created = created;
+    }
+
+    public long getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(long updated) {
+        this.updated = updated;
     }
 }

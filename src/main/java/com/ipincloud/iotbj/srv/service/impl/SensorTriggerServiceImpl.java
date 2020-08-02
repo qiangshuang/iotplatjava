@@ -59,7 +59,7 @@ public class SensorTriggerServiceImpl implements SensorTriggerService {
     @Override 
     public JSONObject addInst( JSONObject jsonObj){
         
-            jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,stream_id,cond,dataval,pushway,created,updated,stream_title,equtitle,equ_ids");
+            jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,stream_id,cond,dataval,pushway,created,updated,stream_title");
             this.sensorTriggerDao.addInst(jsonObj);
         // jsonObj.put("id",genId);
         return jsonObj;
@@ -70,6 +70,6 @@ public class SensorTriggerServiceImpl implements SensorTriggerService {
     //@return 影响记录数SensorTrigger 
     @Override 
     public void updateInst(JSONObject jsonObj){
-        jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,stream_id,cond,dataval,pushway,created,updated,stream_title,equtitle,equ_ids");        this.sensorTriggerDao.updateInst(jsonObj); 
+        jsonObj = ParaUtils.removeSurplusCol(jsonObj,"id,titel,stream_id,cond,dataval,pushway,created,updated,stream_title");        this.sensorTriggerDao.updateInst(jsonObj); 
     } 
 }

@@ -49,10 +49,6 @@ public class Sensor implements Serializable {
     @JSONField(name = "equ_id")
     private String equId ;
 
-    @JSONField(name = "stream_title")
-    private String streamTitle ;
-    private String devcode;
-
     public Long getId() {
         return id ;
     }
@@ -173,20 +169,5 @@ public class Sensor implements Serializable {
         this.equId = equId;
     }
 
-    public String getStreamTitle() {
-        return streamTitle ;
-    }
-
-    public void setStreamTitle(String streamTitle) {
-        this.streamTitle = streamTitle;
-    }
-
-    public String getDevcode() {
-        return devcode ;
-    }
-
-    public void setDevcode(String devcode) {
-        this.devcode = devcode;
-    }
 }
 

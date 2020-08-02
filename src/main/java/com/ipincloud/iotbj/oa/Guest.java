@@ -23,7 +23,7 @@ public class Guest {
                  String endTime, String facePic, String createTime, String status) {
         this.id = id;
         this.userId = userId;
-        this.name = userId;
+        this.name = name;
         this.certificateNum = certificateNum;
         this.mobile = mobile;
         this.gender = gender;
@@ -138,5 +138,24 @@ public class Guest {
 
     public void setFacePic(String facePic) {
         this.facePic = facePic;
+    }
+
+    @Override
+    public String toString() {
+        return "Guest{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", certificateNum='" + certificateNum + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", gender='" + gender + '\'' +
+                ", targetUserId='" + targetUserId + '\'' +
+                ", targetUserName='" + targetUserName + '\'' +
+                ", startTime='" + startTime + '\'' +
+                ", endTime='" + endTime + '\'' +
+                ", facePic='" + facePic + '\'' +
+                ", createTime='" + createTime + '\'' +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

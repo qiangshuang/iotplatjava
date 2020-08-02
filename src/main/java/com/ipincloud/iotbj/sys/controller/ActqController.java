@@ -140,8 +140,7 @@
 
             @Autowired
             private VisitpersonService visitpersonService;
-			@Autowired
-            private SensorAlarmService sensorAlarmService;
+
 
             @PostMapping("/actq")
             public Object actq(@RequestBody String bodyStr,
@@ -155,11 +154,13 @@
                     return JSON.toJSONString(retResponseBean);
                 }
 
-                // Subject currentUser = SecurityUtils.getSubject();
-                // if(!currentUser.isPermitted(hyVal)){
-                //     ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
-                //     return JSON.toJSONString(retResponseBean);
-                // }
+
+//                Subject currentUser = SecurityUtils.getSubject();
+//                if(!currentUser.isPermitted(hyVal)){
+//                    ResponseBean retResponseBean = new ResponseBean(200,"FAILED", "权限不足,请与管理员联系",null);
+//                    return JSON.toJSONString(retResponseBean);
+//                }
+
                 jsonObj.remove("_hy");
                 switch(hyVal){
 
@@ -191,12 +192,7 @@
             ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",retMap);
             return JSON.toJSONString(retResponseBean);
             }
-        case "sensoralarmlist":
-            {
-            Map retMap = sensorAlarmService.sensorAlarmList(jsonObj);
-            ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",retMap);
-            return JSON.toJSONString(retResponseBean);
-            }
+            
         case "basemanlist":
             {
             Map retMap = basemanService.basemanList(jsonObj);

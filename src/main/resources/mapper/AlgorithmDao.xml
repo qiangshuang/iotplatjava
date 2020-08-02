@@ -21,6 +21,9 @@
         <result property="userIds" column="user_ids" jdbcType="VARCHAR"/> 
         <result property="userTitles" column="user_titles" jdbcType="VARCHAR"/> 
         <result property="opentime" column="opentime" jdbcType="BIGINT"/> 
+        <result property="accesscode" column="accesscode" jdbcType="VARCHAR"/>
+        <result property="pushaddress" column="pushaddress" jdbcType="VARCHAR"/>
+        <result property="region_title" column="region_title" jdbcType="VARCHAR"/>
     </resultMap>
         
         <select id="queryById" resultMap="AlgorithmMap">

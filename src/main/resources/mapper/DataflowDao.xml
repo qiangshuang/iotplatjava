@@ -8,7 +8,6 @@
         <result property="company" column="company" jdbcType="VARCHAR"/> 
         <result property="comsym" column="comsym" jdbcType="VARCHAR"/> 
         <result property="equman" column="equman" jdbcType="VARCHAR"/> 
-        <result property="categoryId" column="category_id" jdbcType="VARCHAR"/> 
     </resultMap>
         
         <select id="queryById" resultMap="DataflowMap">
@@ -47,7 +46,7 @@
         
         
         <select id="dataflowList" resultType="java.util.Map">
-            select * from dataflow 
+            select dataflow.`id`,dataflow.`dataval`,dataflow.`datatitle`,dataflow.`company`,dataflow.`comsym`,dataflow.`equman` from dataflow 
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >
@@ -82,10 +81,6 @@
             </if>
         </select>
         
-        <select id="queryByIds" resultMap="DataflowMap">
-            select * from dataflow where instr(concat(',',#{ids}, ','),concat(',',id,','))
-        </select>
-
         
             <insert id="addInst"  useGeneratedKeys="true" keyProperty="jsonObj.id">
                 insert into dataflow

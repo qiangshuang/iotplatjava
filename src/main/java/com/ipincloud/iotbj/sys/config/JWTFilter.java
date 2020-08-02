@@ -81,7 +81,11 @@ public class JWTFilter extends BasicHttpAuthenticationFilter{
         if ( "/".equals(servletPath) || servletPath.startsWith("/captcha")  || servletPath.startsWith("/login") ||
             servletPath.startsWith("/logout") ||servletPath.startsWith("/static") || servletPath.startsWith("/401") || 
             servletPath.startsWith("/userselfinfo") ||servletPath.startsWith("/hyupload") ||servletPath.startsWith("/hydownload") ||
-           servletPath.startsWith("/404")|| "/favicon.ico".equals(servletPath) ){
+           servletPath.startsWith("/404")|| "/favicon.ico".equals(servletPath) ||
+           "/eventRcvFace".equals(servletPath) ||"/eventRcvVehicle".equals(servletPath) ||"/algorithmresult".equals(servletPath) 
+
+
+            ){
 
             return true;
         }else if (isLoginAttempt(request, response)) { //登录尝试
@@ -124,30 +128,30 @@ public class JWTFilter extends BasicHttpAuthenticationFilter{
         return super.preHandle(request, response);
     }
 
-    // move to controller ...
-    private void responseNoPermit(ServletRequest req, ServletResponse resp) {
-        
-        PrintWriter out = null;
-        HttpServletResponse res = (HttpServletResponse) resp;
-        try {
-
-            res.setCharacterEncoding("UTF-8");
-            res.setContentType("application/json");
-
-            out = res.getWriter();
-
-            ResponseBean responseBean = new ResponseBean(200,"FAILED", "用户没有权限访问该服务", null);
-            out.println(JSON.toJSONString(responseBean));
-
-        } catch (Exception e) {
-
-        } finally {
-            if (null != out) {
-                out.flush();
-                out.close();
-            }
-        }
-    }
+//    // move to controller ...
+//    private void responseNoPermit(ServletRequest req, ServletResponse resp) {
+//
+//        PrintWriter out = null;
+//        HttpServletResponse res = (HttpServletResponse) resp;
+//        try {
+//
+//            res.setCharacterEncoding("UTF-8");
+//            res.setContentType("application/json");
+//
+//            out = res.getWriter();
+//
+//            ResponseBean responseBean = new ResponseBean(200,"FAILED", "用户没有权限访问该服务", null);
+//            out.println(JSON.toJSONString(responseBean));
+//
+//        } catch (Exception e) {
+//
+//        } finally {
+//            if (null != out) {
+//                out.flush();
+//                out.close();
+//            }
+//        }
+//    }
     /**
      * 将非法请求跳转到 /401
      */

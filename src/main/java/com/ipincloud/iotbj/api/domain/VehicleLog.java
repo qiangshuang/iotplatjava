@@ -1,4 +1,4 @@
- package com.ipincloud.iotbj.api.domain;
+package com.ipincloud.iotbj.api.domain;
 
 import lombok.Data;
 
@@ -14,7 +14,7 @@ public class VehicleLog {
     private String state = "禁止通过";
     private String created;
     private String updated;
-    private String vehicle_title;
-    private String vahicle_category;
+    private Number vehicle_title;
+    private Number vahicle_category;
     private String staytime;
 }
