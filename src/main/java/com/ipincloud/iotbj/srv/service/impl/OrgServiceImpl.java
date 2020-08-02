@@ -173,6 +173,7 @@ public class OrgServiceImpl implements OrgService {
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj, "mobile,user_name,pwd,id,title,parent_id,parent_title,lastlogin,job_title,job_id,thirdin,created,updated,photo,idnumber,cardnumber,mcardno,gender,personId");
         jsonObjSecond.put("id", jsonObjFirst.get("id"));
         jsonObjSecond.put("created", System.currentTimeMillis());
+        jsonObjSecond.put("userGroup", "场内人员");
         this.userDao.addInst(jsonObjSecond);
 
         String personId = null;

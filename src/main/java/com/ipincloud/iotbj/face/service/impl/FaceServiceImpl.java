@@ -462,60 +462,13 @@ public class FaceServiceImpl implements FaceService {
             jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj, "mobile,user_name,pwd,id,title,parent_id,parent_title,lastlogin,job_title,job_id,thirdin,created,updated,photo,idnumber,cardnumber,mcardno,gender,personId");
             jsonObjSecond.put("id", jsonObjFirst.get("id"));
             jsonObjSecond.put("created", System.currentTimeMillis());
+            jsonObjSecond.put("userGroup", "外来访客");
             if (org != null) {
                 jsonObjSecond.put("parent_id", org.getId());
                 jsonObjSecond.put("parent_title", org.getTitle());
             }
             this.userDao.addInst(jsonObjSecond);
 
-            String personId = null;
-            if (false) {
-                //通过身份证查询海康是否存在人员
-                JSONObject certifi = new JSONObject();
-                certifi.put("certificateType", "111");
-                certifi.put("certificateNo", jsonObjSecond.getString("idnumber"));
-                JSONObject hikperson = ApiService.getPersonbycertificateno(certifi);
-                if (hikperson == null) {
-                    JSONObject person = new JSONObject();
-                    person.put("personName", jsonObjSecond.getString("title"));
-                    if (Objects.equals("男", jsonObjSecond.getString("gender"))) {
-                        person.put("gender", "1");
-                    } else if (Objects.equals("女", jsonObjSecond.getString("gender"))) {
-                        person.put("gender", "2");
-                    } else {
-                        person.put("gender", "0");
-                    }
-                    ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
-                    if (hikOrg == null) {
-                        throw new HikException("海康平台的根部门不存在");
-                    }
-                    person.put("orgIndexCode", hikOrg.orgIndexCode);
-                    person.put("phoneNo", jsonObjSecond.getString("mobile"));
-                    person.put("certificateType", "111");
-                    person.put("certificateNo", jsonObjSecond.getString("idnumber"));
-                    if (Objects.equals("", jsonObjSecond.getString("user_name"))) {
-                        person.put("jobNo", jsonObjSecond.getString("user_name"));
-                    } else {
-                        person.put("jobNo", jsonObjSecond.getString("jobno"));
-                    }
-                    List<Map> list = new ArrayList();
-                    Map face = new HashMap();
-                    String str = "";
-                    if (StringUtils.isNotEmpty(jsonObjSecond.getString("photo"))) {
-                        str = FileUtils.readImgBase64Code(jsonObjSecond.getString("photo"));
-                    }
-                    face.put("faceData", str);
-                    list.add(face);
-                    person.put("faces", list);
-                    personId = ApiService.addPerson(person);
-                } else {
-                    personId = hikperson.getString("personId");
-                }
-            }
-            if (personId != null) {
-                jsonObjSecond.put("personId", personId);
-                userDao.updateInst(jsonObjSecond);
-            }
             userId = jsonObjSecond.getLong("id");
         } else {
             userId = user.getLong("id");
