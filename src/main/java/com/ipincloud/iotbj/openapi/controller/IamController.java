@@ -18,14 +18,14 @@ public class IamController {
     @Autowired
     IamService iamService;
 
-    // @PostMapping("syncacsdev")
-    // public Object syncacsdev(@RequestBody String jsonstr) {
-    //     JSONObject jsonObj = JSONObject.parseObject(jsonstr);
-    //     if (jsonObj == null) {
-    //         return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
-    //     }
-    //     return faceService.syncAcsdev(jsonObj);
-    // }
+    @PostMapping("/account/saveOrUpdateUser")
+    public Object saveOrUpdateUser(@RequestBody String jsonstr) {
+        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+        if (jsonObj == null) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        return iamService.saveOrUpdateUser(jsonObj);
+    }
 
     // @PostMapping("gatewayadd")
     // public Object gatewayadd(@RequestBody String jsonstr) {

@@ -15,6 +15,25 @@ import java.util.*;
 public class ApiService {
     private static Logger logger = LoggerFactory.getLogger(ApiService.class);
 
+    private static String iotBaseUrl;
+    private static String iotApiKey;
+    private static String appBaseUrl;
+
+    @Value("${iot.url}")
+    public void setIotBaseUrl(String iotBaseUrl) {
+        ApiService.iotBaseUrl = iotBaseUrl;
+    }
+
+    @Value("${iot.apikey}")
+    public void setIotApiKey(String iotApiKey) {
+        ApiService.iotApiKey = iotApiKey;
+    }
+
+    @Value("${localhostUri}")
+    public void setAppBaseUrl(String appBaseUrl) {
+        ApiService.appBaseUrl = appBaseUrl;
+    }
+
     // 同步门禁设备
     public static JSONObject ascDevSync(JSONObject jsonObject) {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
@@ -31,7 +50,7 @@ public class ApiService {
         jsonObject.put("modName", "车辆道闸");
 
 
-        String url = "https://10.69.206.70:10443/restapi/iot/iotinfomgr/modelInfo";
+        String url = iotBaseUrl + "/modelInfo";
         String result = IotUtils.doPost(url, apikey, jsonObject);
 
         JSONObject retJson = (JSONObject) JSONObject.parse(result);
@@ -45,7 +64,7 @@ public class ApiService {
         }
 
         step2Json.remove("modName");
-        String url2 = "https://10.69.206.70:10443/restapi/iot/iotinfomgr/modelKey";
+        String url2 = iotBaseUrl + "/modelKey";
         String result2 = IotUtils.doGet(url2, apikey, step2Json);
         JSONObject retJson2 = (JSONObject) JSONObject.parse(result2);
         if (retJson2.getInteger("code") != 0) {
@@ -60,7 +79,7 @@ public class ApiService {
         step3Json.put("pageNum", 1);
         step3Json.put("pageSize", 1000);
 
-        String url3 = "https://10.69.206.70:10443/restapi/iot/iotinfomgr/entityList";
+        String url3 = iotBaseUrl + "/entityList";
         String result3 = IotUtils.doPost(url3, apikey, step3Json);
         JSONObject retJson3 = (JSONObject) JSONObject.parse(result3);
         return retJson3;
@@ -217,8 +236,8 @@ public class ApiService {
     public static void updateFace(JSONObject jsonObject) {
         String personId = jsonObject.getString("personId");
         JSONObject param = new JSONObject();
-        param.put("pageNo",1);
-        param.put("pageSize",1000);
+        param.put("pageNo", 1);
+        param.put("pageSize", 1000);
         param.put("personIds", personId);
         BaseResponse<JSONObject> resultlist = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_GET_PERSON_LIST_BY, JSON.toJSONString(param));
@@ -273,7 +292,7 @@ public class ApiService {
 //        eventTypes.add(197162);
 //        eventTypes.add(197163);
 
-        String eventDest = "http://10.69.202.101:8089/eventRcvFace";
+        String eventDest = appBaseUrl + "/eventRcvFace";
         jsonObject.put("eventTypes", eventTypes);
         jsonObject.put("eventDest", eventDest);
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
@@ -288,7 +307,7 @@ public class ApiService {
 
         eventTypes.add(771760131);
         eventTypes.add(771760134);
-        String eventDest = "http://10.69.202.101:8089/eventRcvVehicle";
+        String eventDest = appBaseUrl + "/eventRcvVehicle";
         jsonObject.put("eventTypes", eventTypes);
         jsonObject.put("eventDest", eventDest);
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {

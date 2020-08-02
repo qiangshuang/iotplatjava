@@ -22,7 +22,7 @@
         </select>
         
         <select id="countRoleList" resultType="java.lang.Integer">
-            select count(distinct id) from role 
+            select count(distinct id) from role
 
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
@@ -46,12 +46,13 @@
                 </if>
                 </foreach>
             </if>
+                and thirdUUID IS NOT NULL and thirdUUID!=''
             </where>
         </select>
         
         
         <select id="roleList" resultType="java.util.Map">
-            select role.`id`,role.`title`,role.`is_edit`,role.`sort`,role.`memo`,role.`version`,role.`addtime`,role.`enable` from role 
+            select role.`id`,role.`title`,role.`is_edit`,role.`sort`,role.`memo`,role.`version`,role.`addtime`,role.`enable`,role.`thirdUUID` from role
             <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index" >
@@ -74,6 +75,7 @@
                 </if>
                 </foreach>
             </if>
+                and thirdUUID IS NOT NULL and thirdUUID!=''
             </where>
             <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
                 order by 

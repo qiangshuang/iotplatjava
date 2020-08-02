@@ -1,6 +1,7 @@
 package com.ipincloud.iotbj.oa;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -20,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +31,22 @@ import java.util.List;
 public class OAApi {
 
     @Value("${oa.baseUrl}")
-    String oaBaseUrl = "http://10.69.206.48";
+    String oaBaseUrl;
 
     @Value("${oa.appId}")
-    String oaAppId = "Potc5cAAaXVlQASwU233NraEEo5KXAat";
+    String oaAppId;
 
     @Value("${oa.tenantId}")
-    String oaTenantId = "lfdc";
+    String oaTenantId;
 
     @Value("${oa.secret}")
-    String oaSecret = "79246cdd-dfa2-47ad-9252-289b78b8947e";
+    String oaSecret;
 
     @Value("${localhostUri}")
-    String appHost = "http://10.69.202.101:8089";
+    String appHost;
+
+    @Value("${oa.rootMenu}")
+    String rootMenu;
 
 
     public static String execute(HttpRequestBase requestBase) throws OAException {
@@ -106,14 +111,14 @@ public class OAApi {
         try {
 
             List<NameValuePair> paramList = new ArrayList<>();
-            paramList.add(new BasicNameValuePair("sender",oaAppId));
-            paramList.add(new BasicNameValuePair("senderName",URLEncoder.encode("访客申请")));
-            paramList.add(new BasicNameValuePair("token",token));
+            paramList.add(new BasicNameValuePair("sender", oaAppId));
+            paramList.add(new BasicNameValuePair("senderName", URLEncoder.encode("访客申请")));
+            paramList.add(new BasicNameValuePair("token", token));
             //paramList.add(new BasicNameValuePair("tenantId",oaTenantId));你通过以下我微信
             System.out.println(JSON.toJSONString(newGuestMessage.message));
-            paramList.add(new BasicNameValuePair("message",JSON.toJSONString(newGuestMessage.message)));
+            paramList.add(new BasicNameValuePair("message", JSON.toJSONString(newGuestMessage.message)));
 
-            HttpEntity entity = new UrlEncodedFormEntity(paramList,"UTF-8");
+            HttpEntity entity = new UrlEncodedFormEntity(paramList, "UTF-8");
             // 设置报文和通讯格式
             //stringEntity = new StringEntity(JSON.toJSONString(newGuestMessage), "UTF-8");
             //stringEntity.setContentEncoding("UTF-8");
@@ -148,16 +153,53 @@ public class OAApi {
         HttpPost httpPost = new HttpPost(oaBaseUrl + "/snap-app-im/oapi/message/sendworkmsg?tenantId=" + oaTenantId);
         try {
             List<NameValuePair> paramList = new ArrayList<>();
-            paramList.add(new BasicNameValuePair("sender",oaAppId));
-            paramList.add(new BasicNameValuePair("senderName",URLEncoder.encode("算法报警")));
-            paramList.add(new BasicNameValuePair("token",token));
-            System.out.println("推送算法报警信息到OA工作台"+JSON.toJSONString(alarmlog));
-            paramList.add(new BasicNameValuePair("message",JSON.toJSONString(alarmlog)));
-            HttpEntity entity = new UrlEncodedFormEntity(paramList,"UTF-8");
+            paramList.add(new BasicNameValuePair("sender", oaAppId));
+            paramList.add(new BasicNameValuePair("senderName", URLEncoder.encode("算法报警")));
+            paramList.add(new BasicNameValuePair("token", token));
+            System.out.println("推送算法报警信息到OA工作台" + JSON.toJSONString(alarmlog));
+            paramList.add(new BasicNameValuePair("message", JSON.toJSONString(alarmlog)));
+            HttpEntity entity = new UrlEncodedFormEntity(paramList, "UTF-8");
             httpPost.setEntity(entity);
             execute(httpPost);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void removeRoleMenu(String roleId, String roleName, JSONArray rolePages) throws OAException {
+        try {
+            if (rolePages != null && rolePages.size() > 0) {
+                StringBuilder menus = new StringBuilder();
+                for (int i = 0; i < rolePages.size(); i++) {
+                    if (i > 0) {
+                        menus.append(",");
+                    }
+                    menus.append("image_recognition_menu_").append(rolePages.getIntValue(i));
+                }
+                HttpPost httpPost = new HttpPost(oaBaseUrl + "/snap-user-org/oapi/roleMenu/remove?appId=" + oaAppId + "&tenantId=" + oaTenantId + "&position=" + URLEncoder.encode(roleName, "utf-8") + "&positionId=" + roleId + "&menuId=" + menus.toString());
+                System.out.println(OAApi.execute(httpPost));
+            }
+        } catch (Exception e) {
+            throw new OAException(e);
+        }
+    }
+
+    public void saveOrUpdateRoleMenu(String roleId, String roleName, JSONArray rolePages) throws OAException {
+        if (rolePages != null && rolePages.size() > 0) {
+            StringBuilder menus = new StringBuilder(rootMenu);
+            for (int i = 0; i < rolePages.size(); i++) {
+                menus.append(",").append("image_recognition_menu_").append(rolePages.getJSONObject(i).getIntValue("page_id"));
+            }
+            try {
+                HttpPost httpPost = new HttpPost(oaBaseUrl + "/snap-user-org/oapi/roleMenu/saveOrUpdate?appId=" + oaAppId + "&tenantId=" + oaTenantId + "&position=" + URLEncoder.encode(roleName, "utf-8") + "&positionId=" + roleId + "&menuId=" + menus.toString());
+                System.out.println(OAApi.execute(httpPost));
+            } catch (Exception e) {
+                throw new OAException(e);
+            }
+        } else {
+            JSONArray jsonArray = new JSONArray();
+            jsonArray.add(rootMenu);
+            removeRoleMenu(roleId, roleName, jsonArray);
         }
     }
 }

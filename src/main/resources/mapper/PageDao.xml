@@ -61,7 +61,7 @@
             
         
             <select id="pageRolePageMmlist" resultType="java.util.Map">
-                select page.`id`,page.`name`,page.`icon`,page.`title`,page.`parent_id`,page.`parent_title`,page.`path`,page.`is_menu` from page left join role_page on page.id=role_page.page_id 
+                select page.`id`,page.`name`,page.`icon`,page.`title`,page.`parent_id`,page.`parent_title`,page.`path`,page.`is_menu`,role_page.`role_id` join_id from page left join role_page on page.id=role_page.page_id
                 <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                     <foreach collection="jsonObj.qps" item="item" index="index" >
                     <if test='(item.op == "=" or item.op == "" or item.op==null) and  item.name == "role_id" '>    

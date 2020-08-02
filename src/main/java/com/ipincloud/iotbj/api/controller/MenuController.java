@@ -36,7 +36,7 @@ public class MenuController {
             //todo clear other Attributes
         }
         try {
-            String redirect_url="http://10.69.202.101:8089/onauth?redirect_url="+ URLEncoder.encode("http://10.69.202.101:8089/menu");
+            String redirect_url="http://10.69.212.11:8189/onauth?redirect_url="+ URLEncoder.encode("http://10.69.212.11:8189/menu");
             System.out.println("http://10.69.206.42:81/?exitFlag=false&redirect_url="+ Base64.getEncoder().encodeToString(redirect_url.getBytes()));
             response.sendRedirect("http://10.69.206.42:81/?exitFlag=false&redirect_url="+ Base64.getEncoder().encodeToString(redirect_url.getBytes()));
             return null;

@@ -38,6 +38,9 @@ public class FaceServiceImpl implements FaceService {
     @Autowired
     OrgDao orgDao;
 
+    @Autowired
+    OAApi oaApi;
+
     @Value("${hikEnable}")
     private boolean hikEnable;
 
@@ -580,7 +583,7 @@ public class FaceServiceImpl implements FaceService {
         Guest guest = new Guest(id, guId, name, certificateNum, mobile, gender,
                 targetUserId, targetUserName, startTime, endTime, facePic, createTime, status);
         //向oa工作台推送审核消息
-        new OAApi().sendNewGuestMessage(guest);
+        oaApi.sendNewGuestMessage(guest);
 
         return new ResponseBean(200, "SUCCESS", "操作成功", null);
     }

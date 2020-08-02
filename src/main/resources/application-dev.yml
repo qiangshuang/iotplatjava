@@ -4,9 +4,9 @@ server:
   #  uri-encoding: UTF-8
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/iotbj1?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    url: jdbc:mysql://10.69.212.11:3318/iotbj1?useUnicode=true&characterEncoding=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
     username: root
-    password: root
+    password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   http:
     multipart:
@@ -28,12 +28,12 @@ mqtt:
 hikEnable: true
 
 #本地返回地址
-localhostUri: http://10.69.202.120:8089
+localhostUri: http://10.69.212.11:8189
 
 algorithm:
   push: 10.69.212.11:8089 #视频流地址
   url: http://10.69.212.11:8087 #算法后端URL
-  resultUrl: http://10.69.202.99:8087/algorithmresult #算法后端结果发送URL
+  resultUrl: http://10.69.212.11:8087/algorithmresult #算法后端结果发送URL
 algorithm_face:
   face_register: http://10.69.212.11:8800/api/v1.0/face_register
 iot:
@@ -45,6 +45,7 @@ oa:
   appId: Potc5cAAaXVlQASwU233NraEEo5KXAat
   tenantId: lfdc
   secret: 79246cdd-dfa2-47ad-9252-289b78b8947e
+  rootMenu: 6030ac57-bbef-4ba0-8793-00a77907cd26
 
 app-version:
 

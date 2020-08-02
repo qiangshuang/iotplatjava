@@ -27,6 +27,7 @@ target/
 *.iml
 package-lock.json
 
+.DS_Store
 .settings/
 .classpath
 .project

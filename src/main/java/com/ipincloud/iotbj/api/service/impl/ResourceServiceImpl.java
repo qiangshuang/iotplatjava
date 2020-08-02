@@ -27,6 +27,7 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,7 +40,7 @@ import java.util.*;
 @Service
 @Transactional
 public class ResourceServiceImpl implements ResourceService {
-
+    private static Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
     static final Set<String> AUDIT_DOOR_NAME_SET = new HashSet<String>() {
         {
             add("东二门中人脸识别出_门1");
@@ -52,7 +53,7 @@ public class ResourceServiceImpl implements ResourceService {
             add("人脸识别出_门1");
         }
     };
-    private static Logger logger = LoggerFactory.getLogger(ResourceServiceImpl.class);
+
     @Autowired
     ResourceDao resourceDao;
     @Autowired
@@ -60,8 +61,11 @@ public class ResourceServiceImpl implements ResourceService {
     @Autowired
     OrgDao orgDao;
 
-    static void commitAuditLog2IAM(AuditLog auditLog) {
-        String url = "http://10.69.206.48/snap-app-application/oapi/attendance/user/access/sync";
+    @Value("${oa.baseUrl}")
+    String oaBaseUrl;
+
+    private void commitAuditLog2IAM(AuditLog auditLog) {
+        String url = oaBaseUrl + "/snap-app-application/oapi/attendance/user/access/sync";
         //iamRequest.userId = auditLog.getUserID();
         //System.out.println(auditLog.getSrcName());
         HttpEntity httpEntity = null;
