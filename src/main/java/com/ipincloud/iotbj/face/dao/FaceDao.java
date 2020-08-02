@@ -90,7 +90,7 @@ public interface FaceDao {
 
     JSONObject findRegionByIndexCode(String regionIndexCode);
 
-    List<JSONObject> findVisitByInterview(String state, Long userId, String userName);
+    List<JSONObject> findVisitByInterview(@Param("visitId")Long visitId,@Param("userId") String userId);
 
     List<JSONObject> findGatewayByName(String doorName);
 

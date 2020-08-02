@@ -40,7 +40,7 @@ public interface FaceService {
 
     Object visitpersondel(JSONArray jsonObj);
 
-    Object visitresult(Long userId);
+    Object visitresult(JSONObject jsonOb);
 
     Object visitallow(JSONObject jsonObj);
 

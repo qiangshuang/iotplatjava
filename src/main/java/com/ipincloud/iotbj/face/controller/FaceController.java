@@ -217,11 +217,10 @@ public class FaceController {
     @PostMapping("visitresult")
     public Object visitresult(@RequestBody String jsonstr) {
         JSONObject jsonObj = JSONObject.parseObject(jsonstr);
-        Long userId = jsonObj.getLong("userId");
-        if (jsonstr == null || userId == null || userId == 0) {
+        if (jsonstr == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
-        return faceService.visitresult(userId);
+        return faceService.visitresult(jsonObj);
     }
 
 

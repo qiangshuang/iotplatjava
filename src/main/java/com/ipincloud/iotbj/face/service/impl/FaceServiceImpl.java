@@ -1,6 +1,7 @@
 package com.ipincloud.iotbj.face.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
@@ -522,6 +523,8 @@ public class FaceServiceImpl implements FaceService {
         visit.put("visit_title", newUser.getTitle());
         visit.put("interview_ids", jsonObj.getString("interview_ids"));
         visit.put("interview_titles", jsonObj.getString("interview_titles"));
+        visit.put("gateway_title", "东二门");
+        visit.put("getaway_id", 0);
 //        List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
 //        if (gateways == null) {
 //            return new ResponseBean(400, "FAILED", "找不到东二门的门禁设备", jsonObj);
@@ -550,8 +553,21 @@ public class FaceServiceImpl implements FaceService {
         String gender = newUser.getGender();
         //String targetUserId = visit.getString("interview_ids");
         //String targetUserName = visit.getString("interview_titles");
-        String targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
-        String targetUserName = "张原";
+        String interviewIds = visit.getString("interview_ids");
+        String targetUserId = "";
+        if (StringUtils.isNotEmpty(interviewIds)) {
+            String[] interviewId = interviewIds.split(",");
+            for (int i = 0; i < interviewId.length; i++) {
+                User person = userDao.queryById((long) Integer.parseInt(interviewId[i]));
+                if (user != null) {
+                    targetUserId += person.getPersonId() + ",";
+                }
+            }
+        }
+        targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
+        String targetUserName = visit.getString("interview_titles");
+        //String targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
+        //String targetUserName = "张原";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         String startTime = simpleDateFormat.format(new Date(visit.getLong("starttime")));
         String endTime = simpleDateFormat.format(new Date(visit.getLong("endtime")));
@@ -661,35 +677,178 @@ public class FaceServiceImpl implements FaceService {
     }
 
     @Override
-    public Object visitresult(Long userId) {
-        User user = userDao.queryById(userId);
+    public Object visitresult(JSONObject jsonObj) {
+        Long visitId = jsonObj.getLong("id");
+        JSONObject visitlog = faceDao.findVisitById(visitId);
+        if (visitlog == null) {
+            return new ResponseBean(200, "FAILED", "访客申请不存在", null);
+        }
+        User user = userDao.queryById(visitlog.getLong("visit_id"));
         if (user == null) {
             return new ResponseBean(200, "FAILED", "系统没有此用户", null);
         }
-        List<JSONObject> visitList = faceDao.findVisitByInterview("申请中", userId, user.getTitle());
-        for (int i = 0; i < visitList.size(); i++) {
-            JSONObject visit = visitList.get(i);
-            User visitUser = userDao.queryById(visit.getLong("visit_id"));
-            if (visitUser != null) {
-                visit.put("user_title", visitUser.getTitle());
-                visit.put("mobile", visitUser.getMobile());
-                visit.put("parent_title", visitUser.getParentTitle());
-                visit.put("idnumber", visitUser.getIdnumber());
-                visit.put("photo", visitUser.getPhoto());
-                visit.put("gender", visitUser.getGender());
 
-                List<JSONObject> list = faceDao.findVisitByInterview(null, userId, user.getTitle());
-                visit.put("visitHistory", list);
-            }
+        JSONObject visit = new JSONObject();
+        visit.put("id", visitId);
+        visit.put("user_title", user.getTitle());
+        visit.put("mobile", user.getMobile());
+        visit.put("parent_title", user.getParentTitle());
+        visit.put("idnumber", user.getIdnumber());
+        visit.put("photo", user.getPhoto());
+        visit.put("gender", user.getGender());
+        visit.put("starttime", visitlog.getLong("starttime"));
+        visit.put("endtime", visitlog.getLong("endtime"));
+        visit.put("interview_titles", visitlog.getString("interview_titles"));
+        visit.put("gateway_title", visitlog.getString("gateway_title"));
+
+        List<JSONObject> list = new ArrayList<>();
+        if (StringUtils.isNotEmpty(visitlog.getString("interview_ids"))) {
+            list = faceDao.findVisitByInterview(visitId, visitlog.getString("interview_ids"));
         }
-        return new ResponseBean(200, "SUCCESS", "操作成功", visitList);
+        visit.put("visitHistory", list);
+
+        return new ResponseBean(200, "SUCCESS", "操作成功", visit);
     }
 
     @Override
     public Object visitallow(JSONObject jsonObj) {
         Long visitId = jsonObj.getLong("id");
-        if (visitId == null || visitId == 0) {
-            return new ResponseBean(200, "FAILED", "操作失败", jsonObj);
+        JSONObject visitlog = faceDao.findVisitById(visitId);
+        if (visitlog == null) {
+            return new ResponseBean(200, "FAILED", "访客申请不存在", null);
+        }
+        User user = userDao.queryById(visitlog.getLong("visit_id"));
+        if (user == null) {
+            return new ResponseBean(200, "FAILED", "系统没有此用户", null);
+        }
+        // 向海康添加人员
+        String personId = "";
+        if (false) {
+            //通过身份证查询海康是否存在人员
+            JSONObject certifi = new JSONObject();
+            certifi.put("certificateType", "111");
+            certifi.put("certificateNo", user.getIdnumber());
+            JSONObject hikperson = ApiService.getPersonbycertificateno(certifi);
+            if (hikperson == null) {
+                JSONObject person = new JSONObject();
+                person.put("personName", user.getTitle());
+                if (Objects.equals("男", user.getGender())) {
+                    person.put("gender", "1");
+                } else if (Objects.equals("女", user.getGender())) {
+                    person.put("gender", "2");
+                } else {
+                    person.put("gender", "0");
+                }
+                ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
+                if (hikOrg == null) {
+                    throw new HikException("海康平台的根部门不存在");
+                }
+                person.put("orgIndexCode", hikOrg.orgIndexCode);
+                person.put("phoneNo", user.getMobile());
+                person.put("certificateType", "111");
+                person.put("certificateNo", user.getIdnumber());
+                if (Objects.equals("", user.getUserName())) {
+                    person.put("jobNo", user.getUserName());
+                } else {
+                    person.put("jobNo", "");
+                }
+                List<Map> list = new ArrayList();
+                Map face = new HashMap();
+                String str = "";
+                if (StringUtils.isNotEmpty(user.getPhoto())) {
+                    str = FileUtils.readImgBase64Code(user.getPhoto());
+                }
+                face.put("faceData", str);
+                list.add(face);
+                person.put("faces", list);
+                personId = ApiService.addPerson(person);
+            } else {
+                personId = hikperson.getString("personId");
+            }
+        }
+        if (personId != null) {
+            user.setPersonId(personId);
+            userDao.updateInst((JSONObject) JSON.toJSON(user));
+        }
+        // 下发门禁权限
+        List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
+        if (gateways == null) {
+            return new ResponseBean(400, "FAILED", "找不到东二门的门禁设备", jsonObj);
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String startTime = simpleDateFormat.format(new Date(visitlog.getLong("starttime")));
+        String endTime = simpleDateFormat.format(new Date(visitlog.getLong("endtime")));
+
+        Set<JSONObject> personInfos = new HashSet<>();
+        Set<String> personIds = new HashSet<>();
+        //添加人员信息
+        if (StringUtils.isNotEmpty(personId)) {
+            JSONObject person = faceDao.findUserByPersonId(personId);
+            JSONObject personInfo = new JSONObject();
+            personInfo.put("personId", person.getString("personId"));
+            personInfo.put("operatorType", 1);
+            personInfo.put("startTime", startTime);
+            personInfo.put("endTime", endTime);
+            personInfo.put("personType", "1");
+            personInfo.put("name", person.getString("title"));
+            List<JSONObject> cards = new ArrayList<>();
+            JSONObject card = new JSONObject();
+            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber") : person.getString("mobile"));
+            card.put("status", 0);
+            card.put("cardType", 1);
+            cards.add(card);
+            personInfo.put("cards", cards);
+            JSONObject face = new JSONObject();
+            face.put("card", null);
+            Map faceData = new HashMap<>();
+            String photo = person.getString("photo");
+            if (StringUtils.isEmpty(photo)) {
+                return new ResponseBean(200, "FAILED", "该人员无人脸信息", null);
+            }
+            String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(photo);
+            faceData.put("f" + person.getString("id"), imgPath);
+            face.put("data", faceData);
+            personInfo.put("face", face);
+            personInfos.add(personInfo);
+        }
+        personIds.add(personId);
+
+        Set<JSONObject> resourceInfos = new HashSet<>();
+        JSONObject policy = new JSONObject();
+        for (int i = 0; i < gateways.size(); i++) {
+            JSONObject gateway = gateways.get(i);
+            //添加资源信息
+            if (StringUtils.isNotEmpty(gateway.getString("acsDevIndexCode"))) {
+                List<JSONObject> doors = faceDao.findGatewayByIndexCode(gateway.getString("acsDevIndexCode"));
+                if (doors != null) {
+                    for (int k = 0; k < doors.size(); k++) {
+                        JSONObject resourceInfo = new JSONObject();
+                        resourceInfo.put("resourceIndexCode", doors.get(k).getString("doorIndexCode"));
+                        resourceInfo.put("resourceType", doors.get(k).getString("channelType"));
+                        JSONArray channelNos = new JSONArray();
+                        channelNos.add(doors.get(k).getInteger("channelNo"));
+                        resourceInfo.put("channelNos", channelNos);
+                        resourceInfos.add(resourceInfo);
+                    }
+                }
+            } else {
+                break;
+            }
+            policy.put("region_id", policy.getLong("region_id"));
+            policy.put("gateway_id", policy.getLong("gateway_id"));
+            policy.put("user_id", policy.getLong("user_id"));
+            policy.put("org_id", policy.getLong("org_id"));
+            policy.put("starttime", visitlog.getLong("starttime"));
+            policy.put("endtime", visitlog.getLong("endtime"));
+            policy.put("created", System.currentTimeMillis());
+            policy.put("updated", System.currentTimeMillis());
+            policy.put("state", "配置通过");
+            faceDao.insertOrUpdatePolicy(policy);
+            policy.clear();
+        }
+        if (hikEnable) {
+            ApiService.authDownload(resourceInfos, personInfos, true);
+            ApiService.authDownloadSearchList(resourceInfos, personIds);
         }
 
         String state = "允许";

@@ -555,12 +555,9 @@
     <select id="findVisitByInterview" resultType="com.alibaba.fastjson.JSONObject">
         select * from face_visit
         <where>
-            <if test="state!=null and state!=''">
-                state = #{state}
-            </if>
-            <if test="userId!=null and userId!=0 and userName!=null and userName!=''">
+            and id != #{visitId}
+            <if test="userId!=null and userId!=''">
                 and interview_ids like concat('%',#{userId},'%')
-                and interview_titles like concat('%',#{userName},'%')
             </if>
         </where>
         order by created desc
