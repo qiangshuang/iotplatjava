@@ -124,12 +124,17 @@
                 </foreach>
             </if>
             </where>
-            <if test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
+            <choose>
+            <when test="jsonObj.sps != null and jsonObj.sps.size() > 0 " >
                 order by 
                 <foreach  item="item" collection="jsonObj.sps" index="index" separator="," >
                     `${item.name}` ${item.orderV}
                 </foreach>
-            </if> 
+            </when>
+            <otherwise >
+                order by id desc
+            </otherwise>
+            </choose>
             <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
                 limit #{jsonObj.startIndex},#{jsonObj.rop}
             </if>
