@@ -284,14 +284,25 @@ public class OrgServiceImpl implements OrgService {
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Integer deletesOrgUserUserRoleInst(JSONObject jsonObj) {
+
         if (hikEnable) {
             if (jsonObj != null && jsonObj.getJSONArray("user").size() > 0) {
                 JSONArray deleteIds = jsonObj.getJSONArray("user").getJSONObject(0).getJSONArray("val");
                 if (deleteIds != null && deleteIds.size() > 0) {
                     List<String> personIds = orgDao.queryByIds(deleteIds.toJavaList(Long.class));
-                    JSONObject deleteVehicle = new JSONObject();
-                    deleteVehicle.put("personIds", personIds);
-                    ApiService.deletePerson(deleteVehicle);
+                    if (personIds != null && personIds.size() > 0) {
+                        List<String> validPeronIds=new ArrayList<>();
+                        for(String personId:personIds){
+                            if(StringUtils.isNotEmpty(personId)){
+                                validPeronIds.add(personId);
+                            }
+                        }
+                        if(validPeronIds.size()>0) {
+                            JSONObject deleteVehicle = new JSONObject();
+                            deleteVehicle.put("personIds", validPeronIds);
+                            ApiService.deletePerson(deleteVehicle);
+                        }
+                    }
                 }
             }
         }
