@@ -524,7 +524,7 @@ public class FaceServiceImpl implements FaceService {
         visit.put("interview_ids", jsonObj.getString("interview_ids"));
         visit.put("interview_titles", jsonObj.getString("interview_titles"));
         visit.put("gateway_title", "东二门");
-        visit.put("getaway_id", 0);
+        visit.put("gateway_id", '0');
 //        List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
 //        if (gateways == null) {
 //            return new ResponseBean(400, "FAILED", "找不到东二门的门禁设备", jsonObj);
@@ -564,10 +564,10 @@ public class FaceServiceImpl implements FaceService {
                 }
             }
         }
-        targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
-        String targetUserName = visit.getString("interview_titles");
-        //String targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
-        //String targetUserName = "张原";
+        //targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
+        //String targetUserName = visit.getString("interview_titles");
+        targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
+        String targetUserName = "张原";
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         String startTime = simpleDateFormat.format(new Date(visit.getLong("starttime")));
         String endTime = simpleDateFormat.format(new Date(visit.getLong("endtime")));
@@ -723,7 +723,7 @@ public class FaceServiceImpl implements FaceService {
         }
         // 向海康添加人员
         String personId = "";
-        if (false) {
+        if (hikEnable) {
             //通过身份证查询海康是否存在人员
             JSONObject certifi = new JSONObject();
             certifi.put("certificateType", "111");
@@ -767,8 +767,10 @@ public class FaceServiceImpl implements FaceService {
             }
         }
         if (personId != null) {
-            user.setPersonId(personId);
-            userDao.updateInst((JSONObject) JSON.toJSON(user));
+            JSONObject olduser = new JSONObject();
+            olduser.put("id",user.getId());
+            olduser.put("personId",personId);
+            userDao.updateInst((JSONObject) JSON.toJSON(olduser));
         }
         // 下发门禁权限
         List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
@@ -847,8 +849,10 @@ public class FaceServiceImpl implements FaceService {
             policy.clear();
         }
         if (hikEnable) {
-            ApiService.authDownload(resourceInfos, personInfos, true);
-            ApiService.authDownloadSearchList(resourceInfos, personIds);
+            if(resourceInfos.size()>0 || personIds.size()>0){
+                ApiService.authDownload(resourceInfos, personInfos, true);
+                ApiService.authDownloadSearchList(resourceInfos, personIds);
+            }
         }
 
         String state = "允许";

@@ -114,10 +114,11 @@
     </select>
 
     <select id="alarmdtl" resultType="com.alibaba.fastjson.JSONObject">
-        select * from algorithmalarm where state='未确认'
+        select t1.*,t2.border from algorithmalarm t1,algorithm t2
+        where t1.algorithm_id=t2.algorithm_id and t1.camera_id = t2.camera_id and t1.state='未确认'
         <if test="algorithm_id!=null and algorithm_id>0 ">
-            and algorithm_id= #{algorithm_id}
+            and t1.algorithm_id= #{algorithm_id}
         </if>
-        ORDER BY alarm_time desc
+        ORDER BY t1.alarm_time desc
     </select>
 </mapper>

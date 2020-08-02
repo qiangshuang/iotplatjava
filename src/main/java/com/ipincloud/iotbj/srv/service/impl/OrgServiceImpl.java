@@ -168,6 +168,7 @@ public class OrgServiceImpl implements OrgService {
 //        }
         jsonObjFirst.put("orgIndexCode", UUID.randomUUID().toString());
 //        jsonObjFirst.put("parentOrgIndexCode", parentOrgIndexCode);
+        jsonObjFirst.put("type","user");
         this.orgDao.addInst(jsonObjFirst);
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj, "mobile,user_name,pwd,id,title,parent_id,parent_title,lastlogin,job_title,job_id,thirdin,created,updated,photo,idnumber,cardnumber,mcardno,gender,personId");
         jsonObjSecond.put("id", jsonObjFirst.get("id"));

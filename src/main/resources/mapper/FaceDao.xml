@@ -564,7 +564,7 @@
     </select>
 
     <select id="findGatewayByName" resultType="com.alibaba.fastjson.JSONObject">
-        select * from face_gateway where title like concat('%'#{doorName},'%')
+        select * from face_gateway where title like concat('%',#{doorName},'%')
     </select>
 
     <select id="findGatewayByIndexCode" resultType="com.alibaba.fastjson.JSONObject">

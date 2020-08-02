@@ -377,11 +377,11 @@ public class SysController {
     public Object hyupload(HttpServletRequest request,
                               HttpServletResponse response)  {
 
-        String authorization = request.getParameter("Authorization");
-        if (authorization == null || authorization.length() < 1){
-            logger.debug("Upload:获取用户Authorization不成功.");
-            return new ResponseBean(200,"FAILED", "请先登录","");
-        }
+//        String authorization = request.getParameter("Authorization");
+//        if (authorization == null || authorization.length() < 1){
+//            logger.debug("Upload:获取用户Authorization不成功.");
+//            return new ResponseBean(200,"FAILED", "请先登录","");
+//        }
         long userId = 7L;
         // JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
         // if (userId < 1) {
