@@ -283,8 +283,6 @@ public class FaceServiceImpl implements FaceService {
             JSONObject joi = gateways.getJSONObject(i);
             for (int j = 0; j < persons.size(); j++) {
                 JSONObject joj = persons.getJSONObject(j);
-                policy.put("acsDevIndexCode", joi.getString("acsDevIndexCode"));
-                policy.put("personId", joj.getString("personId"));
                 //添加人员信息
                 if (StringUtils.isNotEmpty(joj.getString("personId"))) {
                     personIds.add(joj.getString("personId"));
@@ -343,6 +341,8 @@ public class FaceServiceImpl implements FaceService {
                 } else {
                     break;
                 }
+                policy.put("acsDevIndexCode", joi.getString("acsDevIndexCode"));
+                policy.put("personId", joj.getString("personId"));
                 policy.put("region_id", joi.getLong("region_id"));
                 policy.put("gateway_id", joi.getLong("gateway_id"));
                 policy.put("user_id", joj.getLong("user_id"));
@@ -462,8 +462,10 @@ public class FaceServiceImpl implements FaceService {
         }
         //调用第三方接口进行删除权限
         if (hikEnable) {
-            ApiService.authDownload(resourceInfos, personInfos, true);
-            //ApiService.authDownloadSearchList(resourceInfos, personIds);
+            if (resourceInfos.size() > 0 && personInfos.size() > 0) {
+                ApiService.authDownload(resourceInfos, personInfos, true);
+                //ApiService.authDownloadSearchList(resourceInfos, personIds);
+            }
         }
 
         faceDao.deletePolicyById(jsonObj);
@@ -527,8 +529,20 @@ public class FaceServiceImpl implements FaceService {
 //        visit.put("gateway_id", gateway_ids.toString().replace("[", "").replace("]", "")); //默认东二门
 //        visit.put("gateway_title", gateway_titles.toString().replace("[", "").replace("]", "")); //默认东二门
         visit.put("conftime", System.currentTimeMillis());
-        visit.put("starttime", System.currentTimeMillis());
-        visit.put("endtime", System.currentTimeMillis() + (24 * 3600 * 1000));
+        // 8：00至第二天8点
+        Date date = new Date();
+        date.setHours(8);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        Long starttime = date.getTime();
+        visit.put("starttime", starttime);
+        Date dateT = new Date();
+        dateT.setDate(dateT.getDate() + 1);
+        dateT.setHours(8);
+        dateT.setMinutes(0);
+        dateT.setSeconds(0);
+        Long endtime = dateT.getTime();
+        visit.put("endtime", endtime);
         visit.put("state", "申请中");
         visit.put("created", System.currentTimeMillis());
         visit.put("updated", System.currentTimeMillis());
@@ -736,6 +750,9 @@ public class FaceServiceImpl implements FaceService {
         if (visitlog == null) {
             return new ResponseBean(200, "FAILED", "访客申请不存在", null);
         }
+        if (!Objects.equals("申请中", visitlog.getString("state"))) {
+            return new ResponseBean(200, "FAILED", "该申请已处理", null);
+        }
         User user = userDao.queryById(visitlog.getLong("visit_id"));
         if (user == null) {
             return new ResponseBean(200, "FAILED", "系统没有此用户", null);
@@ -855,10 +872,12 @@ public class FaceServiceImpl implements FaceService {
             } else {
                 break;
             }
-            policy.put("region_id", policy.getLong("region_id"));
-            policy.put("gateway_id", policy.getLong("gateway_id"));
-            policy.put("user_id", policy.getLong("user_id"));
-            policy.put("org_id", policy.getLong("org_id"));
+            policy.put("personId", personId);
+            policy.put("acsDevIndexCode", gateway.getString("acsDevIndexCode"));
+            policy.put("region_id", gateway.getLong("region_id"));
+            policy.put("gateway_id", gateway.getLong("id"));
+            policy.put("user_id", user.getId());
+            policy.put("org_id", user.getParentId());
             policy.put("starttime", visitlog.getLong("starttime"));
             policy.put("endtime", visitlog.getLong("endtime"));
             policy.put("created", System.currentTimeMillis());
