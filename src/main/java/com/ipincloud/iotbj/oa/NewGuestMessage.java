@@ -22,9 +22,9 @@ public class NewGuestMessage {
         Content content = new Content();
         content.type = "text";
         content.msg = guest.name + "申请访问您, 请及时处理";
-        content.url = appHost + "/#/approval/" + guest.id;
+        content.url = appHost + "/#/approval/"+guest.id;
         content.redirectUrl = "";
-        content.fun = "CO";
+        content.fun = "IAM";
         content.title = "您有新访客";
 
         message.message = content;

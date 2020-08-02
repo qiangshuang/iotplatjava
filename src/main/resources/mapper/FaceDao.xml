@@ -26,38 +26,38 @@
     <select id="countGateway" resultType="java.lang.Integer">
         select count(*) from face_gateway
         <where>
-            <if test="title!=null and title!=''">
-                title like concat('%',#{title},'%')
+            <if test="jsonObj.title!=null and jsonObj.title!=''">
+                title like concat('%',#{jsonObj.title},'%')
             </if>
-            <if test="regionIndexCode!=null and regionIndexCode!=''">
-                and regionIndexCode = #{regionIndexCode}
+            <if test="jsonObj.doorIndexCode!=null and jsonObj.doorIndexCode!=''">
+                and doorIndexCode = #{jsonObj.doorIndexCode}
             </if>
-            <if test="region_id!=null and region_id!=0">
-                and region_id = #{region_id}
+            <if test="regionIds!=null and regionIds.size()>0 ">
+                and region_id in
+                <foreach collection="regionIds" item="regionId" index="index" open="(" separator="," close=")">
+                    #{regionId}
+                </foreach>
             </if>
         </where>
     </select>
     <select id="listGatewayByName" resultType="java.util.Map">
         select * from face_gateway
         <where>
-            <if test="title!=null and title!=''">
-                title like concat('%',#{title},'%')
+            <if test="jsonObj.title!=null and jsonObj.title!=''">
+                title like concat('%',#{jsonObj.title},'%')
             </if>
-            <if test="regionIndexCode!=null and regionIndexCode!=''">
-                and regionIndexCode = #{regionIndexCode}
+            <if test="jsonObj.doorIndexCode!=null and jsonObj.doorIndexCode!=''">
+                and doorIndexCode = #{jsonObj.doorIndexCode}
             </if>
-            <if test="doorIndexCode!=null and doorIndexCode!=''">
-                and doorIndexCode = #{doorIndexCode}
-            </if>
-            <if test="regionIndexCode!=null and regionIndexCode!=''">
-                and regionIndexCode = #{regionIndexCode}
-            </if>
-            <if test="region_id!=null and region_id!=0">
-                and region_id = #{region_id}
+            <if test="regionIds!=null and regionIds.size()>0 ">
+                and region_id in
+                <foreach collection="regionIds" item="regionId" index="index" open="(" separator="," close=")">
+                    #{regionId}
+                </foreach>
             </if>
         </where>
-        <if test="startIndex!=null and rop!=null">
-            limit #{startIndex},#{rop}
+        <if test="jsonObj.startIndex!=null and jsonObj.rop!=null">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
         </if>
     </select>
 
@@ -306,32 +306,38 @@
     <select id="countUser" resultType="java.lang.Integer">
         select count(*) from user
         <where>
-            <if test="parent_id!=null and parent_id!=''">
-                and parent_id = #{parent_id}
+            <if test="jsonObj.title!=null and jsonObj.title!=''">
+                and title like concat('%',#{jsonObj.title},'%')
             </if>
-            <if test="title!=null and title!=''">
-                title like concat('%',#{title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber = #{jsonObj.idnumber}
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber = #{idnumber}
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and parent_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
     </select>
     <select id="listUserByName" resultType="java.util.Map">
         select * from user
         <where>
-            <if test="parent_id!=null and parent_id!=''">
-                and parent_id = #{parent_id}
+            <if test="jsonObj.title!=null and jsonObj.title!=''">
+                and title like concat('%',#{jsonObj.title},'%')
             </if>
-            <if test="title!=null and title!=''">
-                and title like concat('%',#{title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber = #{jsonObj.idnumber}
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber = #{idnumber}
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and parent_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
-        <if test="startIndex!=null and rop!=null">
-            limit #{startIndex},#{rop}
+        <if test="jsonObj.startIndex!=null and jsonObj.rop!=null">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
         </if>
     </select>
 
@@ -405,6 +411,7 @@
                 and mobile like concat('%',#{mobile},'%')
             </if>
         </where>
+        order by t.id desc
         <if test="startIndex!=null and rop!=null">
             limit #{startIndex},#{rop}
         </if>
@@ -612,4 +619,12 @@
             #{jsonObj.user_id}
         </if>
     </insert>
+
+    <select id="findOrgs" resultType="com.alibaba.fastjson.JSONObject">
+        select * from org where type = '部门'
+    </select>
+
+    <select id="findRegions" resultType="com.alibaba.fastjson.JSONObject">
+        select * from region
+    </select>
 </mapper>

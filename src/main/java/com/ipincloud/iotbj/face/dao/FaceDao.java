@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public interface FaceDao {
@@ -16,9 +17,9 @@ public interface FaceDao {
 
     List<Map> listRegionByName(JSONObject jsonObj);
 
-    int countGateway(JSONObject jsonStr);
+    int countGateway(@Param("jsonObj") JSONObject jsonObj,@Param("regionIds") Set<Long> regionIds);
 
-    List<Map> listGatewayByName(JSONObject jsonStr);
+    List<Map> listGatewayByName(@Param("jsonObj") JSONObject jsonObj,@Param("regionIds") Set<Long> regionIds);
 
     int insertGateway(@Param("jsonObj") JSONObject jsonObj);
 
@@ -48,9 +49,9 @@ public interface FaceDao {
 
     JSONObject getUserByIdnumber(String idnumber);
 
-    int countUser(JSONObject jsonObj);
+    int countUser(@Param("jsonObj") JSONObject jsonObj,@Param("orgIds") Set<Long> orgIds);
 
-    List<Map> listUserByName(JSONObject jsonObj);
+    List<Map> listUserByName(@Param("jsonObj") JSONObject jsonObj,@Param("orgIds") Set<Long> orgIds);
 
     int insertVisit(@Param("jsonObj") JSONObject jsonObj);
 
@@ -101,4 +102,8 @@ public interface FaceDao {
     List<JSONObject> listPolicyByIds(@Param("jsonObj") JSONArray jsonObj);
 
     int insertOrUpdatePolicy(@Param("jsonObj") JSONObject jsonObj);
+
+    List<JSONObject> findOrgs();
+
+    List<JSONObject> findRegions();
 }

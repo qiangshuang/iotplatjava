@@ -54,11 +54,13 @@ public class FaceServiceImpl implements FaceService {
             JSONObject para = new JSONObject();
             para.put("pageNo", 1);
             para.put("pageSize", 1000);
-            para.put("doorName", jsonObj.getString("title"));
+            if (StringUtils.isNotEmpty(jsonObj.getString("title"))) {
+                para.put("doorName", jsonObj.getString("title"));
+            }
             JSONObject jsonObject = ApiService.ascDevSync(para);
 
             List<ApiModel.HikDoor> list1 = jsonObject.getJSONArray("list").toJavaList(ApiModel.HikDoor.class);
-            List<Map> list2 = faceDao.listGatewayByName(new JSONObject());
+            List<Map> list2 = faceDao.listGatewayByName(new JSONObject(), null);
             Set<String> set = new HashSet();
             for (int i = 0; i < list2.size(); i++) {
                 set.add(list2.get(i).get("doorIndexCode").toString());
@@ -126,12 +128,43 @@ public class FaceServiceImpl implements FaceService {
 
     @Override
     public Object gatewaylist(JSONObject jsonObj) {
-        int totalRec = faceDao.countGateway(jsonObj);
-        jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
-        List<Map> list = faceDao.listGatewayByName(jsonObj);
+        List<JSONObject> childRegion = new ArrayList<>();
+        Set<Long> regionIds = new HashSet<>();
+
+        List<JSONObject> regions = faceDao.findRegions();
+        Long pid = jsonObj.getLong("region_id") == null ? 0L : jsonObj.getLong("region_id");
+        regionRecursion(childRegion, regions, pid);
+
+        for (JSONObject jsonObject : childRegion) {
+            regionIds.add(jsonObject.getLong("id"));
+        }
+        regionIds.add(pid);
+        int totalRec = 0;
+        List<Map> list = new ArrayList<>();
+        if (regionIds.size() > 0) {
+            totalRec = faceDao.countGateway(jsonObj, regionIds);
+            jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
+            list = faceDao.listGatewayByName(jsonObj, regionIds);
+        }
+
         jsonObj.put("pageData", list);
         jsonObj.put("totalRec", totalRec);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
+    }
+
+    private void regionRecursion(List<JSONObject> childRegion, List<JSONObject> regionList, Long pid) {
+        for (JSONObject region : regionList) {
+            if (region.getLong("parent_id") != null) {
+                //遍历出父id等于参数的id，add进子节点集合
+                if (pid.toString().equals(region.getString("parent_id"))) {
+                    //递归遍历下一级
+                    childRegion.add(region);
+                    Long regionId = region.getLong("id");
+                    orgRecursion(childRegion, regionList, regionId);
+
+                }
+            }
+        }
     }
 
     @Override
@@ -265,7 +298,7 @@ public class FaceServiceImpl implements FaceService {
                     personInfo.put("name", person.getString("title"));
                     List<JSONObject> cards = new ArrayList<>();
                     JSONObject card = new JSONObject();
-                    card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
+                    card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
                     card.put("status", 0);
                     card.put("cardType", 1);
                     cards.add(card);
@@ -385,7 +418,7 @@ public class FaceServiceImpl implements FaceService {
                 personInfo.put("name", person.getString("title"));
                 List<JSONObject> cards = new ArrayList<>();
                 JSONObject card = new JSONObject();
-                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
+                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
                 card.put("status", 0);
                 card.put("cardType", 1);
                 cards.add(card);
@@ -580,12 +613,42 @@ public class FaceServiceImpl implements FaceService {
 
     @Override
     public Object userlist(JSONObject jsonObj) {
-        int totalRec = faceDao.countUser(jsonObj);
-        jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
-        List<Map> list = faceDao.listUserByName(jsonObj);
+        List<JSONObject> childOrg = new ArrayList<>();
+        Set<Long> orgIds = new HashSet<>();
+
+        List<JSONObject> orgs = faceDao.findOrgs();
+        orgRecursion(childOrg, orgs, jsonObj.getLong("parent_id"));
+
+        for (JSONObject jsonObject : childOrg) {
+            orgIds.add(jsonObject.getLong("id"));
+        }
+        orgIds.add(jsonObj.getLong("parent_id"));
+        int totalRec = 0;
+        List<Map> list = new ArrayList<>();
+        if (orgIds.size() > 0) {
+            totalRec = faceDao.countUser(jsonObj, orgIds);
+            jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
+            list = faceDao.listUserByName(jsonObj, orgIds);
+        }
+
         jsonObj.put("pageData", list);
         jsonObj.put("totalRec", totalRec);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
+    }
+
+    private void orgRecursion(List<JSONObject> childOrg, List<JSONObject> orgList, Long pid) {
+        for (JSONObject org : orgList) {
+            if (org.getLong("parent_id") != null) {
+                //遍历出父id等于参数的id，add进子节点集合
+                if (pid.toString().equals(org.getString("parent_id"))) {
+                    //递归遍历下一级
+                    childOrg.add(org);
+                    Long orgId = org.getLong("id");
+                    orgRecursion(childOrg, orgList, orgId);
+
+                }
+            }
+        }
     }
 
     @Override
@@ -724,8 +787,8 @@ public class FaceServiceImpl implements FaceService {
         }
         if (personId != null) {
             JSONObject olduser = new JSONObject();
-            olduser.put("id",user.getId());
-            olduser.put("personId",personId);
+            olduser.put("id", user.getId());
+            olduser.put("personId", personId);
             userDao.updateInst((JSONObject) JSON.toJSON(olduser));
         }
         // 下发门禁权限
@@ -751,7 +814,7 @@ public class FaceServiceImpl implements FaceService {
             personInfo.put("name", person.getString("title"));
             List<JSONObject> cards = new ArrayList<>();
             JSONObject card = new JSONObject();
-            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
+            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
             card.put("status", 0);
             card.put("cardType", 1);
             cards.add(card);
@@ -805,7 +868,7 @@ public class FaceServiceImpl implements FaceService {
             policy.clear();
         }
         if (hikEnable) {
-            if(resourceInfos.size()>0 || personIds.size()>0){
+            if (resourceInfos.size() > 0 || personIds.size() > 0) {
                 ApiService.authDownload(resourceInfos, personInfos, true);
                 ApiService.authDownloadSearchList(resourceInfos, personIds);
             }
