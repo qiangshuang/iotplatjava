@@ -691,6 +691,7 @@ public class FaceServiceImpl implements FaceService {
         if (visitId == null || visitId == 0) {
             return new ResponseBean(200, "FAILED", "操作失败", jsonObj);
         }
+
         String state = "允许";
         faceDao.updateVisitState(visitId, state);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);

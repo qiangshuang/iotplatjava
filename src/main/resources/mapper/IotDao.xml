@@ -88,12 +88,12 @@
 
     <select id="cameraindexlist" resultType="com.alibaba.fastjson.JSONObject">
         select t1.id,t1.algorithm_id,t1.algorithm_title,t1.border,t2.title,t2.videoa,t2.state,t2.pushaddress,
-        t2.region_id,t2.region_title from algorithm t1
-        left join camera t2 on t1.camera_id=t2.id
+        t2.region_id,t2.region_title from (select * from  algorithm where algorithm_id=6 ) t1
+        right join camera t2 on t1.camera_id=t2.id
         <where>
-                and t1.state='运行中'
+              <!--and t2.state='运行中'  and t1.state='运行中'-->
             <if test="region_id!=null and region_id!=''">
-                and t2.region_id=#{region_id}
+                and region_id=#{region_id}
             </if>
             <if test="algorithm_id!=null and algorithm_id!=''">
                 and t1.algorithm_id=#{algorithm_id}

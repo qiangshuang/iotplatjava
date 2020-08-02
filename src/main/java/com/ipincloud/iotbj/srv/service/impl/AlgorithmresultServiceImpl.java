@@ -3,9 +3,13 @@ package com.ipincloud.iotbj.srv.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.ipincloud.iotbj.face.dao.FaceDao;
+import com.ipincloud.iotbj.oa.OAApi;
+import com.ipincloud.iotbj.srv.domain.User;
+import com.ipincloud.iotbj.utils.FileUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -34,6 +38,11 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
 
     @Resource
     private FaceDao faceDao;
+    @Resource
+    private UserDao userDao;
+
+    @Value("${localhostUri}")
+    private String localhostUri;
 
     //@param id 主键 
     //@return 实例对象Algorithmresult 
@@ -95,6 +104,40 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                         algorithmalarm.put("box", box);
 
                         this.algorithmresultDao.addInstAlgorithmalarm(algorithmalarm);
+
+                        //查询对应的路数
+                        JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
+
+                        JSONObject message = new JSONObject();
+                        message.put("displayType", "microapp");
+                        message.put("msgId", algorithmalarm.getString("id"));
+                        String[] user_ids = algorithm.getString("user_ids").split(",");
+                        List<String> list = new ArrayList<>();
+
+                        String personId = "";
+                        for (int j = 0; j < user_ids.length; j++) {
+                            User user = userDao.queryById((long) Integer.parseInt(user_ids[j]));
+                            if (user != null) {
+                                list.add(user.getPersonId());
+                                personId += user.getPersonId() + ",";
+                            }
+                        }
+                        personId = personId.substring(0, personId.length() - 1);
+                        message.put("recipient", personId);
+
+                        JSONObject content = new JSONObject();
+                        String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
+                        content.put("type", "text");
+                        content.put("msg", msg);
+                        content.put("url", "");
+                        content.put("redirectUrl", "");
+                        content.put("fun", "IAM");
+                        content.put("title", "摄像头算法报警");
+                        String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
+                        content.put("avatar", imgPath);
+
+                        message.put("message", content);
+                        new OAApi().sendNewAlarmMessage(message);
                     }
                 }
             }

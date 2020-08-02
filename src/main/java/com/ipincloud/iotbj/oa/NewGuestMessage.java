@@ -16,7 +16,7 @@ public class NewGuestMessage {
 
         Message message = new Message();
         message.recipient = guest.targetUserId;
-        message.displayType = "microapp";
+        message.displayType = "approval";
         message.msgId = guest.id;
 
         Content content = new Content();

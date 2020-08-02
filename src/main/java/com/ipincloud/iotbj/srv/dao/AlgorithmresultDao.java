@@ -28,4 +28,6 @@ public interface AlgorithmresultDao {
     int addInstAlgorithmalarm(@Param("jsonObj") JSONObject jsonObj);
 
     List<String> queryAccesscode();
+
+    JSONObject queryAlgorithmByCidAndAid(Long id, Long id1);
 }

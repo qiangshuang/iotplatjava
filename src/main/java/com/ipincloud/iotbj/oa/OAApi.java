@@ -1,6 +1,7 @@
 package com.ipincloud.iotbj.oa;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -138,6 +139,24 @@ public class OAApi {
             execute(httpPost);
         } catch (Exception e) {
 //
+            e.printStackTrace();
+        }
+    }
+
+    public void sendNewAlarmMessage(JSONObject alarmlog) {
+        String token = getToken();
+        HttpPost httpPost = new HttpPost(oaBaseUrl + "/snap-app-im/oapi/message/sendworkmsg?tenantId=" + oaTenantId);
+        try {
+            List<NameValuePair> paramList = new ArrayList<>();
+            paramList.add(new BasicNameValuePair("sender",oaAppId));
+            paramList.add(new BasicNameValuePair("senderName",URLEncoder.encode("算法报警")));
+            paramList.add(new BasicNameValuePair("token",token));
+            System.out.println("推送算法报警信息到OA工作台"+JSON.toJSONString(alarmlog));
+            paramList.add(new BasicNameValuePair("message",JSON.toJSONString(alarmlog)));
+            HttpEntity entity = new UrlEncodedFormEntity(paramList,"UTF-8");
+            httpPost.setEntity(entity);
+            execute(httpPost);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
