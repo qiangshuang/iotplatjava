@@ -262,7 +262,7 @@ public class FaceServiceImpl implements FaceService {
                     personInfo.put("name", person.getString("title"));
                     List<JSONObject> cards = new ArrayList<>();
                     JSONObject card = new JSONObject();
-                    card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber") : person.getString("mobile"));
+                    card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
                     card.put("status", 0);
                     card.put("cardType", 1);
                     cards.add(card);
@@ -382,7 +382,7 @@ public class FaceServiceImpl implements FaceService {
                 personInfo.put("name", person.getString("title"));
                 List<JSONObject> cards = new ArrayList<>();
                 JSONObject card = new JSONObject();
-                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber") : person.getString("mobile"));
+                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
                 card.put("status", 0);
                 card.put("cardType", 1);
                 cards.add(card);
@@ -793,7 +793,7 @@ public class FaceServiceImpl implements FaceService {
             personInfo.put("name", person.getString("title"));
             List<JSONObject> cards = new ArrayList<>();
             JSONObject card = new JSONObject();
-            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber") : person.getString("mobile"));
+            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X","0").replace("x","0") : person.getString("mobile"));
             card.put("status", 0);
             card.put("cardType", 1);
             cards.add(card);

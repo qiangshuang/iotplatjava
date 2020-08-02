@@ -393,7 +393,7 @@
                 and #{endtime} >= conftime
             </if>
             <if test="title!=null and title!=''">
-                and user_title like concat('%',#{user_title},'%')
+                and title like concat('%',#{title},'%')
             </if>
             <if test="idnumber!=null and idnumber!=''">
                 and idnumber like concat('%',#{idnumber},'%')
