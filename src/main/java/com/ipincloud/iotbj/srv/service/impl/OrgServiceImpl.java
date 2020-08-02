@@ -219,6 +219,8 @@ public class OrgServiceImpl implements OrgService {
                 if (StringUtils.isEmpty(personId)) {
                     throw new HikException("海康平台添加人员失败");
                 }
+            }else{
+                throw new HikException("海康平台上已经有此人");
             }
 
         }
