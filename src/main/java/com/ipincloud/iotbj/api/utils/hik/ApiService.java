@@ -31,7 +31,6 @@ public class ApiService {
         jsonObject.put("modName", "车辆道闸");
 
 
-
         String url = "https://10.69.206.70:10443/restapi/iot/iotinfomgr/modelInfo";
         String result = IotUtils.doPost(url, apikey, jsonObject);
 
@@ -213,14 +212,32 @@ public class ApiService {
         updateFace(jsonObject);
         return result.data;
     }
+
     //修改人臉
-    public static JSONObject updateFace(JSONObject jsonObject) {
-        JSONObject face = new JSONObject();
-        face.put("personId", jsonObject.getString("personId"));
-        face.put("faceData", jsonObject.getString("faces"));
-        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
-        }, ApiUtil.PATH_ADD_FACE, JSON.toJSONString(face));
-        return result.data;
+    public static void updateFace(JSONObject jsonObject) {
+        String personId = jsonObject.getString("personId");
+        JSONObject param = new JSONObject();
+        param.put("pageNo",1);
+        param.put("pageSize",1000);
+        param.put("personIds", personId);
+        BaseResponse<JSONObject> resultlist = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_GET_PERSON_LIST_BY, JSON.toJSONString(param));
+
+
+        JSONArray personPhoto = resultlist.data.getJSONArray("list").getJSONObject(0).getJSONArray("personPhoto");
+        JSONObject faceadd = new JSONObject();
+        faceadd.put("personId", personId);
+        faceadd.put("faceData", jsonObject.getString("faces"));
+        if (personPhoto == null || personPhoto.size() < 1) {
+            BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+            }, ApiUtil.PATH_ADD_FACE, JSON.toJSONString(faceadd));
+        } else {
+            JSONObject face = new JSONObject();
+            face.put("faceId", personPhoto.getJSONObject(0).getString("personPhotoIndexCode"));
+            face.put("faceData", jsonObject.getString("faces"));
+            BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+            }, ApiUtil.PATH_UPDATE_FACE, JSON.toJSONString(face));
+        }
     }
 
     // 删除人员

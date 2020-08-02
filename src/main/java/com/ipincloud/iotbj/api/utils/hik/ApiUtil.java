@@ -30,12 +30,14 @@ public class ApiUtil {
     public static String PATH_DELETE_PERSON = "/api/resource/v1/person/batch/delete";
     public static String PATH_CARD_BINDINGS = "/api/cis/v1/card/bindings";
     //public static String PATH_ADD_FACE_ = "/api/frs/v1/face/single/addition";
+    public  static String PATH_GET_PERSON_LIST_BY = "/api/resource/v2/person/advance/personList";
     public static String PATH_ADD_FACE = "/api/resource/v1/face/single/add";
-    public static String PATH_UPDATE_FACE = "/api/frs/v1/face/single/update";
+    public static String PATH_UPDATE_FACE = "/api/resource/v1/face/single/update";
     public static String PATH_SEARCH_FACE_GROUP = "/api/frs/v1/face/group";
     public static String PATH_ADD_FACE_GROUP = "/api/frs/v1/face/group/single/addition";
     public static String PATH_GET_PERSONINFO_BY_CERTIFICATENO = "/api/resource/v1/person/certificateNo/personInfo";
     public static String PATH_ADD_FACE_SINGLE = "/api/resource/v1/face/single/add";
+
     public static String PATH_GET_GATEWAY_LIST = "/api/resource/v1/acsDevice/acsDeviceList";
     public static String PATH_GET_ACSDEVICE_LIST = "/api/resource/v1/acsDevice/advance/acsDeviceList";
     public static String PATH_GET_DOOR_LIST = "/api/resource/v1/acsDoor/advance/acsDoorList";
