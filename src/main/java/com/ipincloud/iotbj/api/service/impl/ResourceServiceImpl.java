@@ -203,20 +203,28 @@ public class ResourceServiceImpl implements ResourceService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         Date indate = simpleDateFormat.parse(vehicleEvent.params.events.get(0).happenTime);
         Date outdate = simpleDateFormat.parse(vehicleEvent.params.sendTime);
-        vehicle_history.put("in_gate_id", vehicleEvent.params.events.get(0).data.gateName);
-        vehicle_history.put("intime", indate.getTime());
-        vehicle_history.put("inpic", "");
-        vehicle_history.put("out_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
-        vehicle_history.put("outtime", outdate.getTime());
-        vehicle_history.put("outpic", "");
-        vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
-        vehicle_history.put("staytime", vehicleEvent.params.events.get(0).timeout);
-        vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
-        vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
-        vehicle_history.put("created", System.currentTimeMillis());
-        vehicle_history.put("updated", System.currentTimeMillis());
-
-        resourceDao.insertVehicleHistory(vehicle_history);
+        if (vehicleEvent.params.events.get(0).data.inoutType == 0) {
+            vehicle_history.put("in_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
+            vehicle_history.put("intime", indate.getTime());
+//            vehicle_history.put("out_gate_id", "");
+//            vehicle_history.put("outtime", 0L);
+            vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
+            vehicle_history.put("staytime", vehicleEvent.params.events.get(0).timeout);
+            vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
+            vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
+            vehicle_history.put("vehicle_event_index", vehicleEvent.params.events.get(0).data.eventIndex);
+        } else if (vehicleEvent.params.events.get(0).data.inoutType == 1) {
+//            vehicle_history.put("in_gate_id", "");
+//            vehicle_history.put("intime", );
+            vehicle_history.put("out_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
+            vehicle_history.put("outtime", outdate.getTime());
+            vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
+            vehicle_history.put("staytime", vehicleEvent.params.events.get(0).timeout);
+            vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
+            vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
+            vehicle_history.put("vehicle_event_index", vehicleEvent.params.events.get(0).data.eventIndex);
+        }
+        resourceDao.insertOrUpdateVehicleHistory(vehicle_history);
         return null;
     }
 

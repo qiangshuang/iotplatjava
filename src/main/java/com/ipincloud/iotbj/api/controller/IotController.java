@@ -137,7 +137,7 @@ public class IotController {
         String path = "";
         if (img != null) {
             String originFileName = img.getOriginalFilename();
-            String suffixName = originFileName.substring(originFileName.lastIndexOf("."));
+            String suffixName = ".jpg";
 
             String uuId = UUID.randomUUID().toString();
             Date date = new Date();

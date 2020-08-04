@@ -627,4 +627,28 @@
     <select id="findRegions" resultType="com.alibaba.fastjson.JSONObject">
         select * from region
     </select>
+
+    <select id="listPolicyByPersonIds" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_policy
+        <where>
+            <if test="validPeronIds!=null and validPeronIds.size()>0">
+                personId in
+                <foreach collection="validPeronIds" item="personId" open="(" close=")" separator=",">
+                    #{personId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <delete id="deletePolicyByPersonId">
+        delete from face_policy
+        <where>
+            <if test="validPeronIds!=null and validPeronIds.size()>0">
+                personId in
+                <foreach collection="validPeronIds" item="personId" open="(" close=")" separator=",">
+                    #{personId}
+                </foreach>
+            </if>
+        </where>
+    </delete>
 </mapper>

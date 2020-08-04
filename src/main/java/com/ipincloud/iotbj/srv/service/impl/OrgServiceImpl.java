@@ -6,6 +6,7 @@ import com.ipincloud.iotbj.api.utils.AlgorithmFaceUtils;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
 import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.api.utils.hik.HikException;
+import com.ipincloud.iotbj.face.dao.FaceDao;
 import com.ipincloud.iotbj.srv.dao.OrgDao;
 import com.ipincloud.iotbj.srv.dao.UserDao;
 import com.ipincloud.iotbj.srv.dao.UserRoleDao;
@@ -35,12 +36,17 @@ public class OrgServiceImpl implements OrgService {
     private UserDao userDao;
     @Resource
     private UserRoleDao userRoleDao;
+    @Resource
+    private FaceDao faceDao;
 
     @Value("${hikEnable}")
     private boolean hikEnable;
 
     @Value("${algorithm_face.face_register}")
     private String algorithmFaceRegisterUrl;
+
+    @Value("${localhostUri}")
+    private String localhostUri;
 
     //@param id 主键
     //@return 实例对象Org
@@ -301,10 +307,15 @@ public class OrgServiceImpl implements OrgService {
                                 validPeronIds.add(personId);
                             }
                         }
-                        if(validPeronIds.size()>0) {
-                            JSONObject deleteVehicle = new JSONObject();
-                            deleteVehicle.put("personIds", validPeronIds);
-                            ApiService.deletePerson(deleteVehicle);
+                        if (validPeronIds.size() > 0) {
+                            //1.删除权限配置
+                            deletePersonPolicy(validPeronIds);
+                            //2.删除海康人员
+                            JSONObject deletePersonInfo = new JSONObject();
+                            deletePersonInfo.put("personIds", validPeronIds);
+                            ApiService.deletePerson(deletePersonInfo);
+                            //3.删除本地权限库
+                            faceDao.deletePolicyByPersonId(validPeronIds);
                         }
                     }
                 }
@@ -318,5 +329,74 @@ public class OrgServiceImpl implements OrgService {
         delNum2 = this.userRoleDao.deletesInst(jsonObj);
         delNum1 = delNum1 + delNum2;
         return delNum1;
+    }
+
+    public void deletePersonPolicy(List<String> validPeronIds) {
+        List<JSONObject> policyList = faceDao.listPolicyByPersonIds(validPeronIds);
+        for (int i = 0; i < validPeronIds.size(); i++) {
+            Set<JSONObject> resourceInfos = new HashSet<>();
+            Set<JSONObject> personInfos = new HashSet<>();
+            String personId = validPeronIds.get(i);
+            if (StringUtils.isNotEmpty(personId)) {
+                //添加人员信息
+                JSONObject person = faceDao.findUserByPersonId(personId);
+                JSONObject personInfo = new JSONObject();
+                personInfo.put("personId", person.getString("personId"));
+                personInfo.put("operatorType", 2);
+//              personInfo.put("startTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("starttime"))));
+//              personInfo.put("endTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("endtime"))));
+                personInfo.put("personType", "1");
+                personInfo.put("name", person.getString("title"));
+                List<JSONObject> cards = new ArrayList<>();
+                JSONObject card = new JSONObject();
+                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
+                card.put("status", 0);
+                card.put("cardType", 1);
+                cards.add(card);
+                personInfo.put("cards", cards);
+                JSONObject face = new JSONObject();
+                face.put("card", null);
+                Map faceData = new HashMap<>();
+                String photo = person.getString("photo");
+                if (StringUtils.isEmpty(photo)) {
+                    break;
+                }
+                String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(photo);
+                faceData.put("f" + person.getString("id"), imgPath);
+                face.put("data", faceData);
+                personInfo.put("face", face);
+                personInfos.add(personInfo);
+            }
+
+            for (int j = 0; j < policyList.size(); j++) {
+                JSONObject policy = policyList.get(j);
+                if (Objects.equals(personId, policy.getString("personId"))) {
+                    //添加资源信息
+                    if (StringUtils.isNotEmpty(policy.getString("acsDevIndexCode"))) {
+                        JSONObject resourceInfo = new JSONObject();
+                        List<JSONObject> doors = faceDao.findGatewayByIndexCode(policy.getString("acsDevIndexCode"));
+                        resourceInfo.put("resourceIndexCode", doors.get(0).getString("doorIndexCode"));
+                        resourceInfo.put("resourceType", doors.get(0).getString("channelType"));
+                        JSONArray channelNos = new JSONArray();
+                        if (doors != null) {
+                            for (int k = 0; k < doors.size(); k++) {
+                                channelNos.add(doors.get(k).getInteger("channelNo"));
+                            }
+                        } else {
+                            channelNos.add(1);
+                        }
+                        resourceInfo.put("channelNos", channelNos);
+                        resourceInfos.add(resourceInfo);
+                    }
+                }
+            }
+            //调用第三方接口进行删除权限
+            if (hikEnable) {
+                if (resourceInfos.size() > 0 && personInfos.size() > 0) {
+                    ApiService.authDownload(resourceInfos, personInfos, true);
+                }
+            }
+        }
+
     }
 }

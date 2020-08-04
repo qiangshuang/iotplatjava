@@ -106,4 +106,8 @@ public interface FaceDao {
     List<JSONObject> findOrgs();
 
     List<JSONObject> findRegions();
+
+    List<JSONObject> listPolicyByPersonIds(@Param("validPeronIds") List<String> validPeronIds);
+
+    int deletePolicyByPersonId(@Param("validPeronIds") List<String> validPeronIds);
 }

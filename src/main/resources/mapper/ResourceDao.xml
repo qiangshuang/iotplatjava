@@ -78,15 +78,29 @@
         values(#{userID},#{name},#{gender},#{mobiles},null,null,#{certificateNum},#{no},null,#{srcName},#{happenTime},null,null,#{userGroup},#{result},#{created},#{updated})
     </insert>
 
-    <insert id="insertVehicleHistory" useGeneratedKeys="true" keyProperty="jsonObj.id">
-        insert into vehicle_history
-        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
-            ${key}
-        </foreach>
-        values
-        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
-            #{jsonObj[${key}]}
-        </foreach>
+    <insert id="insertOrUpdateVehicleHistory" useGeneratedKeys="true" keyProperty="jsonObj.id">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from vehicle_history where vehicle_event_index = #{jsonObj.vehicle_event_index}
+        </selectKey>
+        <if test="count==0">
+            insert into vehicle_history
+            <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+                ${key}
+            </foreach>
+            values
+            <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+                #{jsonObj[${key}]}
+            </foreach>
+        </if>
+        <if test="count>0">
+            update vehicle_history
+            <foreach collection="jsonObj.keys" item="key" separator=",">
+                <if test="key != 'vehicle_event_index' ">
+                    ${key} = #{jsonObj[${key}]}
+                </if>
+            </foreach>
+            where vehicle_event_index = #{jsonObj.vehicle_event_index}
+        </if>
     </insert>
 
     <select id="queryGateTitle" resultType="java.lang.String">
