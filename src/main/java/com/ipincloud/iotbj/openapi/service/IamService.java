@@ -8,4 +8,10 @@ public interface IamService {
 
     Object saveOrUpdateUser(JSONObject jsonObj);
     Object deleteUsers(JSONObject jsonObj);
+    Object saveOrUpdatePos(JSONObject jsonObj);
+    Object deletePoss(JSONObject jsonObj);
+    Object saveOrUpdateUserPos(JSONObject jsonObj);
+    Object deleteUserPoss(JSONObject jsonObj);
+    Object saveOrUpdateUserFace(JSONObject jsonObj);
+    
 }

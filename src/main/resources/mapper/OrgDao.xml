@@ -151,7 +151,7 @@
 
 
     <select id="orgQuery" resultType="java.util.Map">
-        select org.id,org.title,org.parent_id,org.type,org.stop,org.parent_title from org
+        select * from org
         <where>
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
                 <foreach collection="jsonObj.qps" item="item" index="index">

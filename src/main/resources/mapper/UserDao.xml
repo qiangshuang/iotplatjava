@@ -36,6 +36,10 @@
             where  user_name= #{userName}
         </select>
         
+        <select id="queryByThirdUUID" resultType="com.alibaba.fastjson.JSONObject">
+            select * from role where thirdUUID=#{thirdUUID}
+        </select>
+
         <select id="queryByPersonId" resultType="com.alibaba.fastjson.JSONObject">
             select
               *
