@@ -6,6 +6,9 @@ import com.alibaba.fastjson.JSONObject;
 
 import com.ipincloud.iotbj.openapi.service.IamService;
 import com.ipincloud.iotbj.api.utils.hik.ApiService;
+import com.ipincloud.iotbj.api.utils.hik.ApiModel;
+import com.ipincloud.iotbj.api.utils.hik.HikException;
+
 import com.ipincloud.iotbj.srv.dao.OrgDao;
 import com.ipincloud.iotbj.srv.dao.UserDao;
 import com.ipincloud.iotbj.srv.dao.RoleDao;
@@ -38,6 +41,8 @@ import java.io.*;
 import com.ipincloud.iotbj.openapi.domain.ResponseOpenApi;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
+
+
 
 
 @Service
@@ -80,7 +85,7 @@ public class IamServiceImpl implements IamService {
     @Override
     public Object saveOrUpdateUser(JSONObject jsonObj){
 
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
@@ -158,7 +163,7 @@ public class IamServiceImpl implements IamService {
                 //更新海康。
                 if (hikEnable) {
 
-                    String personId = userJsonObj.getString("personId");
+                    // String personId = userJsonObj.getString("personId");
 
                     JSONObject person = new JSONObject();
 
@@ -223,8 +228,14 @@ public class IamServiceImpl implements IamService {
                 userJsonObj.put("jobno",itemObject.getString("no"));
 
                 if(StringUtils.isEmpty( itemObject.getString("mobile") ) ){
-                    String genOne = certificateNoGen.get(0);
-                    certificateNoGen.remove(0);
+                    String genOne = "";
+
+                    Iterator<String> it = certificateNoGen.iterator();
+                    if(it.hasNext()) {
+                        genOne = it.next();
+                        certificateNoGen.remove(genOne);
+                    }
+
                     userJsonObj.put("mobile",genOne);
                 }else{
                     userJsonObj.put("mobile",itemObject.getString("mobile"));
@@ -274,7 +285,7 @@ public class IamServiceImpl implements IamService {
                 userDao.addInst(userJsonObj);
 
 
-                String personId = null;
+                // String personId = null;
                 if (hikEnable) {
                     //通过身份证查询海康是否存在人员
                     JSONObject certifi = new JSONObject();
@@ -336,14 +347,14 @@ public class IamServiceImpl implements IamService {
 
             }
         }
-        */
+        
         return new ResponseBean(-1,"SUCCESS","用户同步成功.",null);
     }
 
     // //2.批量删除用户
     @Override 
     public Object deleteUsers(JSONObject jsonObj){
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
@@ -352,7 +363,7 @@ public class IamServiceImpl implements IamService {
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
 
-        List<String> deleteIds = new List<>();
+        List<String> deleteIds = new ArrayList<>();
         for (int i = 0; i < dArr.size(); i++) {
             JSONObject itemObject = dArr.getJSONObject(i);
             if(itemObject == null){
@@ -375,14 +386,14 @@ public class IamServiceImpl implements IamService {
 
         jsonQueryUser.put("qps",qMapList);
 
-        List<JSONObject> userDelList = userDao.userList(jsonQueryUser);
+        List<Map> userDelList = userDao.userList(jsonQueryUser);
 
-        List<String> personIds = new List<>();
-        List<Long> delIds = new List<>();
-        for(JSONObject userJson:userDelList){
-            if (StringUtils.isNotEmpty(userJson.getString("person_id"))){
-                personIds.add(userJson.getString("person_id") );
-                delIds.add(userJson.getLong("id"));
+        List<String> personIds = new ArrayList<>();
+        List<Long> delIds = new ArrayList<>();
+        for(Map userMap : userDelList){
+            if (StringUtils.isNotEmpty(userMap.get("person_id").toString() )){
+                personIds.add(userMap.get("person_id").toString() );
+                delIds.add( Long.parseLong(userMap.get("id").toString() ) );
             }
         }
         if (hikEnable) {
@@ -415,7 +426,7 @@ public class IamServiceImpl implements IamService {
         jsonDelUserRole.put("user_role",qMapList);
         this.userRoleDao.deletesInst(jsonDelUserRole);
 
-        MapList = new ArrayList();
+        qMapList = new ArrayList();
         qMap = new HashMap();
         qMap.put("name","id");
         qMap.put("op","in");
@@ -424,18 +435,18 @@ public class IamServiceImpl implements IamService {
         JSONObject orgJsonDel = new JSONObject();
         orgJsonDel.put("org",qMapList);
         this.orgDao.deletesInst(orgJsonDel);
-        */
+        
         return new ResponseBean(-1,"SUCCESS","删除用户成功.","");
     }
     
     //3.批量增加或更新岗位信息
     @Override
     public Object saveOrUpdatePos(JSONObject jsonObj){
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
-        Object[] dArr = jsonObj.getJSONArray("saveOrUpdatePos");
+        JSONArray dArr = jsonObj.getJSONArray("saveOrUpdatePos");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
@@ -454,11 +465,11 @@ public class IamServiceImpl implements IamService {
 
                 roleJsonObj.put("thirdUUID",thirdUUID);
                 roleJsonObj.put("title",itemObject.getString("name"));
-                roleObj.updateInst(roleJsonObj);
+                roleDao.updateInst(roleJsonObj);
 
             }else{
                 
-                roleJsonObj = new roleJsonObj();
+                roleJsonObj = new JSONObject();
                 roleJsonObj.put("thirdUUID",thirdUUID);
                 roleJsonObj.put("title",itemObject.getString("name"));
 
@@ -466,22 +477,22 @@ public class IamServiceImpl implements IamService {
 
             }
         }
-        */
+        
         return new ResponseBean(-1,"SUCCESS","更新或新增角色成功.",null);
     }
     // //4.批量删除岗位信息
     @Override
     public Object deletePoss(JSONObject jsonObj){
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
-        Object[] dArr = jsonObj.getJSONArray("deletePoss");
+        JSONArray dArr = jsonObj.getJSONArray("deletePoss");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
 
-        List<String> delThirdUUID = new List<>();
+        List<String> delThirdUUID = new ArrayList<>();
         for (int i = 0; i < dArr.size(); i++) {
             JSONObject itemObject = dArr.getJSONObject(i);
             if(itemObject == null){
@@ -497,16 +508,16 @@ public class IamServiceImpl implements IamService {
         Map paraMap = new HashMap();
         paraMap.put("name","thirdUUID");
         paraMap.put("op","in");
-        paraMap.put("val",delIds);
+        paraMap.put("val",delThirdUUID);
 
-        List<Map> roleParaMaps = new List<HashMap>();
+        List<Map> roleParaMaps = new ArrayList<>();
         roleParaMaps.add(paraMap);
 
         jsonQueryRole.put("qps",roleParaMaps);
 
         List<Map> listRoles = roleDao.roleQuery(jsonQueryRole);
 
-        List<Long> roleIds = new List<>();
+        List<Long> roleIds = new ArrayList<>();
         for(Map roleMap : listRoles){
             roleIds.add((Long)roleMap.get("id"));
         }
@@ -519,28 +530,28 @@ public class IamServiceImpl implements IamService {
         userRoleParaMap.put("op","in");
         userRoleParaMap.put("val",roleIds);
 
-        List<Map> userRoleParaMaps = new List<HashMap>();
+        List<Map> userRoleParaMaps = new ArrayList<>();
         userRoleParaMaps.add(userRoleParaMap);
 
         jsonDelUserRole.put("user_role",userRoleParaMaps);
         userRoleDao.deletesInst(jsonDelUserRole);
 
-        jsonDelRole = new JSONObject();
+        JSONObject jsonDelRole = new JSONObject();
         jsonDelRole.put("role",roleParaMaps);
 
         roleDao.deletesInst(jsonDelRole);
         
-        */
+        
         return new ResponseBean(-1,"SUCCESS","删除岗位成功.",null);
     }
     // //5.批量增加或更新用户与岗位关系
     @Override
     public Object saveOrUpdateUserPos(JSONObject jsonObj){
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
-        Object[] dArr = jsonObj.getJSONArray("saveOrUpdatePos");
+        JSONArray dArr = jsonObj.getJSONArray("saveOrUpdatePos");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
@@ -591,17 +602,17 @@ public class IamServiceImpl implements IamService {
             }
             
         }
-        */
+        
         return new ResponseBean(-1,"SUCCESS","更新或新增用户角色成功.",null);
     }
     //6 删除用户与岗位关系...
     @Override
     public Object deleteUserPoss(JSONObject jsonObj){
-        /*
+        
         if(jsonObj == null || jsonObj.isEmpty()){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
-        JSONArray[] dArr = jsonObj.getJSONArray("deleteUserPoss");
+        JSONArray dArr = jsonObj.getJSONArray("deleteUserPoss");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1){
             return new ResponseBean(200,"FAILED","没有收到有效数据.",null);
         }
@@ -642,7 +653,7 @@ public class IamServiceImpl implements IamService {
 
             userRoleDao.deletesInst(jsonDelUserRole);
         }
-        */
+        
         return new ResponseBean(-1,"SUCCESS","删除用户岗位成功.",null);
     }
     // 7.更新用户人脸接口

@@ -11,6 +11,7 @@ public interface UserRoleDao {
     //@return 实例对象UserRole 
     UserRole queryById(Long id);
     //@param jsonObj 过滤条件等 
+    JSONObject queryByThirdUUID(String thirdUUID);
     //@return JSONObject
     Integer userRoleMmjoin(@Param("jsonObj") JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
