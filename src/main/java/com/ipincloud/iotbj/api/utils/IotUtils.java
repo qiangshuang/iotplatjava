@@ -319,10 +319,11 @@ public class IotUtils {
 
     public static String doPost(String uri, JSONObject jsonObject) {
         StringBuilder result = new StringBuilder();
+        HttpURLConnection connection = null;
         try {
             URL url = new URL(uri);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            //
+            connection = (HttpURLConnection) url.openConnection();
+            // 兼容https请求
             trustAllHttpsCertificates();
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
                 public boolean verify(String urlHostName, SSLSession session) {
@@ -334,7 +335,7 @@ public class IotUtils {
             connection.setRequestMethod("POST"); // 设置请求方式
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("connection", "keep-alive");
-            connection.setConnectTimeout(3000);
+            connection.setConnectTimeout(3*60*1000); // 3分钟超时
             OutputStream os = connection.getOutputStream();
             os.write(jsonObject.toJSONString().getBytes());
             os.flush();
@@ -345,11 +346,12 @@ public class IotUtils {
                 result.append(line + "\n");
             }
             br.close();
-            connection.disconnect();
             log.info("接口调用成功 -  url：{}，params：{}，result：{}", uri, jsonObject.toJSONString(), result);
         } catch (Exception e) {
             log.error("接口调用失败 -  url：{}，params：{}", uri, jsonObject.toJSONString(), e);
             e.printStackTrace();
+        }finally {
+            connection.disconnect();
         }
         return result.toString();
     }

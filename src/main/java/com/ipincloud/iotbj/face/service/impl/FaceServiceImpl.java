@@ -503,7 +503,6 @@ public class FaceServiceImpl implements FaceService {
                 jsonObjSecond.put("parent_title", org.getTitle());
             }
             this.userDao.addInst(jsonObjSecond);
-
             userId = jsonObjSecond.getLong("id");
         } else {
             userId = user.getLong("id");
@@ -516,18 +515,6 @@ public class FaceServiceImpl implements FaceService {
         visit.put("interview_titles", jsonObj.getString("interview_titles"));
         visit.put("gateway_title", "东二门");
         visit.put("gateway_id", '0');
-//        List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
-//        if (gateways == null) {
-//            return new ResponseBean(400, "FAILED", "找不到东二门的门禁设备", jsonObj);
-//        }
-//        List<String> gateway_ids = new ArrayList<>();
-//        List<String> gateway_titles = new ArrayList<>();
-//        for (JSONObject jsonObject : gateways) {
-//            gateway_ids.add(jsonObject.getString("id"));
-//            gateway_titles.add(jsonObject.getString("title"));
-//        }
-//        visit.put("gateway_id", gateway_ids.toString().replace("[", "").replace("]", "")); //默认东二门
-//        visit.put("gateway_title", gateway_titles.toString().replace("[", "").replace("]", "")); //默认东二门
         visit.put("conftime", System.currentTimeMillis());
         // 8：00至第二天8点
         Date date = new Date();

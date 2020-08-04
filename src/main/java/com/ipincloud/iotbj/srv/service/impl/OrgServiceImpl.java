@@ -167,19 +167,17 @@ public class OrgServiceImpl implements OrgService {
     @Transactional(isolation = Isolation.REPEATABLE_READ, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JSONObject addOrgUserInstAttr(JSONObject jsonObj) {
         JSONObject jsonObjFirst = ParaUtils.copyJsonObjectCols(jsonObj, "id,type,parent_id,sort,data_scope,stop,memo,parent_title,title,orgIndexCode");
-//        Org org = orgDao.queryById(jsonObj.getLong("parent_id"));
-//        String parentOrgIndexCode = "";
-//        if (org != null && StringUtils.isNotEmpty(org.getOrgIndexCode())) {
-//            parentOrgIndexCode = org.getOrgIndexCode();
-//        }
         jsonObjFirst.put("orgIndexCode", UUID.randomUUID().toString());
-//        jsonObjFirst.put("parentOrgIndexCode", parentOrgIndexCode);
-        jsonObjFirst.put("type","user");
+        jsonObjFirst.put("type", "user");
         this.orgDao.addInst(jsonObjFirst);
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj, "mobile,user_name,pwd,id,title,parent_id,parent_title,lastlogin,job_title,job_id,thirdin,created,updated,photo,idnumber,cardnumber,mcardno,gender,personId");
         jsonObjSecond.put("id", jsonObjFirst.get("id"));
         jsonObjSecond.put("created", System.currentTimeMillis());
-        jsonObjSecond.put("userGroup", "场内人员");
+        if (Objects.equals("外来访客", jsonObjSecond.getString("parent_title"))) {
+            jsonObjSecond.put("userGroup", "外来访客");
+        } else {
+            jsonObjSecond.put("userGroup", "厂内人员");
+        }
         this.userDao.addInst(jsonObjSecond);
 
         String personId = null;
@@ -225,12 +223,12 @@ public class OrgServiceImpl implements OrgService {
                 if (StringUtils.isEmpty(personId)) {
                     throw new HikException("海康平台添加人员失败");
                 }
-            }else{
+            } else {
                 throw new HikException("海康平台上已经有此人");
             }
 
         }
-        if (personId != null) {
+        if (jsonObjSecond != null && personId != null) {
             jsonObjSecond.put("personId", personId);
             userDao.updateInst(jsonObjSecond);
             AlgorithmFaceUtils.registerFace(algorithmFaceRegisterUrl, personId, jsonObjSecond.getString("photo"));
@@ -248,8 +246,13 @@ public class OrgServiceImpl implements OrgService {
         this.orgDao.updateInst(jsonObjFirst);
         JSONObject jsonObjSecond = ParaUtils.copyJsonObjectCols(jsonObj, "mobile,user_name,pwd,id,title,parent_id,parent_title,lastlogin,job_title,job_id,thirdin,created,updated,photo,idnumber,cardnumber,mcardno,gender,personId");
         jsonObjSecond.put("id", jsonObjFirst.get("id"));
+        jsonObjSecond.put("updated", System.currentTimeMillis());
+        if (Objects.equals("外来访客", jsonObjSecond.getString("parent_title"))) {
+            jsonObjSecond.put("userGroup", "外来访客");
+        } else {
+            jsonObjSecond.put("userGroup", "厂内人员");
+        }
         this.userDao.updateInst(jsonObjSecond);
-
 
         String personId = jsonObjSecond.getString("personId");
         User user = null;
@@ -284,7 +287,9 @@ public class OrgServiceImpl implements OrgService {
             person.put("faces", str);
             ApiService.updatePerson(person);
         }
-        if (personId != null) {
+        if (jsonObjSecond != null && personId != null) {
+            jsonObjSecond.put("personId", personId);
+            userDao.updateInst(jsonObjSecond);
             AlgorithmFaceUtils.registerFace(algorithmFaceRegisterUrl, personId, jsonObjSecond.getString("photo"));
         }
     }
@@ -301,9 +306,9 @@ public class OrgServiceImpl implements OrgService {
                 if (deleteIds != null && deleteIds.size() > 0) {
                     List<String> personIds = orgDao.queryByIds(deleteIds.toJavaList(Long.class));
                     if (personIds != null && personIds.size() > 0) {
-                        List<String> validPeronIds=new ArrayList<>();
-                        for(String personId:personIds){
-                            if(StringUtils.isNotEmpty(personId)){
+                        List<String> validPeronIds = new ArrayList<>();
+                        for (String personId : personIds) {
+                            if (StringUtils.isNotEmpty(personId)) {
                                 validPeronIds.add(personId);
                             }
                         }
