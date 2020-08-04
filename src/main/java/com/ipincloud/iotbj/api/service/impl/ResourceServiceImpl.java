@@ -201,30 +201,33 @@ public class ResourceServiceImpl implements ResourceService {
 
         JSONObject vehicle_history = new JSONObject();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        Date indate = simpleDateFormat.parse(vehicleEvent.params.events.get(0).happenTime);
-        Date outdate = simpleDateFormat.parse(vehicleEvent.params.sendTime);
-        if (vehicleEvent.params.events.get(0).data.inoutType == 0) {
+        Date happenTime = simpleDateFormat.parse(vehicleEvent.params.events.get(0).happenTime);
+        String roadwayName = vehicleEvent.params.events.get(0).data.roadwayName;
+        if (roadwayName.contains("入口")) {
             vehicle_history.put("in_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
-            vehicle_history.put("intime", indate.getTime());
-//            vehicle_history.put("out_gate_id", "");
-//            vehicle_history.put("outtime", 0L);
+            vehicle_history.put("intime", happenTime.getTime());
             vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
-            vehicle_history.put("staytime", vehicleEvent.params.events.get(0).timeout);
             vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
             vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
-            vehicle_history.put("vehicle_event_index", vehicleEvent.params.events.get(0).data.eventIndex);
-        } else if (vehicleEvent.params.events.get(0).data.inoutType == 1) {
-//            vehicle_history.put("in_gate_id", "");
-//            vehicle_history.put("intime", );
-            vehicle_history.put("out_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
-            vehicle_history.put("outtime", outdate.getTime());
-            vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
-            vehicle_history.put("staytime", vehicleEvent.params.events.get(0).timeout);
-            vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
-            vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
-            vehicle_history.put("vehicle_event_index", vehicleEvent.params.events.get(0).data.eventIndex);
+            vehicle_history.put("outflag", 0);
+            vehicle_history.put("created", System.currentTimeMillis());
+            resourceDao.insertVehicleHistory(vehicle_history);
+        } else if (roadwayName.contains("出口")) {
+            vehicle_history = resourceDao.findLastInVehicleHistory(vehicleEvent.params.events.get(0).data.plateNo, 0);
+            if (vehicle_history != null) {
+                vehicle_history.put("out_gate_id", vehicleEvent.params.events.get(0).data.roadwayName);
+                vehicle_history.put("outtime", happenTime.getTime());
+                vehicle_history.put("state", vehicleEvent.params.events.get(0).data.inResult.rlsResult.releaseAuth == 1 ? "允许通行" : "禁止通行");
+                vehicle_history.put("vehicle_title", vehicleEvent.params.events.get(0).data.plateNo);
+                vehicle_history.put("vahicle_category", vehicleEvent.params.events.get(0).data.carAttributeName);
+                vehicle_history.put("outflag", 1);
+                vehicle_history.put("updated", System.currentTimeMillis());
+                Long intime = vehicle_history.getLong("intime");
+                Long outtime = happenTime.getTime();
+                vehicle_history.put("staytime", String.format("%.2f", ((float) (outtime - intime)) / (3600 * 1000)));
+                resourceDao.updateVehicleHistory(vehicle_history);
+            }
         }
-        resourceDao.insertOrUpdateVehicleHistory(vehicle_history);
         return null;
     }
 

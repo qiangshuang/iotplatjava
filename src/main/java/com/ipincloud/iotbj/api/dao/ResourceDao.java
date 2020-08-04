@@ -26,4 +26,10 @@ public interface ResourceDao {
     int insertOrUpdateVehicleHistory(@Param("jsonObj") JSONObject jsonObj);
 
     String queryGateTitle(@Param("gateIndex") String gateIndex);
+
+    int insertVehicleHistory(@Param("jsonObj") JSONObject jsonObj);
+
+    int updateVehicleHistory(@Param("jsonObj") JSONObject jsonObj);
+
+    JSONObject findLastInVehicleHistory(String vehicleTitle, int outFlag);
 }

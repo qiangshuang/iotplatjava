@@ -86,10 +86,14 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                         algorithmalarm.put("result_id", jsonObj.getString("id"));
 
                         String userId = JSON.parseObject(result).getJSONObject(accesscode).getString("user_id");
-                        if (userId != null && "".equals(userId)) {
+                        if (userId != null) {
                             algorithmalarm.put("personId", userId);
                             JSONObject jsonObject = faceDao.findUserByPersonId(userId);
-                            algorithmalarm.put("personName", jsonObject.getString("title"));
+                            if (jsonObject != null) {
+                                algorithmalarm.put("personName", jsonObject.getString("title"));
+                            } else {
+                                algorithmalarm.put("personName", userId);
+                            }
                         }
 
                         String box = "";
@@ -135,7 +139,7 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                             content.put("redirectUrl", "");
                             content.put("fun", "IAM");
                             content.put("title", "摄像头算法报警");
-                            if(StringUtils.isNotEmpty(jsonObj.getString("imgpaath"))) {
+                            if (StringUtils.isNotEmpty(jsonObj.getString("imgpath"))) {
                                 String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
                                 content.put("avatar", imgPath);
                             }

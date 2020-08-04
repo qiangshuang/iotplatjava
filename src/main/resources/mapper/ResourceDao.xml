@@ -107,4 +107,29 @@
         select title from vehicle_gate where indexCode = #{gateIndex} limit 1
     </select>
 
+    <insert id="insertVehicleHistory">
+        insert into vehicle_history
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <update id="updateVehicleHistory">
+        update vehicle_history set
+        <foreach collection="jsonObj.keys" item="key" separator=",">
+            <if test="key != 'id' ">
+                ${key} = #{jsonObj[${key}]}
+            </if>
+        </foreach>
+        where id = #{jsonObj.id}
+    </update>
+
+    <select id="findLastInVehicleHistory" resultType="com.alibaba.fastjson.JSONObject">
+        select id,vehicle_title,intime from vehicle_history where vehicle_title = #{vehicleTitle} and outflag = #{outFlag} order by id desc limit 1
+    </select>
+
 </mapper>
