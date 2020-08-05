@@ -41,8 +41,6 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
 
     @Value("${localhostUri}")
     private String localhostUri;
-    @Value("${oa.baseUrl}")
-    private String oaBaseUrl;
 
     //@param id 主键 
     //@return 实例对象Algorithmresult 
@@ -128,9 +126,9 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                                 }
                             }
                         }
-                        personId = personId.substring(0, personId.length() - 1);
-                        msgId = msgId.substring(0, msgId.length() - 1);
                         if (StringUtils.isNotEmpty(personId) && StringUtils.isNotEmpty(msgId)) {
+                            personId = personId.substring(0, personId.length() - 1);
+                            msgId = msgId.substring(0, msgId.length() - 1);
                             JSONObject message = new JSONObject();
                             message.put("displayType", "microapp");
                             message.put("msgId", msgId);
@@ -140,7 +138,7 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                             String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
                             content.put("type", "text");
                             content.put("msg", msg);
-                            content.put("url", oaBaseUrl + "/#/alarminformation/" + algorithmalarm.getString("id"));
+                            content.put("url", localhostUri + "/#/alarminformation/" + algorithmalarm.getString("id"));
                             content.put("redirectUrl", "");
                             content.put("fun", "IAM");
                             content.put("title", "算法报警");
