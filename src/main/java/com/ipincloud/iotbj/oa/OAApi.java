@@ -102,9 +102,9 @@ public class OAApi {
         throw new OAException("获取Token失败");
     }
 
-    public void sendNewGuestMessage(Guest guest) {
+    public void sendNewGuestMessage(String msgId, Guest guest) {
         String token = getToken();
-        NewGuestMessage newGuestMessage = NewGuestMessage.forGuest(oaAppId, token, appHost, guest);
+        NewGuestMessage newGuestMessage = NewGuestMessage.forGuest(oaAppId, token, appHost, msgId, guest);
         System.out.println("推送访客到OA工作台" + oaAppId + " " + appHost + " guest" + guest.toString());
         HttpPost httpPost = new HttpPost(oaBaseUrl + "/snap-app-im/oapi/message/sendworkmsg?tenantId=" + oaTenantId);
 

@@ -545,32 +545,37 @@ public class FaceServiceImpl implements FaceService {
         //String targetUserName = visit.getString("interview_titles");
         String interviewIds = visit.getString("interview_ids");
         String targetUserId = "";
+        String msgId = "";
         if (StringUtils.isNotEmpty(interviewIds)) {
             String[] interviewId = interviewIds.split(",");
             for (int i = 0; i < interviewId.length; i++) {
                 User person = userDao.queryById((long) Integer.parseInt(interviewId[i]));
                 if (person != null) {
                     targetUserId += person.getPersonId() + ",";
+                    msgId += visit.getString("id") + ",";
                 }
             }
         }
-        targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
-        String targetUserName = visit.getString("interview_titles");
-        //targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
-        //String targetUserName = "张原";
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String startTime = simpleDateFormat.format(new Date(visit.getLong("starttime")));
-        String endTime = simpleDateFormat.format(new Date(visit.getLong("endtime")));
-        String createTime = simpleDateFormat.format(new Date());
-        String status = visit.getString("state");
+        if (StringUtils.isNotEmpty(targetUserId)) {
+            targetUserId = targetUserId.substring(0, targetUserId.length() - 1);
+            msgId = msgId.substring(0, msgId.length() - 1);
+            String targetUserName = visit.getString("interview_titles");
+            //targetUserId = "d6a6d739436a0e804ad275d02d7a58bc";
+            //String targetUserName = "张原";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            String startTime = simpleDateFormat.format(new Date(visit.getLong("starttime")));
+            String endTime = simpleDateFormat.format(new Date(visit.getLong("endtime")));
+            String createTime = simpleDateFormat.format(new Date());
+            String status = visit.getString("state");
 
-        String imgpath = FileUtils.getRealFilePath(newUser.getPhoto());
-        String facePic = localhostUri + "/face/img?imgPath=" + imgpath;
+            String imgpath = FileUtils.getRealFilePath(newUser.getPhoto());
+            String facePic = localhostUri + "/face/img?imgPath=" + imgpath;
 
-        Guest guest = new Guest(id, guId, name, certificateNum, mobile, gender,
-                targetUserId, targetUserName, startTime, endTime, facePic, createTime, status);
-        //向oa工作台推送审核消息
-        oaApi.sendNewGuestMessage(guest);
+            Guest guest = new Guest(id, guId, name, certificateNum, mobile, gender,
+                    targetUserId, targetUserName, startTime, endTime, facePic, createTime, status);
+            //向oa工作台推送审核消息
+            oaApi.sendNewGuestMessage(msgId, guest);
+        }
 
         return new ResponseBean(200, "SUCCESS", "操作成功", null);
     }
