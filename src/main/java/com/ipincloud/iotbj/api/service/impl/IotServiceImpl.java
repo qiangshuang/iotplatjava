@@ -546,6 +546,21 @@ public class IotServiceImpl implements IotService {
 
         int alarmTotal = iotDao.alarmTotal();
         List<JSONObject> list = iotDao.alarmGroup();
+        List<JSONObject> recList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            JSONObject jo = list.get(i);
+            if (jo != null) {
+                float num = jo.getFloat("num");
+                String rate = "0.0";
+                if (alarmTotal != 0) {
+                    rate = String.format("%.1f", num / alarmTotal * 100);
+                }
+                jo.put("rate", rate);
+            }
+            recList.add(jo);
+        }
+        jsonObject.put("today_warning", recList);
+        /*
         JSONObject today_warning = new JSONObject();
         Map a = new HashMap();
         a.put("zywz", 0);
@@ -597,7 +612,7 @@ public class IotServiceImpl implements IotService {
         today_warning.put("a", a);
         today_warning.put("b", b);
         jsonObject.put("today_warning", today_warning);
-
+        */
         List<JSONObject> today_alarm = iotDao.bjsAndQrsGroup();
         jsonObject.put("today_alarm", today_alarm);
 
