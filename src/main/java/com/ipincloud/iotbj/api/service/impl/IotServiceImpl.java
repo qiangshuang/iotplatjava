@@ -516,15 +516,19 @@ public class IotServiceImpl implements IotService {
                     }
                 }
                 Integer sytmp = 0;
-                for (int n = 0; n < sys.size(); n++) {
-                    if (syDays.contains(flagDay)) {
-                        if (flagDay == sys.get(n).getInteger("days")) {
-                            sytmp = sys.get(n).getInteger("num");
+                if (sys.size() == 0) {
+                    sy.add(sytmp);
+                } else {
+                    for (int n = 0; n < sys.size(); n++) {
+                        if (syDays.contains(flagDay)) {
+                            if (flagDay == sys.get(n).getInteger("days")) {
+                                sytmp = sys.get(n).getInteger("num");
+                                sy.add(sytmp);
+                                break;
+                            }
+                        } else {
                             sy.add(sytmp);
-                            break;
                         }
-                    } else {
-                        sy.add(sytmp);
                     }
                 }
                 if (sytmp == 0) {

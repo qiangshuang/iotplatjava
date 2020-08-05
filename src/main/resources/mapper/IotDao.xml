@@ -74,7 +74,12 @@
     </select>
 
     <select id="alarmGroup" resultType="com.alibaba.fastjson.JSONObject">
-        select algorithm_id,count(*) as num from algorithmalarm where FROM_UNIXTIME(alarm_time/1000,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') GROUP BY algorithm_id
+        select t.algorithm_id,t.algorithm_name,sum(num) num from
+        (
+        select id algorithm_id,title algorithm_name,0 num from algorithmacc
+        union all
+        select algorithm_id,algorithm_name, count(*) as num from algorithmalarm where FROM_UNIXTIME(alarm_time/1000,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') GROUP BY algorithm_id,algorithm_name
+        ) t GROUP BY algorithm_id,algorithm_name
     </select>
 
     <select id="bjsAndQrsGroup" resultType="com.alibaba.fastjson.JSONObject">
@@ -88,10 +93,10 @@
 
     <select id="cameraindexlist" resultType="com.alibaba.fastjson.JSONObject">
         select t1.id,t1.algorithm_id,t1.algorithm_title,t1.border,t2.title,t2.videoa,t2.state,t2.pushaddress,
-        t2.region_id,t2.region_title from (select * from  algorithm where algorithm_id=6 ) t1
+        t2.region_id,t2.region_title from (select * from algorithm where algorithm_id=6 ) t1
         right join camera t2 on t1.camera_id=t2.id
         <where>
-              <!--and t2.state='运行中'  and t1.state='运行中'-->
+            and t2.state='运行中' and t1.state='运行中'
             <if test="region_id!=null and region_id!=''">
                 and region_id=#{region_id}
             </if>
