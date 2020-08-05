@@ -44,7 +44,7 @@
         select * from camera where id = #{camera_id} or cameraIndex=#{camera_id}  limit 1
     </select>
 
-    <insert id="addInstAlgorithmalarm">
+    <insert id="addInstAlgorithmalarm" useGeneratedKeys="true" keyProperty="jsonObj.id">
         insert into algorithmalarm
         <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
             ${key}

@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 //(Algorithmresult)算法结果 服务实现类
@@ -42,6 +41,8 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
 
     @Value("${localhostUri}")
     private String localhostUri;
+    @Value("${oa.baseUrl}")
+    private String oaBaseUrl;
 
     //@param id 主键 
     //@return 实例对象Algorithmresult 
@@ -114,6 +115,7 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                         String userIds = algorithm.getString("user_ids");
 
                         String personId = "";
+                        String msgId = "";
                         if (StringUtils.isNotEmpty(userIds)) {
                             String[] users = userIds.split(",");
                             for (int j = 0; j < users.length; j++) {
@@ -121,24 +123,27 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                                     User user = userDao.queryById(Long.parseLong(users[j]));
                                     if (user != null) {
                                         personId += user.getPersonId() + ",";
+                                        msgId += algorithmalarm.getString("id") + ",";
                                     }
                                 }
                             }
                         }
-                        if (StringUtils.isNotEmpty(personId)) {
+                        personId = personId.substring(0, personId.length() - 1);
+                        msgId = msgId.substring(0, msgId.length() - 1);
+                        if (StringUtils.isNotEmpty(personId) && StringUtils.isNotEmpty(msgId)) {
                             JSONObject message = new JSONObject();
                             message.put("displayType", "microapp");
-                            message.put("msgId", algorithmalarm.getString("id"));
+                            message.put("msgId", msgId);
                             message.put("recipient", personId);
 
                             JSONObject content = new JSONObject();
                             String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
                             content.put("type", "text");
                             content.put("msg", msg);
-                            content.put("url", "");
+                            content.put("url", oaBaseUrl + "/#/alarminformation/" + algorithmalarm.getString("id"));
                             content.put("redirectUrl", "");
                             content.put("fun", "IAM");
-                            content.put("title", "摄像头算法报警");
+                            content.put("title", "算法报警");
                             if (StringUtils.isNotEmpty(jsonObj.getString("imgpath"))) {
                                 String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
                                 content.put("avatar", imgPath);
