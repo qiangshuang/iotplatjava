@@ -317,10 +317,10 @@ public class FaceServiceImpl implements FaceService {
                     break;
                 }
                 //添加资源信息
-                if (StringUtils.isNotEmpty(policy.getString("acsDevIndexCode"))) {
+                if (StringUtils.isNotEmpty(joi.getString("acsDevIndexCode"))) {
                     //resourceInfo.put("resourceIndexCode", policy.getString("acsDevIndexCode"));
                     //resourceInfo.put("resourceType", "acsDevice");
-                    List<JSONObject> doors = faceDao.findGatewayByIndexCode(policy.getString("acsDevIndexCode"));
+                    List<JSONObject> doors = faceDao.findGatewayByIndexCode(joi.getString("acsDevIndexCode"));
                     //JSONObject resourceInfo = new JSONObject();
                     if (doors != null) {
                         for (int k = 0; k < doors.size(); k++) {
@@ -592,7 +592,7 @@ public class FaceServiceImpl implements FaceService {
 
             Long userId = user.getLong("id");
             JSONObject visit = faceDao.findVisitByUser(userId);
-            if(visit!=null){
+            if (visit != null) {
                 Long starttime = visit.getLong("starttime");
                 Long endtime = visit.getLong("endtime");
                 Long now = System.currentTimeMillis();

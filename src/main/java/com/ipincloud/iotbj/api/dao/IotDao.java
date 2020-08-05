@@ -21,6 +21,8 @@ public interface IotDao {
 
     JSONObject totality();
 
+    List<String> queryFzrTotal();
+
     List<JSONObject> by();
 
     List<JSONObject> sy();

@@ -297,7 +297,7 @@ public class IotServiceImpl implements IotService {
                 extras.put("object_detection", object_detection);
             } else if (Objects.equals("cross_detection", algorithm)) {
                 Map cross_detection = new HashMap();
-                cross_detection.put("boundary", Objects.equals("", para.getString("border")) ? new JSONArray(): JSONArray.parseArray(para.getString("border")));
+                cross_detection.put("boundary", Objects.equals("", para.getString("border")) ? new JSONArray() : JSONArray.parseArray(para.getString("border")));
                 cross_detection.put("region", Objects.equals("内部", para.getString("direction")) ? 0 : 1);
                 cross_detection.put("apriori", apriori);
                 extras.put("cross_detection", cross_detection);
@@ -415,7 +415,7 @@ public class IotServiceImpl implements IotService {
                 extras.put("object_detection", object_detection);
             } else if (Objects.equals("cross_detection", algorithm.getAccesscode())) {
                 Map cross_detection = new HashMap();
-                cross_detection.put("boundary", Objects.equals("", algorithm.getBorder()) ? new JSONArray(): JSONArray.parseArray(algorithm.getBorder()));
+                cross_detection.put("boundary", Objects.equals("", algorithm.getBorder()) ? new JSONArray() : JSONArray.parseArray(algorithm.getBorder()));
                 cross_detection.put("region", Objects.equals("内部", algorithm.getDirection()) ? 0 : 1);
                 cross_detection.put("apriori", apriori);
                 extras.put("cross_detection", cross_detection);
@@ -487,7 +487,21 @@ public class IotServiceImpl implements IotService {
     public JSONObject algorithmhome() {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("base", iotDao.base());
-        jsonObject.put("totality", iotDao.totality());
+        List<String> fzrs = iotDao.queryFzrTotal();
+        Set<String> fzrSet = new HashSet<>();
+        for (String fzr : fzrs) {
+            if (StringUtils.isNotEmpty(fzr)) {
+                String[] list = fzr.split(",");
+                for (int i = 0; i < list.length; i++) {
+                    if (StringUtils.isNotEmpty(list[i])) {
+                        fzrSet.add(list[i]);
+                    }
+                }
+            }
+        }
+        JSONObject totality = iotDao.totality();
+        totality.put("fzr", fzrSet.size());
+        jsonObject.put("totality", totality);
 
         Map history_alarm = new HashMap();
         List<Integer> days = new ArrayList<>();
@@ -611,8 +625,8 @@ public class IotServiceImpl implements IotService {
         }
         today_warning.put("a", a);
         today_warning.put("b", b);
-        jsonObject.put("today_warning", today_warning);
-        */
+         */
+
         List<JSONObject> today_alarm = iotDao.bjsAndQrsGroup();
         jsonObject.put("today_alarm", today_alarm);
 
