@@ -54,7 +54,6 @@ public class IamServiceImpl implements IamService {
     //1.增加或更新用户
     @Override
     public Object saveOrUpdateUser(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
@@ -95,7 +94,7 @@ public class IamServiceImpl implements IamService {
                 userJsonObj.put("gender", gender);
             }
             //工号
-            String loginName = itemObject.getString("loginName");
+            String loginName = itemObject.getString("no");
             userJsonObj.put("user_name", StringUtils.isEmpty(loginName) ? "" : loginName);
             //姓名
             String title = itemObject.getString("name");
@@ -111,25 +110,26 @@ public class IamServiceImpl implements IamService {
                 photo = saveBase64File(0L, photo);
                 userJsonObj.put("photo", photo);
             }
-            //用户类型
+/*          //用户类型
             String userGroup = itemObject.getString("user_type");
             if (StringUtils.isNotEmpty(userGroup)) {
                 userJsonObj.put("userGroup", userGroup);
             } else {
                 userJsonObj.put("userGroup", "外来访客");
-            }
+            }*/
             //部门
             String orgId = itemObject.getString("orgId");
             JSONObject orgJson = new JSONObject();
-            if (StringUtils.isNotEmpty(orgJson)) {
+            if (StringUtils.isNotEmpty(orgId)) {
                 Org org = orgDao.queryByIndexCode(orgId);
                 if (org != null) {
-                    userJsonObj.put("parent_id", org.getId());
-                    userJsonObj.put("parent_title", org.getParentTitle());
-
                     orgJson.put("type", "user");
                     orgJson.put("parent_id", org.getId());
                     orgJson.put("title", title);
+
+                    userJsonObj.put("parent_id", org.getId());
+                    userJsonObj.put("parent_title", org.getTitle());
+                    userJsonObj.put("userGroup", "厂内人员");
                 } else {
                     error.add(itemObject);
                     continue;
@@ -138,11 +138,19 @@ public class IamServiceImpl implements IamService {
                 orgJson.put("type", "user");
                 orgJson.put("parent_id", 0);
                 orgJson.put("title", title);
+
+                Org org = orgDao.queryByName("外来访客");
+                userJsonObj.put("parent_id", org.getId());
+                userJsonObj.put("parent_title", org.getTitle());
+                userJsonObj.put("userGroup", "外来访客");
             }
 
-            String certificateNo = genUUNumber(); //随机生成身份证号
+            //身份证
+            String certificateNo = itemObject.getString("idCard");
             if (StringUtils.isNotEmpty(certificateNo)) {
                 userJsonObj.put("idnumber", certificateNo);
+            } else {
+                userJsonObj.put("idnumber", genUUNumber());  //随机生成身份证号
             }
 
             JSONObject user = userDao.queryByPersonId(personId);
@@ -151,23 +159,27 @@ public class IamServiceImpl implements IamService {
             if (user != null) {
                 //更新海康
                 if (hikEnable) {
-                    JSONObject person = new JSONObject();
+                    //人员ID查询
+                    if (hikperson == null && StringUtils.isNotEmpty(personId)) {
+                        JSONObject personNo = new JSONObject();
+                        personNo.put("personId", personId);
+                        hikperson = ApiService.getPersonbyPersonNo(personNo);
+                    }
                     //手机号查询
-                    if (StringUtils.isNotEmpty(mobile)) {
+                    if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
                         JSONObject phoneNo = new JSONObject();
                         phoneNo.put("phoneNo", mobile);
                         hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
                     }
                     //身份证查询
-                    if (hikperson == null || hikperson.isEmpty()) {
-                        if (StringUtils.isNotEmpty(certificateNo)) {
-                            JSONObject certificate = new JSONObject();
-                            certificate.put("certificateType", "111");
-                            certificate.put("certificateNo", certificateNo);
-                            hikperson = ApiService.getPersonbycertificateno(certificate);
-                        }
+                    if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
+                        JSONObject certificate = new JSONObject();
+                        certificate.put("certificateType", "111");
+                        certificate.put("certificateNo", certificateNo);
+                        hikperson = ApiService.getPersonbycertificateno(certificate);
                     }
-                    if (!hikperson.isEmpty()) {
+                    if (hikperson != null) {
+                        JSONObject person = new JSONObject();
                         person.put("personId", hikperson.getString("personId"));
                         person.put("personName", userJsonObj.getString("title"));
                         if (Objects.equals("男", userJsonObj.getString("gender"))) {
@@ -202,8 +214,7 @@ public class IamServiceImpl implements IamService {
                     }
                 }
             } else {
-                if (userJsonObj != null) {
-                    orgJson.put("id", user.getLong("id"));
+                if (userJsonObj != null && orgJson != null) {
                     orgDao.addInst(orgJson);
                     userJsonObj.put("id", orgJson.getLong("id"));
                     userJsonObj.put("personId", personId);
@@ -212,26 +223,28 @@ public class IamServiceImpl implements IamService {
                 }
                 //添加到海康
                 if (hikEnable) {
-                    //通过身份证或手机号查询海康是否存在人员
-
-                    JSONObject certificate = new JSONObject();
-                    certificate.put("certificateType", "111");
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-
-                        certificate.put("certificateNo", userJsonObj.getString("idnumber"));
-                    } else if (StringUtils.isNotEmpty(certificateNo)) {
-                        certificate.put("certificateNo", certificateNo);
+                    //人员ID查询
+                    if (hikperson == null && StringUtils.isNotEmpty(personId)) {
+                        JSONObject personNo = new JSONObject();
+                        personNo.put("personId", personId);
+                        hikperson = ApiService.getPersonbyPersonNo(personNo);
                     }
-                    hikperson = ApiService.getPersonbycertificateno(certificate);
-                    if (hikperson == null) {
+                    //手机号查询
+                    if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
                         JSONObject phoneNo = new JSONObject();
-                        if (StringUtils.isNotEmpty(mobile)) {
-                            phoneNo.put("phoneNo", mobile);
-                            hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
-                        }
+                        phoneNo.put("phoneNo", mobile);
+                        hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
                     }
-                    if (hikperson == null) {
+                    //身份证查询
+                    if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
+                        JSONObject certificate = new JSONObject();
+                        certificate.put("certificateType", "111");
+                        certificate.put("certificateNo", certificateNo);
+                        hikperson = ApiService.getPersonbycertificateno(certificate);
+                    }
+                    if (hikperson == null || hikperson.isEmpty()) {
                         JSONObject person = new JSONObject();
+                        person.put("personId", personId);
                         person.put("personName", userJsonObj.getString("title"));
                         if (Objects.equals("男", userJsonObj.getString("gender"))) {
                             person.put("gender", "1");
@@ -271,15 +284,16 @@ public class IamServiceImpl implements IamService {
                             list.add(face);
                             person.put("faces", list);
                         }
-
                         personId = ApiService.addPerson(person);
                         if (StringUtils.isEmpty(personId)) {
-                            throw new HikException("海康平台添加人员失败");
+                            error.add(itemObject);
+                            continue;
+                        } else {
+                            userJsonObj.put("personId", personId);
+                            userJsonObj.put("updated", System.currentTimeMillis());
+                            userDao.updateInst(userJsonObj);
+                            success.add(itemObject);
                         }
-                    }
-                    if (userJsonObj != null && StringUtils.isNotEmpty(personId)) {
-                        userJsonObj.put("personId", personId);
-                        userDao.updateInst(userJsonObj);
                     }
                 }
                 data.put("success", success);
@@ -293,32 +307,36 @@ public class IamServiceImpl implements IamService {
     // //2.批量删除用户
     @Override
     public Object deleteUsers(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
-        JSONArray dArr = jsonObj.getJSONArray("deleteUsers");
-        if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+        String dArr = jsonObj.getString("deleteUsers");
+        if (dArr == null || dArr.isEmpty() || dArr.length() < 1) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
 
         List<String> deleteIds = new ArrayList<>();
-        for (int i = 0; i < dArr.size(); i++) {
-            JSONObject itemObject = dArr.getJSONObject(i);
-            if (itemObject == null) {
-                continue;
-            }
-            String thirdUUID = itemObject.getString("ids");
-            if (StringUtils.isNotEmpty(thirdUUID)) {
-                String[] personIds = itemObject.getString("ids").split(",");
-                for (int j = 0; j < personIds.length; j++) {
-                    if (StringUtils.isNotEmpty(personIds[j])) {
-                        deleteIds.add(personIds[j]);
-                    }
+        if (StringUtils.isNotEmpty(dArr)) {
+            String[] personIds = dArr.split(",");
+            for (int j = 0; j < personIds.length; j++) {
+                if (StringUtils.isNotEmpty(personIds[j])) {
+                    deleteIds.add(personIds[j]);
                 }
             }
         }
-        deletePersonPolicy(deleteIds);
+        if (deleteIds.size() > 0) {
+            //1.删除权限配置
+            deletePersonPolicy(deleteIds);
+            //2.删除海康人员
+            JSONObject deletePersonInfo = new JSONObject();
+            deletePersonInfo.put("personIds", deleteIds);
+            ApiService.deletePerson(deletePersonInfo);
+            //3.删除本地权限库
+            faceDao.deletePolicyByPersonId(deleteIds);
+            //4.删除本地用户信息
+            orgDao.deleteOrgPerson(deleteIds);
+            orgDao.deleteUserPerson(deleteIds);
+        }
         /*
         JSONObject jsonQueryUser = new JSONObject();
 
@@ -387,7 +405,6 @@ public class IamServiceImpl implements IamService {
     //3.批量增加或更新岗位信息
     @Override
     public Object saveOrUpdatePos(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
         }
@@ -429,7 +446,6 @@ public class IamServiceImpl implements IamService {
     // //4.批量删除岗位信息
     @Override
     public Object deletePoss(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
         }
@@ -494,7 +510,6 @@ public class IamServiceImpl implements IamService {
     // //5.批量增加或更新用户与岗位关系
     @Override
     public Object saveOrUpdateUserPos(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
         }
@@ -556,7 +571,6 @@ public class IamServiceImpl implements IamService {
     //6 删除用户与岗位关系...
     @Override
     public Object deleteUserPoss(JSONObject jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
         }
@@ -609,7 +623,6 @@ public class IamServiceImpl implements IamService {
     //[{"id":同步人员Id,filedata:base64编码的人脸文件}] //文件格式为jpg. 200k以下。
     @Override
     public Object saveOrUpdateUserFace(JSONArray jsonObj) {
-
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }

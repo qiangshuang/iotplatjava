@@ -90,8 +90,10 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                             JSONObject jsonObject = faceDao.findUserByPersonId(userId);
                             if (jsonObject != null) {
                                 algorithmalarm.put("personName", jsonObject.getString("title"));
+                                algorithmalarm.put("orgName", jsonObject.getString("parent_title"));
                             } else {
                                 algorithmalarm.put("personName", userId);
+                                algorithmalarm.put("orgName", "");
                             }
                         }
 
@@ -106,7 +108,7 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                         algorithmalarm.put("box", box);
                         //查询对应的路数
                         JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
-                        algorithmalarm.put("border", StringUtils.isEmpty(algorithmalarm.getString("border")) ? "" : StringUtils.isEmpty(algorithmalarm.getString("border")));
+                        algorithmalarm.put("border", StringUtils.isEmpty(algorithm.getString("border")) ? "" : algorithm.getString("border"));
 
                         this.algorithmresultDao.addInstAlgorithmalarm(algorithmalarm);
 
@@ -135,18 +137,19 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                             message.put("recipient", personId);
 
                             JSONObject content = new JSONObject();
-                            String msg = algorithmalarm.getString("algorithm_name") + " " + algorithmalarm.getString("camera_name") + " 出现警告！";
+                            String msg = algorithmalarm.getString("camera_name") + "-" + algorithmalarm.getString("algorithm_name");
                             content.put("type", "text");
                             content.put("msg", msg);
                             content.put("url", localhostUri + "/#/alarminformation/" + algorithmalarm.getString("id"));
                             content.put("redirectUrl", "");
                             content.put("fun", "IAM");
                             content.put("title", "算法报警");
+                            /*
                             if (StringUtils.isNotEmpty(jsonObj.getString("imgpath"))) {
                                 String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
                                 content.put("avatar", imgPath);
                             }
-
+                             */
                             message.put("message", content);
                             oaApi.sendNewAlarmMessage(message);
                         }

@@ -335,7 +335,7 @@ public class IotUtils {
             connection.setRequestMethod("POST"); // 设置请求方式
             connection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
             connection.setRequestProperty("connection", "keep-alive");
-            connection.setConnectTimeout(3*60*1000); // 3分钟超时
+            connection.setConnectTimeout(10*60*1000); // 10分钟超时
             OutputStream os = connection.getOutputStream();
             os.write(jsonObject.toJSONString().getBytes());
             os.flush();

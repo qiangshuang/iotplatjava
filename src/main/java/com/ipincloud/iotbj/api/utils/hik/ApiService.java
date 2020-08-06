@@ -228,7 +228,9 @@ public class ApiService {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_UPDATE_PERSON, JSON.toJSONString(jsonObject));
         //修改人脸信息
-        updateFace(jsonObject);
+        if (StringUtils.isNotEmpty(jsonObject.getString("faces"))) {
+            updateFace(jsonObject);
+        }
         return result.data;
     }
 
@@ -266,18 +268,26 @@ public class ApiService {
         return result.data;
     }
 
-    //更加身份证查询人员
+    //根据身份证查询人员
     public static JSONObject getPersonbycertificateno(JSONObject jsonObject) {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_GET_PERSONINFO_BY_CERTIFICATENO, JSON.toJSONString(jsonObject));
         return result.data;
     }
+
+    //根据手机号查询人员
     public static JSONObject getPersonbyPhoneNo(JSONObject jsonObject) {
         BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_GET_PERSONINFO_BY_PHONENO, JSON.toJSONString(jsonObject));
         return result.data;
     }
 
+    //根据人员ID查询人员
+    public static JSONObject getPersonbyPersonNo(JSONObject jsonObject) {
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_GET_PERSONINFO_BY_PERSONID, JSON.toJSONString(jsonObject));
+        return result.data;
+    }
 
     //创建人脸分组
     public static JSONObject addSingleFaceGroup(JSONObject jsonObject) {

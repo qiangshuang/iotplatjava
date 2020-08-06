@@ -53,4 +53,8 @@ public interface OrgDao {
     Org queryByName(String name);
 
     Org queryByIndexCode(String orgIndexCode);
+
+    int deleteOrgPerson(@Param("deleteIds") List<String> deleteIds);
+
+    int deleteUserPerson(@Param("deleteIds") List<String> deleteIds);
 }

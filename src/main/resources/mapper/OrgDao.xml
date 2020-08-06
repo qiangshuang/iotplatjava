@@ -297,4 +297,20 @@
     <select id="queryByIndexCode" resultType="com.ipincloud.iotbj.srv.domain.Org">
         select * from org where orgIndexCode = #{orgIndexCode} limit 1
     </select>
+
+    <delete id="deleteOrgPerson">
+        delete from org where id in (
+        select parent_id from user where personId in
+        <foreach collection="deleteIds" item="personId" index="index2" open="(" separator="," close=")">
+            #{personId}
+        </foreach>
+        )
+    </delete>
+
+    <delete id="deleteUserPerson">
+        delete from user where personId in
+        <foreach collection="deleteIds" item="personId" index="index2" open="(" separator="," close=")">
+            #{personId}
+        </foreach>
+    </delete>
 </mapper>

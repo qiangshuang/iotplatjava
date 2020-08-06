@@ -25,7 +25,7 @@ public class IamController {
 
     @PostMapping("/account/saveOrUpdateUser")
     public Object saveOrUpdateUser(@RequestParam Map<String, String> param) {
-        logger.info("info", "recv saveOrUpdateUser:" + JSON.toJSONString(param));
+        logger.info("info:recv saveOrUpdateUser{}", JSON.toJSONString(param));
         JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
@@ -34,11 +34,9 @@ public class IamController {
     }
 
     @PostMapping("/account/deleteUsers")
-    public Object deleteUsers(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv deleteUsers:" + jsonstr);
-
-        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+    public Object deleteUsers(@RequestParam Map<String, String> param) {
+        logger.info("info:recv deleteUsers{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
@@ -46,11 +44,9 @@ public class IamController {
     }
 
     @PostMapping("/post/saveOrUpdatePos")
-    public Object saveOrUpdatePos(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv saveOrUpdatePos:" + jsonstr);
-
-        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+    public Object saveOrUpdatePos(@RequestParam Map<String, String> param) {
+        logger.info("info:recv saveOrUpdatePos{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
@@ -58,11 +54,9 @@ public class IamController {
     }
 
     @PostMapping("/post/deletePoss")
-    public Object deletePoss(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv deletePoss:" + jsonstr);
-
-        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+    public Object deletePoss(@RequestParam Map<String, String> param) {
+        logger.info("info:recv deletePoss{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
@@ -70,11 +64,9 @@ public class IamController {
     }
 
     @PostMapping("/user_post/saveOrUpdateUserPos")
-    public Object saveOrUpdateUserPos(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv saveOrUpdateUserPos:" + jsonstr);
-
-        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+    public Object saveOrUpdateUserPos(@RequestParam Map<String, String> param) {
+        logger.info("info:recv saveOrUpdateUserPos{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
@@ -82,11 +74,9 @@ public class IamController {
     }
 
     @PostMapping("/user_post/deleteUserPoss")
-    public Object deleteUserPoss(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv deleteUserPoss:" + jsonstr);
-
-        JSONObject jsonObj = JSONObject.parseObject(jsonstr);
+    public Object deleteUserPoss(@RequestParam Map<String, String> param) {
+        logger.info("info:recv deleteUserPoss{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
@@ -95,8 +85,7 @@ public class IamController {
 
     @PostMapping("/account/saveOrUpdateUserFace")
     public Object saveOrUpdateUserFace(@RequestBody String jsonstr) {
-
-        logger.info("info", "recv saveOrUpdateUserFace:" + jsonstr);
+        logger.info("info:recv saveOrUpdateUserFace{}", jsonstr);
         JSONArray jsonObj = JSONArray.parseArray(jsonstr);
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
