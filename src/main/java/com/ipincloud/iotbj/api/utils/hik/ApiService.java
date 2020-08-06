@@ -272,6 +272,11 @@ public class ApiService {
         }, ApiUtil.PATH_GET_PERSONINFO_BY_CERTIFICATENO, JSON.toJSONString(jsonObject));
         return result.data;
     }
+    public static JSONObject getPersonbyPhoneNo(JSONObject jsonObject) {
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_GET_PERSONINFO_BY_PHONENO, JSON.toJSONString(jsonObject));
+        return result.data;
+    }
 
 
     //创建人脸分组

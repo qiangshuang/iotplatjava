@@ -51,4 +51,6 @@ public interface OrgDao {
     List<String> queryByIds(@Param("ids") List<Long> ids);
 
     Org queryByName(String name);
+
+    Org queryByIndexCode(String orgIndexCode);
 }

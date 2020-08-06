@@ -210,15 +210,14 @@ public class OrgServiceImpl implements OrgService {
                 } else {
                     person.put("jobNo", jsonObjSecond.getString("jobno"));
                 }
-                List<Map> list = new ArrayList();
-                Map face = new HashMap();
-                String str = "";
                 if (StringUtils.isNotEmpty(jsonObjSecond.getString("photo"))) {
-                    str = FileUtils.readImgBase64Code(jsonObjSecond.getString("photo"));
+                    List<Map> list = new ArrayList();
+                    Map face = new HashMap();
+                    String str = FileUtils.readImgBase64Code(jsonObjSecond.getString("photo"));
+                    face.put("faceData", str);
+                    list.add(face);
+                    person.put("faces", list);
                 }
-                face.put("faceData", str);
-                list.add(face);
-                person.put("faces", list);
                 personId = ApiService.addPerson(person);
                 if (StringUtils.isEmpty(personId)) {
                     throw new HikException("海康平台添加人员失败");

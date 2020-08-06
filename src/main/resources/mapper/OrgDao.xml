@@ -293,4 +293,8 @@
     <select id="queryByName" resultType="com.ipincloud.iotbj.srv.domain.Org">
         select * from org where title = #{name} limit 1
     </select>
+
+    <select id="queryByIndexCode" resultType="com.ipincloud.iotbj.srv.domain.Org">
+        select * from org where orgIndexCode = #{orgIndexCode} limit 1
+    </select>
 </mapper>

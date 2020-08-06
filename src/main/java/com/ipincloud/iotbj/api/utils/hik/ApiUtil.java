@@ -36,6 +36,7 @@ public class ApiUtil {
     public static String PATH_SEARCH_FACE_GROUP = "/api/frs/v1/face/group";
     public static String PATH_ADD_FACE_GROUP = "/api/frs/v1/face/group/single/addition";
     public static String PATH_GET_PERSONINFO_BY_CERTIFICATENO = "/api/resource/v1/person/certificateNo/personInfo";
+    public static String PATH_GET_PERSONINFO_BY_PHONENO = "/api/resource/v1/person/phoneNo/personInfo";
     public static String PATH_ADD_FACE_SINGLE = "/api/resource/v1/face/single/add";
 
     public static String PATH_GET_GATEWAY_LIST = "/api/resource/v1/acsDevice/acsDeviceList";
