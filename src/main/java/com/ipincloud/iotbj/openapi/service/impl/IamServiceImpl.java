@@ -3,42 +3,34 @@ package com.ipincloud.iotbj.openapi.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ipincloud.iotbj.api.utils.AlgorithmFaceUtils;
-import com.ipincloud.iotbj.openapi.service.IamService;
-import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
+import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.api.utils.hik.HikException;
-import com.ipincloud.iotbj.srv.dao.OrgDao;
-import com.ipincloud.iotbj.srv.dao.UserDao;
-import com.ipincloud.iotbj.srv.dao.RoleDao;
-import com.ipincloud.iotbj.srv.dao.RolePageDao;
-import com.ipincloud.iotbj.srv.dao.UserRoleDao;
+import com.ipincloud.iotbj.face.dao.FaceDao;
+import com.ipincloud.iotbj.openapi.service.IamService;
+import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.domain.Org;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.ipincloud.iotbj.utils.FileUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.io.*;
-
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Base64;
+import java.util.*;
 
 
 @Service
 @Transactional
 public class IamServiceImpl implements IamService {
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-
-    @Value("${hikEnable}")
-    private boolean hikEnable;
 
     @Autowired
     UserDao userDao;
@@ -50,25 +42,14 @@ public class IamServiceImpl implements IamService {
     RolePageDao rolePageDao;
     @Autowired
     UserRoleDao userRoleDao;
+    @Resource
+    private FaceDao faceDao;
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    public static String genUUNumber() {
-        SimpleDateFormat sdf = new SimpleDateFormat("9yyMMddHHmmssSSS");
-        String headStr = sdf.format(new Date());
-        int num = (int) (Math.random() * 9000 + 1000);
-
-        String tailStr = String.format("%d", num);
-        return headStr + tailStr;
-    }
-
-    public static Set<String> genUUNumbers(int size) {
-        Set<String> retSet = new HashSet<String>();
-        while (retSet.size() < size) {
-            String genOne = genUUNumber();
-            retSet.add(genOne);
-        }
-        return retSet;
-    }
-
+    @Value("${hikEnable}")
+    private boolean hikEnable;
+    @Value("${localhostUri}")
+    private String localhostUri;
 
     //1.增加或更新用户
     @Override
@@ -81,20 +62,23 @@ public class IamServiceImpl implements IamService {
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
-        Set<String> certificateNoGen = genUUNumbers(dArr.size());
-        Map<String, JSONObject> errMap = new HashMap<>();
+        JSONObject data = new JSONObject();
+        List<JSONObject> success = new ArrayList<>();
+        List<JSONObject> error = new ArrayList<>();
         for (int i = 0; i < dArr.size(); i++) {
             JSONObject itemObject = dArr.getJSONObject(i);
             if (itemObject == null) {
                 continue;
             }
             JSONObject userJsonObj = new JSONObject();
+            String personId = itemObject.getString("id");
+
             //手机号
             String mobile = itemObject.getString("mobile");
             if (StringUtils.isNotEmpty(mobile)) {
                 userJsonObj.put("mobile", mobile);
             } else {
-                errMap.put(i + "手机号为空", itemObject);
+                error.add(itemObject);
                 continue;
             }
             //性别
@@ -118,7 +102,7 @@ public class IamServiceImpl implements IamService {
             if (StringUtils.isNotEmpty(title)) {
                 userJsonObj.put("title", itemObject.getString("name"));
             } else {
-                errMap.put(i + "姓名为空", itemObject);
+                error.add(itemObject);
                 continue;
             }
             //头像
@@ -147,7 +131,7 @@ public class IamServiceImpl implements IamService {
                     orgJson.put("parent_id", org.getId());
                     orgJson.put("title", title);
                 } else {
-                    errMap.put(i + "部门不存在", itemObject);
+                    error.add(itemObject);
                     continue;
                 }
             } else {
@@ -157,50 +141,65 @@ public class IamServiceImpl implements IamService {
             }
 
             String certificateNo = genUUNumber(); //随机生成身份证号
+            if (StringUtils.isNotEmpty(certificateNo)) {
+                userJsonObj.put("idnumber", certificateNo);
+            }
 
-            String personId = itemObject.getString("id");
             JSONObject user = userDao.queryByPersonId(personId);
+            JSONObject hikperson = null;
             // 存在人员进行更新
             if (user != null) {
                 //更新海康
                 if (hikEnable) {
                     JSONObject person = new JSONObject();
-                    person.put("personId", personId);
-                    person.put("personName", userJsonObj.getString("title"));
-                    if (Objects.equals("男", userJsonObj.getString("gender"))) {
-                        person.put("gender", "1");
-                    } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
-                        person.put("gender", "2");
-                    } else {
-                        person.put("gender", "0");
+                    //手机号查询
+                    if (StringUtils.isNotEmpty(mobile)) {
+                        JSONObject phoneNo = new JSONObject();
+                        phoneNo.put("phoneNo", mobile);
+                        hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
                     }
-                    person.put("phoneNo", userJsonObj.getString("mobile"));
-                    person.put("certificateType", "111");
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-                        person.put("certificateNo", userJsonObj.getString("idnumber"));
-                    } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                        person.put("certificateNo", userJsonObj.getString("mobile"));
-                    } else {
-                        person.put("certificateNo", certificateNo);
+                    //身份证查询
+                    if (hikperson == null || hikperson.isEmpty()) {
+                        if (StringUtils.isNotEmpty(certificateNo)) {
+                            JSONObject certificate = new JSONObject();
+                            certificate.put("certificateType", "111");
+                            certificate.put("certificateNo", certificateNo);
+                            hikperson = ApiService.getPersonbycertificateno(certificate);
+                        }
                     }
-
-                    if (Objects.equals("", userJsonObj.getString("user_name"))) {
-                        person.put("jobNo", userJsonObj.getString("user_name"));
-                    } else {
-                        person.put("jobNo", userJsonObj.getString("jobno"));
+                    if (!hikperson.isEmpty()) {
+                        person.put("personId", hikperson.getString("personId"));
+                        person.put("personName", userJsonObj.getString("title"));
+                        if (Objects.equals("男", userJsonObj.getString("gender"))) {
+                            person.put("gender", "1");
+                        } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
+                            person.put("gender", "2");
+                        } else {
+                            person.put("gender", "0");
+                        }
+                        person.put("phoneNo", userJsonObj.getString("mobile"));
+                        person.put("certificateType", "111");
+                        if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                            person.put("certificateNo", userJsonObj.getString("idnumber"));
+                        } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                            person.put("certificateNo", userJsonObj.getString("mobile"));
+                        } else {
+                            person.put("certificateNo", certificateNo);
+                        }
+                        if (Objects.equals("", userJsonObj.getString("user_name"))) {
+                            person.put("jobNo", userJsonObj.getString("user_name"));
+                        } else {
+                            person.put("jobNo", userJsonObj.getString("jobno"));
+                        }
+                        ApiService.updatePerson(person);
+                        if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
+                            orgJson.put("id", user.getLong("id"));
+                            orgDao.updateInst(orgJson);
+                            userJsonObj.put("id", user.getLong("id"));
+                            userJsonObj.put("updated", System.currentTimeMillis());
+                            userDao.updateInst(userJsonObj);
+                        }
                     }
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
-                        String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
-                        person.put("faces", str);
-                    }
-                    ApiService.updatePerson(person);
-                }
-                if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
-                    orgJson.put("id", user.getLong("id"));
-                    orgDao.updateInst(orgJson);
-                    userJsonObj.put("id", user.getLong("id"));
-                    userJsonObj.put("updated", System.currentTimeMillis());
-                    userDao.updateInst(userJsonObj);
                 }
             } else {
                 if (userJsonObj != null) {
@@ -214,10 +213,11 @@ public class IamServiceImpl implements IamService {
                 //添加到海康
                 if (hikEnable) {
                     //通过身份证或手机号查询海康是否存在人员
-                    JSONObject hikperson = null;
+
                     JSONObject certificate = new JSONObject();
                     certificate.put("certificateType", "111");
                     if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+
                         certificate.put("certificateNo", userJsonObj.getString("idnumber"));
                     } else if (StringUtils.isNotEmpty(certificateNo)) {
                         certificate.put("certificateNo", certificateNo);
@@ -282,11 +282,12 @@ public class IamServiceImpl implements IamService {
                         userDao.updateInst(userJsonObj);
                     }
                 }
-
+                data.put("success", success);
+                data.put("fail", error);
             }
         }
 
-        return new ResponseBean(0, "SUCCESS", "用户同步成功.", errMap);
+        return new ResponseBean(0, "SUCCESS", "用户同步成功.", data);
     }
 
     // //2.批量删除用户
@@ -307,12 +308,18 @@ public class IamServiceImpl implements IamService {
             if (itemObject == null) {
                 continue;
             }
-            String thirdUUID = itemObject.getString("id");
+            String thirdUUID = itemObject.getString("ids");
             if (StringUtils.isNotEmpty(thirdUUID)) {
-                deleteIds.add(thirdUUID);
-
+                String[] personIds = itemObject.getString("ids").split(",");
+                for (int j = 0; j < personIds.length; j++) {
+                    if (StringUtils.isNotEmpty(personIds[j])) {
+                        deleteIds.add(personIds[j]);
+                    }
+                }
             }
         }
+        deletePersonPolicy(deleteIds);
+        /*
         JSONObject jsonQueryUser = new JSONObject();
 
         List<Map> qMapList = new ArrayList();
@@ -345,7 +352,6 @@ public class IamServiceImpl implements IamService {
                 }
 
             }
-
         }
 
         JSONObject jsonDelUser = new JSONObject();
@@ -373,6 +379,7 @@ public class IamServiceImpl implements IamService {
         JSONObject orgJsonDel = new JSONObject();
         orgJsonDel.put("org", qMapList);
         this.orgDao.deletesInst(orgJsonDel);
+         */
 
         return new ResponseBean(0, "SUCCESS", "删除用户成功.", "");
     }
@@ -416,7 +423,7 @@ public class IamServiceImpl implements IamService {
             }
         }
 
-        return new ResponseBean(-1, "SUCCESS", "更新或新增角色成功.", null);
+        return new ResponseBean(0, "SUCCESS", "更新或新增角色成功.", null);
     }
 
     // //4.批量删除岗位信息
@@ -481,7 +488,7 @@ public class IamServiceImpl implements IamService {
         roleDao.deletesInst(jsonDelRole);
 
 
-        return new ResponseBean(-1, "SUCCESS", "删除岗位成功.", null);
+        return new ResponseBean(0, "SUCCESS", "删除岗位成功.", null);
     }
 
     // //5.批量增加或更新用户与岗位关系
@@ -670,7 +677,25 @@ public class IamServiceImpl implements IamService {
         return new ResponseBean(0, "SUCCESS", "更行用户人脸资料成功.", noExists);
     }
 
-    public static String saveBase64File(Long userId, String base64FileData) {
+    private static String genUUNumber() {
+        SimpleDateFormat sdf = new SimpleDateFormat("9yyMMddHHmmssSSS");
+        String headStr = sdf.format(new Date());
+        int num = (int) (Math.random() * 9000 + 1000);
+
+        String tailStr = String.format("%d", num);
+        return headStr + tailStr;
+    }
+
+    private static Set<String> genUUNumbers(int size) {
+        Set<String> retSet = new HashSet<String>();
+        while (retSet.size() < size) {
+            String genOne = genUUNumber();
+            retSet.add(genOne);
+        }
+        return retSet;
+    }
+
+    private static String saveBase64File(Long userId, String base64FileData) {
         // 文件对象
         OutputStream out = null;
         try {
@@ -712,5 +737,74 @@ public class IamServiceImpl implements IamService {
             }
 
         }
+    }
+
+    private void deletePersonPolicy(List<String> validPeronIds) {
+        List<JSONObject> policyList = faceDao.listPolicyByPersonIds(validPeronIds);
+        for (int i = 0; i < validPeronIds.size(); i++) {
+            Set<JSONObject> resourceInfos = new HashSet<>();
+            Set<JSONObject> personInfos = new HashSet<>();
+            String personId = validPeronIds.get(i);
+            if (StringUtils.isNotEmpty(personId)) {
+                //添加人员信息
+                JSONObject person = faceDao.findUserByPersonId(personId);
+                JSONObject personInfo = new JSONObject();
+                personInfo.put("personId", person.getString("personId"));
+                personInfo.put("operatorType", 2);
+//              personInfo.put("startTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("starttime"))));
+//              personInfo.put("endTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("endtime"))));
+                personInfo.put("personType", "1");
+                personInfo.put("name", person.getString("title"));
+                List<JSONObject> cards = new ArrayList<>();
+                JSONObject card = new JSONObject();
+                card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
+                card.put("status", 0);
+                card.put("cardType", 1);
+                cards.add(card);
+                personInfo.put("cards", cards);
+                JSONObject face = new JSONObject();
+                face.put("card", null);
+                Map faceData = new HashMap<>();
+                String photo = person.getString("photo");
+                if (StringUtils.isEmpty(photo)) {
+                    break;
+                }
+                String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(photo);
+                faceData.put("f" + person.getString("id"), imgPath);
+                face.put("data", faceData);
+                personInfo.put("face", face);
+                personInfos.add(personInfo);
+            }
+
+            for (int j = 0; j < policyList.size(); j++) {
+                JSONObject policy = policyList.get(j);
+                if (Objects.equals(personId, policy.getString("personId"))) {
+                    //添加资源信息
+                    if (StringUtils.isNotEmpty(policy.getString("acsDevIndexCode"))) {
+                        JSONObject resourceInfo = new JSONObject();
+                        List<JSONObject> doors = faceDao.findGatewayByIndexCode(policy.getString("acsDevIndexCode"));
+                        resourceInfo.put("resourceIndexCode", doors.get(0).getString("doorIndexCode"));
+                        resourceInfo.put("resourceType", doors.get(0).getString("channelType"));
+                        JSONArray channelNos = new JSONArray();
+                        if (doors != null) {
+                            for (int k = 0; k < doors.size(); k++) {
+                                channelNos.add(doors.get(k).getInteger("channelNo"));
+                            }
+                        } else {
+                            channelNos.add(1);
+                        }
+                        resourceInfo.put("channelNos", channelNos);
+                        resourceInfos.add(resourceInfo);
+                    }
+                }
+            }
+            //调用第三方接口进行删除权限
+            if (hikEnable) {
+                if (resourceInfos.size() > 0 && personInfos.size() > 0) {
+                    ApiService.authDownload(resourceInfos, personInfos, true);
+                }
+            }
+        }
+
     }
 }

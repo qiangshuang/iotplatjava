@@ -5,23 +5,23 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.openapi.service.IamService;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 import java.util.Map;
 
 
 @RestController
 public class IamController {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-
     @Autowired
     IamService iamService;
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @PostMapping("/account/saveOrUpdateUser")
     public Object saveOrUpdateUser(@RequestParam Map<String, String> param) {

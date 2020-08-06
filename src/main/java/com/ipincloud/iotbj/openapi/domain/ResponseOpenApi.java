@@ -2,8 +2,6 @@ package com.ipincloud.iotbj.openapi.domain;
 
 import java.io.Serializable;
 
-import com.alibaba.fastjson.annotation.JSONField;
-
 public class ResponseOpenApi implements Serializable {
     /**
      * http状态码
@@ -19,6 +17,18 @@ public class ResponseOpenApi implements Serializable {
      * 返回数据
      */
     private Object data;
+
+    public ResponseOpenApi() {
+
+    }
+
+    public ResponseOpenApi(Integer code, String status, String msg, Object data) {
+        this.code = code;
+        this.status = status;
+
+        this.msg = msg;
+        this.data = data;
+    }
 
     public int getCode() {
         return code;
@@ -49,18 +59,6 @@ public class ResponseOpenApi implements Serializable {
     }
 
     public void setData(Object data) {
-        this.data = data;
-    }
-
-    public ResponseOpenApi() {
-
-    }
-
-    public ResponseOpenApi(Integer code, String status, String msg, Object data) {
-        this.code = code;
-        this.status = status;
-
-        this.msg = msg;
         this.data = data;
     }
 }
