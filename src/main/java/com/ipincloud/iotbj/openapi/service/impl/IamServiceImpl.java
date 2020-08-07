@@ -70,8 +70,11 @@ public class IamServiceImpl implements IamService {
                 continue;
             }
             JSONObject userJsonObj = new JSONObject();
+            //人员编号
             String personId = itemObject.getString("id");
-
+            if (StringUtils.isNotEmpty(personId)) {
+                userJsonObj.put("personId", personId);
+            }
             //手机号
             String mobile = itemObject.getString("mobile");
             if (StringUtils.isNotEmpty(mobile)) {
@@ -93,9 +96,15 @@ public class IamServiceImpl implements IamService {
                 }
                 userJsonObj.put("gender", gender);
             }
-            //工号
-            String loginName = itemObject.getString("no");
-            userJsonObj.put("user_name", StringUtils.isEmpty(loginName) ? "" : loginName);
+            //工号 || 登录账号loginName
+            String no = itemObject.getString("no");
+            String loginName = itemObject.getString("loginName");
+            if (StringUtils.isEmpty(no)) {
+                userJsonObj.put("user_name", StringUtils.isEmpty(loginName) ? "" : loginName);
+            } else {
+                userJsonObj.put("user_name", StringUtils.isEmpty(no) ? "" : no);
+            }
+
             //姓名
             String title = itemObject.getString("name");
             if (StringUtils.isNotEmpty(title)) {
@@ -140,9 +149,15 @@ public class IamServiceImpl implements IamService {
                 orgJson.put("title", title);
 
                 Org org = orgDao.queryByName("外来访客");
-                userJsonObj.put("parent_id", org.getId());
-                userJsonObj.put("parent_title", org.getTitle());
-                userJsonObj.put("userGroup", "外来访客");
+                if (org != null) {
+                    userJsonObj.put("parent_id", org.getId());
+                    userJsonObj.put("parent_title", org.getTitle());
+                    userJsonObj.put("userGroup", "外来访客");
+                } else {
+                    userJsonObj.put("parent_id", 0);
+                    userJsonObj.put("parent_title", "");
+                    userJsonObj.put("userGroup", "外来访客");
+                }
             }
 
             //身份证
@@ -204,20 +219,19 @@ public class IamServiceImpl implements IamService {
                             person.put("jobNo", userJsonObj.getString("jobno"));
                         }
                         ApiService.updatePerson(person);
-                        if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
-                            orgJson.put("id", user.getLong("id"));
-                            orgDao.updateInst(orgJson);
-                            userJsonObj.put("id", user.getLong("id"));
-                            userJsonObj.put("updated", System.currentTimeMillis());
-                            userDao.updateInst(userJsonObj);
-                        }
                     }
+                }
+                if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
+                    orgJson.put("id", user.getLong("id"));
+                    orgDao.updateInst(orgJson);
+                    userJsonObj.put("id", user.getLong("id"));
+                    userJsonObj.put("updated", System.currentTimeMillis());
+                    userDao.updateInst(userJsonObj);
                 }
             } else {
                 if (userJsonObj != null && orgJson != null) {
                     orgDao.addInst(orgJson);
                     userJsonObj.put("id", orgJson.getLong("id"));
-                    userJsonObj.put("personId", personId);
                     userJsonObj.put("created", System.currentTimeMillis());
                     userDao.addInst(userJsonObj);
                 }
@@ -337,68 +351,6 @@ public class IamServiceImpl implements IamService {
             orgDao.deleteOrgPerson(deleteIds);
             orgDao.deleteUserPerson(deleteIds);
         }
-        /*
-        JSONObject jsonQueryUser = new JSONObject();
-
-        List<Map> qMapList = new ArrayList();
-        Map qMap = new HashMap();
-        qMap.put("name", "thirdUUID");
-        qMap.put("op", "in");
-        qMap.put("val", deleteIds);
-        qMapList.add(qMap);
-
-        jsonQueryUser.put("qps", qMapList);
-
-        List<Map> userDelList = userDao.userList(jsonQueryUser);
-
-        List<String> personIds = new ArrayList<>();
-        List<Long> delIds = new ArrayList<>();
-        for (Map userMap : userDelList) {
-            if (StringUtils.isNotEmpty(userMap.get("person_id").toString())) {
-                personIds.add(userMap.get("person_id").toString());
-                delIds.add(Long.parseLong(userMap.get("id").toString()));
-            }
-        }
-        if (hikEnable) {
-
-            if (personIds != null && personIds.size() > 0) {
-
-                if (personIds.size() > 0) {
-                    JSONObject deleteVehicle = new JSONObject();
-                    deleteVehicle.put("personIds", personIds);
-                    ApiService.deletePerson(deleteVehicle);
-                }
-
-            }
-        }
-
-        JSONObject jsonDelUser = new JSONObject();
-        jsonDelUser.put("user", qMapList);
-
-        this.userDao.deletesInst(jsonDelUser);
-
-        qMapList = new ArrayList();
-        qMap = new HashMap();
-        qMap.put("name", "user_id");
-        qMap.put("op", "in");
-        qMap.put("val", delIds);
-        qMapList.add(qMap);
-
-        JSONObject jsonDelUserRole = new JSONObject();
-        jsonDelUserRole.put("user_role", qMapList);
-        this.userRoleDao.deletesInst(jsonDelUserRole);
-
-        qMapList = new ArrayList();
-        qMap = new HashMap();
-        qMap.put("name", "id");
-        qMap.put("op", "in");
-        qMap.put("val", delIds);
-        qMapList.add(qMap);
-        JSONObject orgJsonDel = new JSONObject();
-        orgJsonDel.put("org", qMapList);
-        this.orgDao.deletesInst(orgJsonDel);
-         */
-
         return new ResponseBean(0, "SUCCESS", "删除用户成功.", "");
     }
 
@@ -449,22 +401,21 @@ public class IamServiceImpl implements IamService {
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
         }
-        JSONArray dArr = jsonObj.getJSONArray("deletePoss");
-        if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+        String dArr = jsonObj.getString("deletePoss");
+        if (dArr == null || dArr.isEmpty() || dArr.length() < 1) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
 
         List<String> delThirdUUID = new ArrayList<>();
-        for (int i = 0; i < dArr.size(); i++) {
-            JSONObject itemObject = dArr.getJSONObject(i);
-            if (itemObject == null) {
-                continue;
+        if (StringUtils.isNotEmpty(dArr)) {
+            String[] personIds = dArr.split(",");
+            for (int j = 0; j < personIds.length; j++) {
+                if (StringUtils.isNotEmpty(personIds[j])) {
+                    delThirdUUID.add(personIds[j]);
+                }
             }
-            if (StringUtils.isNotEmpty(itemObject.getString("id"))) {
-                delThirdUUID.add(itemObject.getString("id"));
-            }
-
         }
+
         JSONObject jsonQueryRole = new JSONObject();
 
         Map paraMap = new HashMap();
@@ -511,11 +462,11 @@ public class IamServiceImpl implements IamService {
     @Override
     public Object saveOrUpdateUserPos(JSONObject jsonObj) {
         if (jsonObj == null || jsonObj.isEmpty()) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
-        JSONArray dArr = jsonObj.getJSONArray("saveOrUpdatePos");
+        JSONArray dArr = jsonObj.getJSONArray("saveOrUpdateUserPos");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
 
         for (int i = 0; i < dArr.size(); i++) {
@@ -528,6 +479,7 @@ public class IamServiceImpl implements IamService {
             String userRoleThirdUUID = itemObject.getString("id");
             String userThirdUUID = itemObject.getString("userId");
             String roleThirdUUID = itemObject.getString("posId");
+
             if (StringUtils.isEmpty(userRoleThirdUUID) || StringUtils.isEmpty(userThirdUUID) ||
                     StringUtils.isEmpty(roleThirdUUID)) {
                 continue;
@@ -536,7 +488,7 @@ public class IamServiceImpl implements IamService {
             if (userRoleJsonObj != null) {
                 //check user and role exist ...
                 JSONObject roleJsonObj = roleDao.queryByThirdUUID(roleThirdUUID);
-                JSONObject userJsonObj = userDao.queryByThirdUUID(userThirdUUID);
+                JSONObject userJsonObj = userDao.queryByPersonId(userThirdUUID);
                 if (roleJsonObj == null || userJsonObj == null) {
                     logger.info("同步角色或者用户为空." + userRoleThirdUUID);
                     continue;
@@ -544,12 +496,13 @@ public class IamServiceImpl implements IamService {
 
                 userRoleJsonObj.put("user_id", userJsonObj.getLong("id"));
                 userRoleJsonObj.put("role_id", roleJsonObj.getLong("id"));
+                userRoleJsonObj.put("thirdUUID", userRoleThirdUUID);
 
                 userRoleDao.updateInst(userRoleJsonObj);
             } else {
                 //check user and role exist ...
                 JSONObject roleJsonObj = roleDao.queryByThirdUUID(roleThirdUUID);
-                JSONObject userJsonObj = userDao.queryByThirdUUID(userThirdUUID);
+                JSONObject userJsonObj = userDao.queryByPersonId(userThirdUUID);
                 if (roleJsonObj == null || userJsonObj == null) {
                     logger.info("同步角色或者用户为空." + userRoleThirdUUID);
                     continue;
@@ -557,66 +510,42 @@ public class IamServiceImpl implements IamService {
                 userRoleJsonObj = new JSONObject();
                 userRoleJsonObj.put("user_id", userJsonObj.getLong("id"));
                 userRoleJsonObj.put("role_id", roleJsonObj.getLong("id"));
-                userRoleJsonObj.put("thirdUUID", Long.parseLong(userRoleThirdUUID));
+                userRoleJsonObj.put("thirdUUID", userRoleThirdUUID);
 
                 userRoleDao.addInst(userRoleJsonObj);
-
             }
 
         }
 
-        return new ResponseBean(-1, "SUCCESS", "更新或新增用户角色成功.", null);
+        return new ResponseBean(0, "SUCCESS", "更新或新增用户角色成功.", null);
     }
 
     //6 删除用户与岗位关系...
     @Override
     public Object deleteUserPoss(JSONObject jsonObj) {
         if (jsonObj == null || jsonObj.isEmpty()) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
-        JSONArray dArr = jsonObj.getJSONArray("deleteUserPoss");
-        if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+        String dArr = jsonObj.getString("deleteUserPoss");
+        if (dArr == null || dArr.isEmpty() || dArr.length() < 1) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
 
-        for (int i = 0; i < dArr.size(); i++) {
-            JSONObject itemObject = dArr.getJSONObject(i);
-            if (itemObject == null) {
-                continue;
+        List<String> delThirdUUID = new ArrayList<>();
+        if (StringUtils.isNotEmpty(dArr)) {
+            String[] thirdUUIDs = dArr.split(",");
+            for (int j = 0; j < thirdUUIDs.length; j++) {
+                if (StringUtils.isNotEmpty(thirdUUIDs[j])) {
+                    delThirdUUID.add(thirdUUIDs[j]);
+                }
             }
-            String thirdUUIDRole = itemObject.getString("posId");
-            String thirdUUIDUser = itemObject.getString("userId");
-
-            JSONObject roleJsonObj = roleDao.queryByThirdUUID(thirdUUIDRole);
-            JSONObject userJsonObj = userDao.queryByThirdUUID(thirdUUIDUser);
-
-            if (roleJsonObj == null || userJsonObj == null) {
-                continue;
-            }
-
-            JSONObject jsonDelUserRole = new JSONObject();
-
-            List<Map> userRoleParaMaps = new ArrayList<>();
-
-            Map paraMap = new HashMap();
-            paraMap.put("name", "role_id");
-            paraMap.put("op", "=");
-            paraMap.put("val", roleJsonObj.getLong("id"));
-
-            userRoleParaMaps.add(paraMap);
-
-            paraMap = new HashMap();
-            paraMap.put("name", "user_id");
-            paraMap.put("op", "=");
-            paraMap.put("val", userJsonObj.getLong("id"));
-            userRoleParaMaps.add(paraMap);
-
-            jsonDelUserRole.put("user_role", userRoleParaMaps);
-
-            userRoleDao.deletesInst(jsonDelUserRole);
+        }
+        if (delThirdUUID != null && delThirdUUID.size() > 0) {
+            userRoleDao.deletesByThirdUUID(delThirdUUID);
         }
 
-        return new ResponseBean(-1, "SUCCESS", "删除用户岗位成功.", null);
+        return new ResponseBean(0, "SUCCESS", "删除用户岗位成功.", null);
+
     }
 
     // 7.更新用户人脸接口

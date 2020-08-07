@@ -2,101 +2,103 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ipincloud.iotbj.srv.dao.UserRoleDao">
     <resultMap type="com.ipincloud.iotbj.srv.domain.UserRole" id="UserRoleMap">
-        <result property="userId" column="user_id" jdbcType="BIGINT"/> 
-        <result property="roleId" column="role_id" jdbcType="BIGINT"/> 
-        <result property="thirdUUID" column="thirdUUID" jdbcType="VARCHAR"/> 
+        <result property="userId" column="user_id" jdbcType="BIGINT"/>
+        <result property="roleId" column="role_id" jdbcType="BIGINT"/>
+        <result property="thirdUUID" column="thirdUUID" jdbcType="VARCHAR"/>
     </resultMap>
-        
-        <select id="queryById" resultMap="UserRoleMap">
+
+    <select id="queryById" resultMap="UserRoleMap">
             select * from user_role where id=#{id}
         </select>
-        <select id="queryByThirdUUID" resultType="com.alibaba.fastjson.JSONObject">
+    <select id="queryByThirdUUID" resultType="com.alibaba.fastjson.JSONObject">
             select * from user_role where thirdUUID=#{thirdUUID}
         </select>
-        
-        
-            <insert id="userRoleMmjoin" parameterType="java.util.Map" >
-                insert ignore into user_role
-                   <foreach collection="jsonObj.user_role[0].keys" item="key" open="(" close=")" separator=",">  
-                        ${key}  
-                   </foreach>
-                   values
-                   <foreach collection="jsonObj.user_role" item="itemone" index="index" separator=",">  
-                        <foreach collection="jsonObj.user_role[0].keys" item="key" open="(" close=")" separator=",">  
-                            #{itemone.${key}}  
-                       </foreach>
-                   </foreach>
-            </insert>
-            
-        
-        
-            <delete id="userRoleMmsub" parameterType="java.util.Map" >
-                delete from user_role 
-                   <where>
-                   <foreach collection="jsonObj.qps" item="item" index="index" >
-                    <if test="item.op == 'like' ">    
-                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
-                    </if>
-                    <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                        and ${item.tb}.`${item.name}` = #{item.val}
-                    </if>
-                    <if test='item.op == "in" '>    
-                        and ${item.tb}.`${item.name}` in 
-                        <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
-                        </foreach>
-                    </if>
-                   </foreach>
-                   </where>
-            </delete>
-            
-        
-        
-            <delete id="deletesInst" parameterType="java.util.Map" >
-            <if test="jsonObj.user_role!=null and jsonObj.user_role.size()>0">
-            delete from user_role 
-              <where> 
-              <foreach collection="jsonObj.user_role" item="item" index="index" >
-                <if test='item.op == "like" '>    
-                    and `${item.name}` like concat('%',#{item.val},'%')
+
+
+    <insert id="userRoleMmjoin" parameterType="java.util.Map">
+        insert ignore into user_role
+        <foreach collection="jsonObj.user_role[0].keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.user_role" item="itemone" index="index" separator=",">
+            <foreach collection="jsonObj.user_role[0].keys" item="key" open="(" close=")" separator=",">
+                #{itemone.${key}}
+            </foreach>
+        </foreach>
+    </insert>
+
+
+    <delete id="userRoleMmsub" parameterType="java.util.Map">
+        delete from user_role
+        <where>
+            <foreach collection="jsonObj.qps" item="item" index="index">
+                <if test="item.op == 'like' ">
+                    and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
                 </if>
-                <if test='item.op == "=" or item.op == "" or item.op == null '>    
-                    and `${item.name}` = #{item.val}
+                <if test='item.op == "=" or item.op == "" or item.op == null '>
+                    and ${item.tb}.`${item.name}` = #{item.val}
                 </if>
-                <if test='item.op == "in" '>    
-                    and `${item.name}` in 
-                    <foreach  item="item2" collection="item.val" index="index2"  open="(" separator="," close=")">#{item2}
+                <if test='item.op == "in" '>
+                    and ${item.tb}.`${item.name}` in
+                    <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">#{item2}
                     </foreach>
                 </if>
-              </foreach>
-              </where>
-            </if>
-            </delete>
+            </foreach>
+        </where>
+    </delete>
 
-            
-        
-        
-            <insert id="addInst" parameterType="java.util.Map" >
-                insert into user_role
-                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
-                        ${key}  
-                   </foreach>
-                   values
-                   <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">  
-                        #{jsonObj[${key}]}  
-                   </foreach>
-            </insert>
-            
-        
-        
-            <update id="updateInst" parameterType="java.util.Map" >
-               UPDATE user_role SET  
-               <foreach collection="jsonObj.keys" item="key" separator=","> 
-                   <if test="key != 'id' ">   
-                   ${key} = #{jsonObj[${key}]}
-                   </if>
-               </foreach>  
-               where id = #{jsonObj.id}
-            </update>
-            
-        
+
+    <delete id="deletesInst" parameterType="java.util.Map">
+        <if test="jsonObj.user_role!=null and jsonObj.user_role.size()>0">
+            delete from user_role
+            <where>
+                <foreach collection="jsonObj.user_role" item="item" index="index">
+                    <if test='item.op == "like" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </where>
+        </if>
+    </delete>
+
+
+    <insert id="addInst" parameterType="java.util.Map">
+        insert into user_role
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            ${key}
+        </foreach>
+        values
+        <foreach collection="jsonObj.keys" item="key" open="(" close=")" separator=",">
+            #{jsonObj[${key}]}
+        </foreach>
+    </insert>
+
+    <update id="updateInst" parameterType="java.util.Map">
+        UPDATE user_role SET
+        <foreach collection="jsonObj.keys" item="key" separator=",">
+            <if test="key != 'thirdUUID' ">
+                ${key} = #{jsonObj[${key}]}
+            </if>
+        </foreach>
+        where thirdUUID = #{jsonObj.thirdUUID}
+    </update>
+
+    <delete id="deletesByThirdUUID">
+        delete from user_role where thirdUUID in
+        <foreach collection="delThirdUUID" item="thirdUUID" open="(" close=")" separator=",">
+            #{thirdUUID}
+        </foreach>
+    </delete>
+
+
 </mapper>

@@ -26,4 +26,6 @@ public interface UserRoleDao {
     //@param jsonObj 过滤条件等 
     //@return 实例对象UserRole 
     int updateInst(@Param("jsonObj") JSONObject jsonObj);
+
+    int deletesByThirdUUID(@Param("delThirdUUID") List<String>  delThirdUUID);
 }
