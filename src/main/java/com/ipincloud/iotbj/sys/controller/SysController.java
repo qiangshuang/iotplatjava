@@ -48,8 +48,10 @@ import com.ipincloud.iotbj.sys.domain.ResponseBean;
 import com.ipincloud.iotbj.sys.config.JWTUtil;
 import com.ipincloud.iotbj.sys.config.JWTToken;
 import com.ipincloud.iotbj.utils.FileUtils;
+import com.ipincloud.iotbj.utils.Excel2Map;
 import com.ipincloud.iotbj.utils.RsaUtils;
 import com.ipincloud.iotbj.utils.ParaUtils;
+import com.ipincloud.iotbj.utils.StringUtils;
 
 import com.ipincloud.iotbj.srv.domain.User;
 import com.ipincloud.iotbj.srv.domain.Page;
@@ -57,6 +59,8 @@ import com.ipincloud.iotbj.srv.domain.Btn;
 import com.ipincloud.iotbj.srv.service.UserService;
 import com.ipincloud.iotbj.srv.service.PageService;
 import com.ipincloud.iotbj.srv.service.BtnService;
+import com.ipincloud.iotbj.srv.service.OrgService;
+import com.ipincloud.iotbj.srv.dao.UserDao;
 
 import java.io.*;
 
@@ -72,6 +76,148 @@ public class SysController {
     private BtnService btnService;
     @Autowired
     private PageService pageService;
+    @Autowired
+    private OrgService orgService;
+    @Autowired
+    private UserDao userDao;
+    
+    @PostMapping("/hyimportzip")
+    public Object hyimportzip(HttpServletRequest request,
+                              HttpServletResponse response)  {
+
+        System.out.println("dkdkkd:----------");
+        String relateType = request.getParameter("relateType");
+        System.out.println("dkdkkd:----------"+relateType);
+        MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
+        //单文件上传
+        MultipartFile file = multipartHttpServletRequest.getFile("file");
+        System.out.println("dkkdkdk --- 21 "+file.toString() );
+        String originFileName = file.getOriginalFilename();
+        System.out.println("dkkdkdk --- 22 "+originFileName);
+        String suffixName = originFileName.substring(originFileName.lastIndexOf("."));
+        System.out.println("dkkdkdk --- 23 "+suffixName);
+        if (StringUtils.isEmpty(suffixName)){
+            return new ResponseBean(200,"FAILED", "请导入zip文件压缩包","");
+        }
+        String uuId =  UUID.randomUUID().toString();
+        Date date = new Date();
+        String dateStr = new SimpleDateFormat("yyyyMMdd").format(date);
+        
+        String runPath = System.getProperty("user.dir")+"/classes/upload";
+        // FileUtils.getRootPath();
+        String retPath = String.format("/%s/%s/%s%s",relateType,dateStr,uuId,suffixName);
+        String fullfilPath = runPath+retPath;
+        String unzipPath = runPath+String.format("/%s/%s/%s",relateType,dateStr,uuId);
+        String excelPath = unzipPath+"/upload.xlsx";
+        // 文件对象
+       logger.debug("debug",runPath+":"+fullfilPath);
+        File dest = new File( fullfilPath );
+        // 判断路径是否存在，如果不存在则创建
+        if(!dest.getParentFile().exists()) {
+            dest.getParentFile().mkdirs();
+        }
+
+        
+        try {
+            // 保存到服务器中
+            file.transferTo(dest);
+            System.out.println("dkkdkdk --- 2 ");
+            FileUtils.unZipFiles(dest,unzipPath);
+            System.out.println("dkkdkdk --- 3 "+excelPath);
+            Map<Integer, Map<Integer,Object>> mapExcel = Excel2Map.readExcelContentz(excelPath);
+            System.out.println("dkkdkdk --- 4 ");
+            List<JSONObject> retJsonList = new ArrayList<>();
+            for(Map<Integer,Object> rowMap : mapExcel.values()){
+                String tStr = rowMap.get(2).toString();
+                if(StringUtils.isEmpty(tStr)){
+                    JSONObject userJson = new JSONObject();
+                    userJson.put("state","失败");
+
+                    userJson.put("idnumber",tStr);
+
+                    tStr = rowMap.get(0).toString();
+                    userJson.put("title",tStr);
+
+                    tStr = rowMap.get(1).toString();
+                    userJson.put("gender",tStr);
+
+                    tStr = rowMap.get(3).toString();
+                    userJson.put("jobno",tStr);
+
+                    System.out.println("dkkdkdk --- 3 "+userJson.toString());
+                    retJsonList.add(userJson);
+
+                }else{
+                    JSONObject userJson = userDao.queryByIDNumber(tStr);
+                    if (userJson == null){
+                        //新用户
+                        userJson = new JSONObject();
+                        userJson.put("idnumber",tStr);
+
+                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".JPG";
+
+                        tStr = rowMap.get(0).toString();
+                        userJson.put("title",tStr);
+
+                        tStr = rowMap.get(1).toString();
+                        userJson.put("gender",tStr);
+
+                        tStr = rowMap.get(3).toString();
+                        userJson.put("jobno",tStr);
+                        tStr = rowMap.get(4).toString();
+                        userJson.put("mobile",tStr);
+
+                        userJson.put("photo",photoPath);
+                        userJson.put("state","成功");
+                        try{
+                            userJson = orgService.addOrgUserInstAttr(userJson);
+                        }catch(Exception ex){
+                            userJson.put("state","失败");
+                        }
+                        System.out.println("dkkdkdk --- 4 "+userJson.toString());
+                        retJsonList.add(userJson);
+                        
+                    }else{
+
+                        userJson.put("idnumber",tStr);
+                        userJson.put("state","重复");
+                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".JPG";
+
+                        tStr = rowMap.get(0).toString();
+                        userJson.put("title",tStr);
+
+                        tStr = rowMap.get(1).toString();
+                        userJson.put("gender",tStr);
+
+                        tStr = rowMap.get(3).toString();
+                        userJson.put("jobno",tStr);
+                        tStr = rowMap.get(4).toString();
+                        userJson.put("mobile",tStr);
+
+                        userJson.put("photo",photoPath);
+                        
+                        try{
+                            orgService.updateOrgUserInstAttr(userJson);
+                        }catch(Exception ex){
+                            userJson.put("state","失败");
+                        }
+                        System.out.println("dkkdkdk --- 5 "+userJson.toString());
+                        retJsonList.add(userJson);
+                    }
+                }
+
+            }
+            System.out.println("dkkdkdk --- 6 "+retJsonList.toString());
+            return new ResponseBean(200,"SUCCESS", "批量导入已成功",retJsonList);
+        } catch (Exception e) {
+            String exMess = MessageInfo.exceptionInfo(e);
+            logger.debug("Ex:"+ exMess);
+            return new ResponseBean(200,"FAILED", "文件导入不成功","");
+        }
+
+        
+        
+    }
 
     @PostMapping("/login")
     
@@ -151,7 +297,6 @@ public class SysController {
             
         // }
         
-
         response.setHeader("Authorization", token);
 
         Map retMap = new HashMap();
@@ -372,6 +517,7 @@ public class SysController {
         userService.updateInst(jsonObject2);
         return new ResponseBean(200,"SUCCESS", "用户账号密码设置成功","");
     }
+    
     @PostMapping("/hyupload")
     
     public Object hyupload(HttpServletRequest request,

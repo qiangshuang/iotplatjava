@@ -19,6 +19,7 @@ public interface UserDao {
     User queryByUsername(String userName);
     JSONObject queryByPersonId(String personId);
     JSONObject queryByThirdUUID(String thirdUUID);
+    JSONObject queryByIDNumber(String idnumber);
     //已处理，查看服务:/useraccount
     //@param jsonObj 过滤条件等
     //@return 实例对象User

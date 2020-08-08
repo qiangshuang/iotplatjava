@@ -45,8 +45,13 @@
               *
             from user
             where  personId= #{personId}
-        </select>
-
+    </select>
+    <select id="queryByIDNumber" resultType="com.alibaba.fastjson.JSONObject">
+            select
+              *
+            from user
+            where  idnumber= #{idnumber}
+    </select>
 
     <insert id="addInst" parameterType="java.util.Map">
         insert into user
