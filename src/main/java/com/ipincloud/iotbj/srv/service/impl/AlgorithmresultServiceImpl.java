@@ -10,7 +10,7 @@ import com.ipincloud.iotbj.srv.dao.UserDao;
 import com.ipincloud.iotbj.srv.domain.Algorithmresult;
 import com.ipincloud.iotbj.srv.domain.User;
 import com.ipincloud.iotbj.srv.service.AlgorithmresultService;
-import com.ipincloud.iotbj.utils.FileUtils;
+import com.ipincloud.iotbj.utils.LimitQueueUtils;
 import com.ipincloud.iotbj.utils.ParaUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.util.*;
 
 //(Algorithmresult)算法结果 服务实现类
 //generate by redcloud,2020-07-24 19:59:20
@@ -41,6 +41,8 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
 
     @Value("${localhostUri}")
     private String localhostUri;
+
+    private static LimitQueueUtils<JSONObject> alagorithmalarms = new LimitQueueUtils<>(5);
 
     //@param id 主键 
     //@return 实例对象Algorithmresult 
@@ -66,102 +68,120 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                 algorithmalarm.put("camera_name", camera.getString("title"));
                 algorithmalarm.put("region_id", camera.getString("region_id"));
                 algorithmalarm.put("region", camera.getString("region_title"));
-            }
-            algorithmalarm.put("alarm_time", System.currentTimeMillis());
-            algorithmalarm.put("indate", System.currentTimeMillis());
-            String result = jsonObj.getString("result");
-            if (accesscodes != null && accesscodes.size() > 0) {
-                for (int i = 0; i < accesscodes.size(); i++) {
-                    String accesscode = accesscodes.get(i);
-                    if (StringUtils.isNotEmpty(accesscode) && result.contains(accesscode)) {
-                        JSONObject algorithmacc = algorithmresultDao.queryAlgorithm(accesscode);
-                        algorithmalarm.put("algorithm_id", algorithmacc.getString("id"));
-                        algorithmalarm.put("algorithm_name", algorithmacc.getString("title"));
-                        algorithmalarm.put("describion", algorithmacc.getString("describion"));
-                        algorithmalarm.put("grade", algorithmacc.getString("warning_level"));
 
-                        algorithmalarm.put("alarm_img", jsonObj.getString("imgpath"));
-                        algorithmalarm.put("state", "未确认");
-                        algorithmalarm.put("result_id", jsonObj.getString("id"));
+                algorithmalarm.put("alarm_time", System.currentTimeMillis());
+                algorithmalarm.put("indate", System.currentTimeMillis());
+                String result = jsonObj.getString("result");
+                if (accesscodes != null && accesscodes.size() > 0) {
+                    for (int i = 0; i < accesscodes.size(); i++) {
+                        String accesscode = accesscodes.get(i);
+                        if (StringUtils.isNotEmpty(accesscode) && result.contains(accesscode)) {
+                            JSONObject algorithmacc = algorithmresultDao.queryAlgorithm(accesscode);
+                            algorithmalarm.put("algorithm_id", algorithmacc.getString("id"));
+                            algorithmalarm.put("algorithm_name", algorithmacc.getString("title"));
+                            algorithmalarm.put("describion", algorithmacc.getString("describion"));
+                            algorithmalarm.put("grade", algorithmacc.getString("warning_level"));
 
-                        String userId = JSON.parseObject(result).getJSONObject(accesscode).getString("user_id");
-                        if (userId != null) {
-                            algorithmalarm.put("personId", userId);
-                            JSONObject jsonObject = faceDao.findUserByPersonId(userId);
-                            if (jsonObject != null) {
-                                algorithmalarm.put("personName", jsonObject.getString("title"));
-                                algorithmalarm.put("orgName", jsonObject.getString("parent_title"));
-                            } else {
-                                algorithmalarm.put("personName", userId);
-                                algorithmalarm.put("orgName", "");
+                            algorithmalarm.put("alarm_img", jsonObj.getString("imgpath"));
+                            algorithmalarm.put("state", "未确认");
+                            algorithmalarm.put("result_id", jsonObj.getString("id"));
+
+                            String userId = JSON.parseObject(result).getJSONObject(accesscode).getString("user_id");
+                            if (userId != null) {
+                                algorithmalarm.put("personId", userId);
+                                JSONObject jsonObject = faceDao.findUserByPersonId(userId);
+                                if (jsonObject != null) {
+                                    algorithmalarm.put("personName", jsonObject.getString("title"));
+                                    algorithmalarm.put("orgName", jsonObject.getString("parent_title"));
+                                } else {
+                                    algorithmalarm.put("personName", userId);
+                                    algorithmalarm.put("orgName", "");
+                                }
                             }
-                        }
 
-                        String box = "";
-                        JSONArray preds = JSON.parseObject(result).getJSONObject(accesscode).getJSONArray("preds");
-                        if (preds != null && preds.size() > 0 && preds.getJSONObject(0) != null) {
-                            JSONArray boxObj = preds.getJSONObject(0).getJSONArray("box");
-                            if (boxObj != null && boxObj.size() > 0) {
-                                box = boxObj.toJSONString();
+                            String box = "";
+                            JSONArray preds = JSON.parseObject(result).getJSONObject(accesscode).getJSONArray("preds");
+                            if (preds != null && preds.size() > 0 && preds.getJSONObject(0) != null) {
+                                JSONArray boxObj = preds.getJSONObject(0).getJSONArray("box");
+                                if (boxObj != null && boxObj.size() > 0) {
+                                    box = boxObj.toJSONString();
+                                }
                             }
-                        }
-                        algorithmalarm.put("box", box);
-                        //查询对应的路数
-                        JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
-                        algorithmalarm.put("border", StringUtils.isEmpty(algorithm.getString("border")) ? "" : algorithm.getString("border"));
+                            algorithmalarm.put("box", box);
+                            //查询对应的路数
+                            JSONObject algorithm = algorithmresultDao.queryAlgorithmByCidAndAid(camera.getLong("id"), algorithmacc.getLong("id"));
+                            String userIds = "";
+                            if (algorithm != null) {
+                                algorithmalarm.put("border", StringUtils.isEmpty(algorithm.getString("border")) ? "" : algorithm.getString("border"));
+                                userIds = algorithm.getString("user_ids");
+                            }
+                            this.algorithmresultDao.addInstAlgorithmalarm(algorithmalarm);
 
-                        this.algorithmresultDao.addInstAlgorithmalarm(algorithmalarm);
+                            alagorithmalarms.offer(algorithmalarm);
+                            //System.out.println("算法报警队列长度：" + alagorithmalarms.size());
 
-                        String userIds = algorithm.getString("user_ids");
-
-                        String personId = "";
-                        String msgId = "";
-                        if (StringUtils.isNotEmpty(userIds)) {
-                            String[] users = userIds.split(",");
-                            for (int j = 0; j < users.length; j++) {
-                                if (StringUtils.isNotEmpty(users[j])) {
-                                    User user = userDao.queryById(Long.parseLong(users[j]));
-                                    if (user != null) {
-                                        personId += user.getPersonId() + ",";
-                                        msgId += algorithmalarm.getString("id") + ",";
+                            String personId = "";
+                            String msgId = "";
+                            if (StringUtils.isNotEmpty(userIds)) {
+                                String[] users = userIds.split(",");
+                                for (int j = 0; j < users.length; j++) {
+                                    if (StringUtils.isNotEmpty(users[j])) {
+                                        User user = userDao.queryById(Long.parseLong(users[j]));
+                                        if (user != null) {
+                                            personId += user.getPersonId() + ",";
+                                            msgId += algorithmalarm.getString("id") + ",";
+                                        }
                                     }
                                 }
                             }
-                        }
-                        if (StringUtils.isNotEmpty(personId) && StringUtils.isNotEmpty(msgId)) {
-                            personId = personId.substring(0, personId.length() - 1);
-                            msgId = msgId.substring(0, msgId.length() - 1);
-                            JSONObject message = new JSONObject();
-                            message.put("displayType", "microapp");
-                            message.put("msgId", msgId);
-                            message.put("recipient", personId);
+                            if (StringUtils.isNotEmpty(personId) && StringUtils.isNotEmpty(msgId)) {
+                                personId = personId.substring(0, personId.length() - 1);
+                                msgId = msgId.substring(0, msgId.length() - 1);
+                                JSONObject message = new JSONObject();
+                                message.put("displayType", "microapp");
+                                message.put("msgId", msgId);
+                                message.put("recipient", personId);
 
-                            JSONObject content = new JSONObject();
-                            String msg = algorithmalarm.getString("camera_name") + "-" + algorithmalarm.getString("algorithm_name");
-                            content.put("type", "text");
-                            content.put("msg", msg);
-                            content.put("url", localhostUri + "/#/alarminformation/" + algorithmalarm.getString("id"));
-                            content.put("redirectUrl", "");
-                            content.put("fun", "IAM");
-                            content.put("title", "算法报警");
-                            /*
-                            if (StringUtils.isNotEmpty(jsonObj.getString("imgpath"))) {
+                                JSONObject content = new JSONObject();
+                                String msg = algorithmalarm.getString("camera_name") + "-" + algorithmalarm.getString("algorithm_name");
+                                content.put("type", "text");
+                                content.put("msg", msg);
+                                content.put("url", localhostUri + "/#/alarminformation/" + algorithmalarm.getString("id"));
+                                content.put("redirectUrl", "");
+                                content.put("fun", "IAM");
+                                content.put("title", "算法报警");
+                                /*
+                                if (StringUtils.isNotEmpty(jsonObj.getString("imgpath"))) {
                                 String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(jsonObj.getString("imgpath"));
                                 content.put("avatar", imgPath);
+                                }
+                                 */
+                                message.put("message", content);
+                                oaApi.sendNewAlarmMessage(message);
                             }
-                             */
-                            message.put("message", content);
-                            oaApi.sendNewAlarmMessage(message);
                         }
                     }
                 }
             }
-
         }
+        return null;
+    }
 
-        // jsonObj.put("id",genId);
-        return jsonObj;
-
-
+    @Override
+    public List<JSONObject> alarmqueuelist(JSONObject jsonObject) {
+        List<JSONObject> list = new ArrayList<>();
+        Queue<JSONObject> queue = alagorithmalarms.getQueue();
+        String cameraId = jsonObject.getString("camera_id");
+        if (jsonObject != null && StringUtils.isNotEmpty(cameraId)) {
+            Iterator<JSONObject> iterator = queue.iterator();
+            while (iterator.hasNext()) {
+                JSONObject alagorithmalarm = iterator.next();
+                String alarmCameraId = alagorithmalarm.getString("camera_id");
+                if (Objects.equals(cameraId, alarmCameraId)) {
+                    list.add(alagorithmalarm);
+                }
+            }
+        }
+        return list;
     }
 }
