@@ -174,11 +174,17 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
         String cameraId = jsonObject.getString("camera_id");
         if (jsonObject != null && StringUtils.isNotEmpty(cameraId)) {
             Iterator<JSONObject> iterator = queue.iterator();
+            Long now_time = System.currentTimeMillis();
             while (iterator.hasNext()) {
                 JSONObject alagorithmalarm = iterator.next();
                 String alarmCameraId = alagorithmalarm.getString("camera_id");
-                if (Objects.equals(cameraId, alarmCameraId)) {
-                    list.add(alagorithmalarm);
+                Long alarm_time = alagorithmalarm.getLong("alarm_time");
+                if (now_time - alarm_time < 5 * 1000) {
+                    if (Objects.equals(cameraId, alarmCameraId)) {
+                        list.add(alagorithmalarm);
+                    }
+                }else {
+                    queue.remove();
                 }
             }
         }
