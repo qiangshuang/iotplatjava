@@ -133,7 +133,7 @@ public class IotController {
     @PostMapping("/algorithmresult")
     public Object algorithmResult(@RequestParam("result") String result, @RequestParam("camera_id") String camera_id,
                                   @RequestParam("message") String message, @RequestParam(value = "img", required = false) MultipartFile img) {
-        System.out.println("算法结果返回:"+result);
+        System.out.println("算法结果返回:" + result);
         String path = "";
         if (img != null) {
             String originFileName = img.getOriginalFilename();
@@ -232,5 +232,15 @@ public class IotController {
         return new ResponseBean(200, "SUCCESS", "操作成功", data);
     }
 
+    @ApiOperation("首页算法报警轮询")
+    @PostMapping("/alarmqueuelist")
+    public Object alarmcachelist(@RequestBody String bodyStr) {
+        JSONObject jsonObject = JSONObject.parseObject(bodyStr);
+        if (jsonObject == null) {
+            return new ResponseBean(200, "FAILED", "参数不正确", null);
+        }
+        List<JSONObject> data = algorithmresultService.alarmqueuelist(jsonObject);
+        return new ResponseBean(200, "SUCCESS", "操作成功", data);
+    }
 
 }
