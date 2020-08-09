@@ -14,19 +14,23 @@ import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.web.server.ErrorPage;
+import org.springframework.boot.web.server.ErrorPageRegistrar;
+import org.springframework.boot.web.server.ErrorPageRegistry;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
+import org.springframework.http.HttpStatus;
 
 
 @Configuration
-public class ShiroConfig {
+public class ShiroConfig implements ErrorPageRegistrar {
 
     @Bean(name = "shiroFilter")
-    public ShiroFilterFactoryBean shiroFilterFactoryBean( SecurityManager securityManager) {
+    public ShiroFilterFactoryBean shiroFilterFactoryBean(SecurityManager securityManager) {
         ShiroFilterFactoryBean shiroFilterFactoryBean = new ShiroFilterFactoryBean();
-        
+
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new HashMap<>();
         filterMap.put("jwt", new JWTFilter());
@@ -34,7 +38,7 @@ public class ShiroConfig {
 
         shiroFilterFactoryBean.setSecurityManager(securityManager);
         shiroFilterFactoryBean.setUnauthorizedUrl("/401");
-        
+
 
         Map<String, String> filterRuleMap = new LinkedHashMap<String, String>();
         // 所有的请求通过我们自己的JWT filter
@@ -56,19 +60,19 @@ public class ShiroConfig {
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterRuleMap);
         return shiroFilterFactoryBean;
     }
-    
+
     @Bean
     public SecurityManager securityManager() {
-        
+
         DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
         securityManager.setRealm(ipincloudRealm());
         securityManager.setCacheManager(ehCacheManager());
         return securityManager;
     }
-    
+
     @Bean
-    public EhCacheManager ehCacheManager(){
-        
+    public EhCacheManager ehCacheManager() {
+
         EhCacheManager cacheManager = new EhCacheManager();
         cacheManager.setCacheManagerConfigFile("classpath:config/ehcache-shiro.xml");
         return cacheManager;
@@ -78,7 +82,7 @@ public class ShiroConfig {
     public IpincloudRealm ipincloudRealm() {
         return new IpincloudRealm();
     }
-    
+
     @Bean
     public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
         return new LifecycleBeanPostProcessor();
@@ -103,8 +107,12 @@ public class ShiroConfig {
         authorizationAttributeSourceAdvisor.setSecurityManager(securityManager());
         return authorizationAttributeSourceAdvisor;
     }
-    
-    
 
-
+    @Override
+    public void registerErrorPages(ErrorPageRegistry registry) {
+        ErrorPage[] errorPages = new ErrorPage[2];
+        errorPages[0] = new ErrorPage(HttpStatus.NOT_FOUND, "/index.html");
+        errorPages[1] = new ErrorPage(HttpStatus.INTERNAL_SERVER_ERROR, "/500.html");
+        registry.addErrorPages(errorPages);
+    }
 }

@@ -143,7 +143,7 @@ public class OAMenuInit {
         menu.put("menuId", "image_recognition_menu_878");
         menu.put("webURL", "http://10.69.212.11:8189/#/homepage");
         menu.put("displayType", "1");
-        menu.put("parentId", "image_recognition_menu_823");
+        menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
         menu.put("isWebDisplay", 1);
         menu.put("isMobileDisplay", 0);
         menuData.add(menu);
