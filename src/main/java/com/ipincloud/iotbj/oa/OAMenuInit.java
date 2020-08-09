@@ -23,7 +23,7 @@ public class OAMenuInit {
 //        JSONObject menu = new JSONObject();
 //        menu.put("menuName", "测试菜单2");
 //        menu.put("menuId", "tellowtestmenu");
-//        menu.put("webURL", "http://10.69.212.11:8189/#/rolelist");
+//        menu.put("webURL", "http://10.69.212.11:8189/rolelist");
 //        menu.put("displayType", "1");
 //        menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
 //        menu.put("isWebDisplay", 1);
@@ -33,7 +33,7 @@ public class OAMenuInit {
         JSONObject menu = new JSONObject();
         menu.put("menuName", "岗位权限new");
         menu.put("menuId", "image_recognition_menu_750");
-        menu.put("webURL", "http://10.69.212.11:8189/#/rolelist");
+        menu.put("webURL", "http://10.69.212.11:8189/rolelist");
         menu.put("displayType", "1");
         menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
         menu.put("isWebDisplay", 1);
@@ -51,7 +51,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "人员管理");
         menu.put("menuId", "image_recognition_menu_806");
-        menu.put("webURL", "http://10.69.212.11:8189/#/pmanagement");
+        menu.put("webURL", "http://10.69.212.11:8189/pmanagement");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -60,7 +60,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "门禁管理");
         menu.put("menuId", "image_recognition_menu_809");
-        menu.put("webURL", "http://10.69.212.11:8189/#/acontrol");
+        menu.put("webURL", "http://10.69.212.11:8189/acontrol");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -69,7 +69,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "权限管理");
         menu.put("menuId", "image_recognition_menu_810");
-        menu.put("webURL", "http://10.69.212.11:8189/#/rmanagement");
+        menu.put("webURL", "http://10.69.212.11:8189/rmanagement");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -78,7 +78,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "访问记录");
         menu.put("menuId", "image_recognition_menu_812");
-        menu.put("webURL", "http://10.69.212.11:8189/#/visitrecord");
+        menu.put("webURL", "http://10.69.212.11:8189/visitrecord");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -87,7 +87,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "来访人员管理");
         menu.put("menuId", "image_recognition_menu_818");
-        menu.put("webURL", "http://10.69.212.11:8189/#/vipman");
+        menu.put("webURL", "http://10.69.212.11:8189/vipman");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -105,7 +105,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "车辆白名单管理");
         menu.put("menuId", "image_recognition_menu_808");
-        menu.put("webURL", "http://10.69.212.11:8189/#/carwhiteman");
+        menu.put("webURL", "http://10.69.212.11:8189/carwhiteman");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_807");
         menu.put("isWebDisplay", 1);
@@ -114,7 +114,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "车辆闸机管理");
         menu.put("menuId", "image_recognition_menu_831");
-        menu.put("webURL", "http://10.69.212.11:8189/#/cargateman");
+        menu.put("webURL", "http://10.69.212.11:8189/cargateman");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_807");
         menu.put("isWebDisplay", 1);
@@ -123,7 +123,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "车辆出入记录");
         menu.put("menuId", "image_recognition_menu_835");
-        menu.put("webURL", "http://10.69.212.11:8189/#/timerecord");
+        menu.put("webURL", "http://10.69.212.11:8189/timerecord");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_807");
         menu.put("isWebDisplay", 1);
@@ -141,7 +141,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "实时监控");
         menu.put("menuId", "image_recognition_menu_878");
-        menu.put("webURL", "http://10.69.212.11:8189/#/homepage");
+        menu.put("webURL", "http://10.69.212.11:8189/homepage");
         menu.put("displayType", "1");
         menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
         menu.put("isWebDisplay", 1);
@@ -150,7 +150,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "算法管理");
         menu.put("menuId", "image_recognition_menu_824");
-        menu.put("webURL", "http://10.69.212.11:8189/#/algorithmm");
+        menu.put("webURL", "http://10.69.212.11:8189/algorithmm");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_823");
         menu.put("isWebDisplay", 1);
@@ -159,7 +159,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "摄像机管理");
         menu.put("menuId", "image_recognition_menu_826");
-        menu.put("webURL", "http://10.69.212.11:8189/#/videoca");
+        menu.put("webURL", "http://10.69.212.11:8189/videoca");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_823");
         menu.put("isWebDisplay", 1);
@@ -168,7 +168,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "算法接入");
         menu.put("menuId", "image_recognition_menu_847");
-        menu.put("webURL", "http://10.69.212.11:8189/#/alaccess");
+        menu.put("webURL", "http://10.69.212.11:8189/alaccess");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_823");
         menu.put("isWebDisplay", 1);
@@ -177,7 +177,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "报警记录");
         menu.put("menuId", "image_recognition_menu_873");
-        menu.put("webURL", "http://10.69.212.11:8189/#/warnlist");
+        menu.put("webURL", "http://10.69.212.11:8189/warnlist");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_823");
         menu.put("isWebDisplay", 1);
@@ -196,7 +196,7 @@ public class OAMenuInit {
 //        menu = new JSONObject();
 //        menu.put("menuName", "人员管理");
 //        menu.put("menuId", "face_menu_person");
-//        menu.put("webURL", "http://10.69.202.101:8089/#/pmanagement");
+//        menu.put("webURL", "http://10.69.202.101:8089/pmanagement");
 //        menu.put("displayType", "1");
 //        menu.put("parentId", "face_menu");
 //        menu.put("isWebDisplay", 1);

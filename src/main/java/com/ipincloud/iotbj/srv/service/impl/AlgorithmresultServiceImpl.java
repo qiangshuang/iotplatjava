@@ -146,7 +146,7 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                                 String msg = algorithmalarm.getString("camera_name") + "-" + algorithmalarm.getString("algorithm_name");
                                 content.put("type", "text");
                                 content.put("msg", msg);
-                                content.put("url", localhostUri + "/#/alarminformation/" + algorithmalarm.getString("id"));
+                                content.put("url", localhostUri + "/alarminformation/" + algorithmalarm.getString("id"));
                                 content.put("redirectUrl", "");
                                 content.put("fun", "IAM");
                                 content.put("title", "算法报警");

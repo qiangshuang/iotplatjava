@@ -1,5 +1,13 @@
 server:
-  port: 8089
+  http:
+    port: 8089
+  port: 8443
+  ssl:
+    key-store: classpath:https.p12
+    key-alias: bigdata
+    key-store-password: 123456
+    enabled: true
+    key-store-type: JKS
   #tomcat:
   #  uri-encoding: UTF-8
 spring:
@@ -33,7 +41,7 @@ localhostUri: http://10.69.202.101:8089
 algorithm:
   push: 10.69.212.11:8089 #视频流地址
   url: http://10.69.212.11:8087 #算法后端URL
-  resultUrl: http://10.69.202.101:8089/algorithmresult #算法后端结果发送URL
+  resultUrl: http://10.69.202.101:8189/algorithmresult #算法后端结果发送URL
 algorithm_face:
   face_register: http://10.69.212.11:8800/api/v1.0/face_register
 iot:
