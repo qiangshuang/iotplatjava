@@ -1,7 +1,7 @@
 server:
   http:
     port: 8089
-  port: 8443
+  port: 443
   ssl:
     key-store: classpath:https.p12
     key-alias: bigdata

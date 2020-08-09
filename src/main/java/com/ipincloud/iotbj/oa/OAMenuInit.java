@@ -87,7 +87,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "来访人员管理");
         menu.put("menuId", "image_recognition_menu_818");
-        menu.put("webURL", "http://10.69.212.11:8189/vipman");
+        menu.put("webURL", "https://10.69.212.11:8443/vipman");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);

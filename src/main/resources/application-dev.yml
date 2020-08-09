@@ -1,12 +1,12 @@
 server:
   http:
     port: 8089
-  port: 8443
+  port: 443
   ssl:
     key-store: classpath:https.p12
     key-alias: bigdata
     key-store-password: 123456
-    enabled: true
+    enabled: false
     key-store-type: JKS
   #tomcat:
   #  uri-encoding: UTF-8
