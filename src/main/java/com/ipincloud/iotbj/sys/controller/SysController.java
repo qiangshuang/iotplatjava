@@ -63,7 +63,9 @@ import com.ipincloud.iotbj.srv.service.OrgService;
 import com.ipincloud.iotbj.srv.dao.UserDao;
 
 import java.io.*;
-
+import java.util.*;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSON;
 
 @RestController
 public class SysController {
@@ -85,17 +87,17 @@ public class SysController {
     public Object hyimportzip(HttpServletRequest request,
                               HttpServletResponse response)  {
 
-        System.out.println("dkdkkd:----------");
+        
         String relateType = request.getParameter("relateType");
-        System.out.println("dkdkkd:----------"+relateType);
+        
         MultipartHttpServletRequest multipartHttpServletRequest = (MultipartHttpServletRequest) request;
         //单文件上传
         MultipartFile file = multipartHttpServletRequest.getFile("file");
-        System.out.println("dkkdkdk --- 21 "+file.toString() );
+        
         String originFileName = file.getOriginalFilename();
-        System.out.println("dkkdkdk --- 22 "+originFileName);
+        
         String suffixName = originFileName.substring(originFileName.lastIndexOf("."));
-        System.out.println("dkkdkdk --- 23 "+suffixName);
+        
         if (StringUtils.isEmpty(suffixName)){
             return new ResponseBean(200,"FAILED", "请导入zip文件压缩包","");
         }
@@ -110,7 +112,7 @@ public class SysController {
         String unzipPath = runPath+String.format("/%s/%s/%s",relateType,dateStr,uuId);
         String excelPath = unzipPath+"/upload.xlsx";
         // 文件对象
-       logger.debug("debug",runPath+":"+fullfilPath);
+       
         File dest = new File( fullfilPath );
         // 判断路径是否存在，如果不存在则创建
         if(!dest.getParentFile().exists()) {
@@ -121,30 +123,30 @@ public class SysController {
         try {
             // 保存到服务器中
             file.transferTo(dest);
-            System.out.println("dkkdkdk --- 2 ");
+            
             FileUtils.unZipFiles(dest,unzipPath);
-            System.out.println("dkkdkdk --- 3 "+excelPath);
+            
             Map<Integer, Map<Integer,Object>> mapExcel = Excel2Map.readExcelContentz(excelPath);
-            System.out.println("dkkdkdk --- 4 ");
+            
             List<JSONObject> retJsonList = new ArrayList<>();
             for(Map<Integer,Object> rowMap : mapExcel.values()){
-                String tStr = rowMap.get(2).toString();
+                String tStr = rowMap.get(1).toString();
                 if(StringUtils.isEmpty(tStr)){
                     JSONObject userJson = new JSONObject();
                     userJson.put("state","失败");
 
                     userJson.put("idnumber",tStr);
 
-                    tStr = rowMap.get(0).toString();
+                    tStr = rowMap.get(2).toString();
                     userJson.put("title",tStr);
 
-                    tStr = rowMap.get(1).toString();
+                    tStr = rowMap.get(3).toString();
                     userJson.put("gender",tStr);
 
-                    tStr = rowMap.get(3).toString();
-                    userJson.put("jobno",tStr);
+                    tStr = rowMap.get(0).toString();
+                    userJson.put("mobile",tStr);
 
-                    System.out.println("dkkdkdk --- 3 "+userJson.toString());
+                    
                     retJsonList.add(userJson);
 
                 }else{
@@ -154,17 +156,17 @@ public class SysController {
                         userJson = new JSONObject();
                         userJson.put("idnumber",tStr);
 
-                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".JPG";
+                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".jpg";
 
-                        tStr = rowMap.get(0).toString();
+                        tStr = rowMap.get(2).toString();
                         userJson.put("title",tStr);
 
-                        tStr = rowMap.get(1).toString();
+                        tStr = rowMap.get(3).toString();
                         userJson.put("gender",tStr);
 
-                        tStr = rowMap.get(3).toString();
-                        userJson.put("jobno",tStr);
-                        tStr = rowMap.get(4).toString();
+                        //tStr = rowMap.get(3).toString();
+                        //userJson.put("jobno",tStr);
+                        tStr = rowMap.get(0).toString();
                         userJson.put("mobile",tStr);
 
                         userJson.put("photo",photoPath);
@@ -181,17 +183,17 @@ public class SysController {
 
                         userJson.put("idnumber",tStr);
                         userJson.put("state","重复");
-                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".JPG";
+                        String photoPath = " ;"+ String.format("/%s/%s/%s",relateType,dateStr,uuId) + "/"+tStr + ".jpg";
 
-                        tStr = rowMap.get(0).toString();
+                        tStr = rowMap.get(2).toString();
                         userJson.put("title",tStr);
 
-                        tStr = rowMap.get(1).toString();
+                        tStr = rowMap.get(3).toString();
                         userJson.put("gender",tStr);
 
-                        tStr = rowMap.get(3).toString();
-                        userJson.put("jobno",tStr);
-                        tStr = rowMap.get(4).toString();
+                        //tStr = rowMap.get(3).toString();
+                       // userJson.put("jobno",tStr);
+                        tStr = rowMap.get(0).toString();
                         userJson.put("mobile",tStr);
 
                         userJson.put("photo",photoPath);
@@ -207,7 +209,7 @@ public class SysController {
                 }
 
             }
-            System.out.println("dkkdkdk --- 6 "+retJsonList.toString());
+            
             return new ResponseBean(200,"SUCCESS", "批量导入已成功",retJsonList);
         } catch (Exception e) {
             String exMess = MessageInfo.exceptionInfo(e);
@@ -517,7 +519,77 @@ public class SysController {
         userService.updateInst(jsonObject2);
         return new ResponseBean(200,"SUCCESS", "用户账号密码设置成功","");
     }
+    @PostMapping("/hyuploadbase64")
     
+    public Object hyuploadbase64(@RequestBody JSONObject jsonObject,
+                              HttpServletResponse response)  {
+
+        if (jsonObject == null) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        
+        //String authorization = request.getParameter("Authorization");
+        //if (authorization == null || authorization.length() < 1){
+         //   logger.debug("Upload:获取用户Authorization不成功.");
+        //    return new ResponseBean(200,"FAILED", "请先登录","");
+        //}
+        long userId = 1L;//JWTUtil.getUserId(authorization);//currentUser.getPrincipals().toString()
+        if (userId < 1) {
+            logger.debug("Data:获取用户ID不成功.");
+            return new ResponseBean(200,"FAILED", "用户数据出现错误","");
+        }
+        String base64FileData = jsonObject.getString("file");
+        
+        if (StringUtils.isEmpty(base64FileData)) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        
+        
+        OutputStream out = null;
+        try {
+
+            byte[] byteFileData = Base64.getDecoder().decode(base64FileData);
+
+            String relateType = "face";
+
+            //单文件上传
+            String uuId = UUID.randomUUID().toString();
+            Date date = new Date();
+            String dateStr = new SimpleDateFormat("yyyyMMdd").format(date);
+
+            String runPath = System.getProperty("user.dir") + "/classes/upload";
+
+            String retPath = String.format("/%s/%d/%s/%s%s", relateType, userId, dateStr, uuId, ".png");
+            String fullfilPath = runPath + retPath;
+
+            // 保存到服务器中
+            File dest = new File(fullfilPath);
+            // 判断路径是否存在，如果不存在则创建
+            if (!dest.getParentFile().exists()) {
+                dest.getParentFile().mkdirs();
+            }
+
+            out = new FileOutputStream(dest);
+            out.write(byteFileData);
+
+            String retStr =  String.format("%s;%s;0;%d;;%d", " ", retPath, userId, System.currentTimeMillis());
+            
+            return new ResponseBean(200,"SUCCESS", "文件上传成功",retStr);
+            
+        } catch (Exception e) {
+            return new ResponseBean(200,"FAILED", "文件上传不成功","");  
+        } finally {
+            try {
+                out.flush();
+                out.close();
+            } catch (Exception e) {
+                // do no thing
+            }
+
+        }
+        
+        //return new ResponseBean(200,"FAILED", "文件上传不成功","");  
+    }
     @PostMapping("/hyupload")
     
     public Object hyupload(HttpServletRequest request,

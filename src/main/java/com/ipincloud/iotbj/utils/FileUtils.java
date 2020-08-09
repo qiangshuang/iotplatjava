@@ -42,7 +42,13 @@ public class FileUtils {
             continue;
           }
           //输出文件路径信息
-          System.out.println(outPath);
+          if(StringUtils.isNotEmpty(outPath) ){
+            String suffixName = outPath.substring(outPath.lastIndexOf("."));
+            if(StringUtils.isNotEmpty(suffixName) ){
+                outPath = outPath.substring(0,outPath.lastIndexOf("."))+suffixName.toLowerCase();
+            }
+          }
+          System.out.print(outPath);
           OutputStream out = new FileOutputStream(outPath);
           byte[] buf1 = new byte[1024];
           int len;
