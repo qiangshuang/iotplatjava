@@ -198,9 +198,24 @@ public class FaceServiceImpl implements FaceService {
 
     @Override
     public Object policylist(JSONObject jsonObj) {
-        int totalRec = faceDao.countPolicy(jsonObj);
+        List<JSONObject> childOrg = new ArrayList<>();
+        Set<Long> orgIds = new HashSet<>();
+
+        List<JSONObject> orgs = faceDao.findOrgs();
+        String pid = jsonObj.getString("org_id");
+        if (StringUtils.isNotEmpty(pid)) {
+            orgRecursion(childOrg, orgs, Long.valueOf(pid));
+            orgIds.add(Long.valueOf(pid));
+        }
+
+        for (JSONObject jsonObject : childOrg) {
+            orgIds.add(jsonObject.getLong("id"));
+        }
+
+        int totalRec = faceDao.countPolicy(jsonObj, orgIds);
         jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
-        List<Map> list = faceDao.listPolicy(jsonObj);
+        List<Map> list = faceDao.listPolicy(jsonObj, orgIds);
+
         jsonObj.put("pageData", list);
         jsonObj.put("totalRec", totalRec);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);

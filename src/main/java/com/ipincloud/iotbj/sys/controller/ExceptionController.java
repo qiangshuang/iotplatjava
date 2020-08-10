@@ -1,4 +1,4 @@
-package com.ipincloud.iotbj.srv.controller;
+package com.ipincloud.iotbj.sys.controller;
 
 
 import org.apache.shiro.ShiroException;

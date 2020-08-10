@@ -134,67 +134,71 @@
     <select id="countPolicy" resultType="java.lang.Integer">
         select count(*) from (
         select t1.*,t2.title region_title,t3.title gateway_title,
-        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.cardnumber from face_policy t1
+        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.user_name from face_policy t1
         left join region t2 on t1.region_id=t2.id
         left join face_gateway t3 on t1.gateway_id=t3.id
         left join org t4 on t1.org_id=t4.id
         left join user t5 on t1.user_id=t5.id )t
         <where>
-            <if test="org_id!=null and org_id!=''">
-                and org_id = #{org_id}
+            <if test="jsonObj.starttime!=null and jsonObj.starttime!=0 and jsonObj.endtime!=null and jsonObj.endtime!=0 ">
+                and ((starttime >= #{jsonObj.starttime} and #{jsonObj.endtime} > starttime)
+                or ( #{jsonObj.starttime} >= starttime and endtime >= #{jsonObj.endtime} ))
             </if>
-            <if test="starttime!=null and starttime!=0">
-                and #{starttime} >= starttime
+            <if test="jsonObj.user_title!=null and jsonObj.user_title!=''">
+                and user_title like concat('%',#{jsonObj.user_title},'%')
             </if>
-            <if test="endtime!=null and endtime!=0">
-                and endtime >= #{endtime}
+            <if test="jsonObj.gateway_title!=null and jsonObj.gateway_title!=''">
+                and gateway_title like concat('%',#{jsonObj.gateway_title},'%')
             </if>
-            <if test="user_title!=null and user_title!=''">
-                and user_title like concat('%',#{user_title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber like concat('%',#{jsonObj.idnumber},'%')
             </if>
-            <if test="gateway_title!=null and gateway_title!=''">
-                and gateway_title like concat('%',#{gateway_title},'%')
+            <if test="jsonObj.cardnumber!=null and jsonObj.cardnumber!=''">
+                and cardnumber like concat('%',#{jsonObj.cardnumber},'%')
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber like concat('%',#{idnumber},'%')
-            </if>
-            <if test="cardnumber!=null and cardnumber!=''">
-                and cardnumber like concat('%',#{cardnumber},'%')
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and org_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
     </select>
     <select id="listPolicy" resultType="java.util.Map">
         select * from
         (select t1.*,t2.title region_title,t3.title gateway_title,
-        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.cardnumber from face_policy t1
+        t4.title org_title,t5.title user_title,t5.gender,t5.idnumber,t5.user_name from face_policy t1
         left join region t2 on t1.region_id=t2.id
         left join face_gateway t3 on t1.gateway_id=t3.id
         left join org t4 on t1.org_id=t4.id
         left join user t5 on t1.user_id=t5.id )t
         <where>
-            <if test="org_id!=null and org_id!=''">
-                and org_id = #{org_id}
+            <if test="jsonObj.starttime!=null and jsonObj.starttime!=0 and jsonObj.endtime!=null and jsonObj.endtime!=0 ">
+                and ((starttime >= #{jsonObj.starttime} and #{jsonObj.endtime} > starttime)
+                or ( #{jsonObj.starttime} >= starttime and endtime >= #{jsonObj.endtime} ))
             </if>
-            <if test="starttime!=null and starttime!=0 and endtime!=null and endtime!=0 ">
-                and ((starttime >= #{starttime} and #{endtime} > starttime)
-                or ( #{starttime} >= starttime and endtime >= #{endtime} ))
+            <if test="jsonObj.user_title!=null and jsonObj.user_title!=''">
+                and user_title like concat('%',#{jsonObj.user_title},'%')
             </if>
-            <if test="user_title!=null and user_title!=''">
-                and user_title like concat('%',#{user_title},'%')
+            <if test="jsonObj.gateway_title!=null and jsonObj.gateway_title!=''">
+                and gateway_title like concat('%',#{jsonObj.gateway_title},'%')
             </if>
-            <if test="gateway_title!=null and gateway_title!=''">
-                and gateway_title like concat('%',#{gateway_title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber like concat('%',#{jsonObj.idnumber},'%')
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber like concat('%',#{idnumber},'%')
+            <if test="jsonObj.cardnumber!=null and jsonObj.cardnumber!=''">
+                and cardnumber like concat('%',#{jsonObj.cardnumber},'%')
             </if>
-            <if test="cardnumber!=null and cardnumber!=''">
-                and cardnumber like concat('%',#{cardnumber},'%')
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and org_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
         order by t.id desc
-        <if test="startIndex!=null and rop!=null">
-            limit #{startIndex},#{rop}
+        <if test="jsonObj.startIndex!=null and jsonObj.rop!=null">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
         </if>
     </select>
 

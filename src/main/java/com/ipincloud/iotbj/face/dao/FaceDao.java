@@ -17,9 +17,9 @@ public interface FaceDao {
 
     List<Map> listRegionByName(JSONObject jsonObj);
 
-    int countGateway(@Param("jsonObj") JSONObject jsonObj,@Param("regionIds") Set<Long> regionIds);
+    int countGateway(@Param("jsonObj") JSONObject jsonObj, @Param("regionIds") Set<Long> regionIds);
 
-    List<Map> listGatewayByName(@Param("jsonObj") JSONObject jsonObj,@Param("regionIds") Set<Long> regionIds);
+    List<Map> listGatewayByName(@Param("jsonObj") JSONObject jsonObj, @Param("regionIds") Set<Long> regionIds);
 
     int insertGateway(@Param("jsonObj") JSONObject jsonObj);
 
@@ -29,9 +29,9 @@ public interface FaceDao {
 
     int insertPolicy(@Param("jsonObj") JSONObject jsonObj);
 
-    int countPolicy(JSONObject jsonObj);
+    int countPolicy(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
-    List<Map> listPolicy(JSONObject jsonObj);
+    List<Map> listPolicy(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
     int updateGatewayState(String acsDevIndexCode);
 
@@ -49,9 +49,9 @@ public interface FaceDao {
 
     JSONObject getUserByIdnumber(String idnumber);
 
-    int countUser(@Param("jsonObj") JSONObject jsonObj,@Param("orgIds") Set<Long> orgIds);
+    int countUser(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
-    List<Map> listUserByName(@Param("jsonObj") JSONObject jsonObj,@Param("orgIds") Set<Long> orgIds);
+    List<Map> listUserByName(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
     int insertVisit(@Param("jsonObj") JSONObject jsonObj);
 
@@ -91,7 +91,7 @@ public interface FaceDao {
 
     JSONObject findRegionByIndexCode(String regionIndexCode);
 
-    List<JSONObject> findVisitByInterview(@Param("visitId")Long visitId,@Param("userId") String userId);
+    List<JSONObject> findVisitByInterview(@Param("visitId") Long visitId, @Param("userId") String userId);
 
     List<JSONObject> findGatewayByName(String doorName);
 
