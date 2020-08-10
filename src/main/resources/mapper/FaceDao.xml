@@ -353,11 +353,7 @@
     </insert>
 
     <select id="countVisit" resultType="java.lang.Integer">
-        select count(*) from (
-        select t1.*,t2.title,t2.gender,t2.idnumber,t2.cardnumber,
-        t2.mobile from face_visit t1
-        left join user t2 on t1.visit_id=t2.id
-        ) t
+        select count(*) from face_visit
         <where>
             <if test="visit_id !=null and visit_id!= 0">
                 and visit_id = #{visit_id}
@@ -369,13 +365,10 @@
                 and #{endtime} >= conftime
             </if>
             <if test="title!=null and title!=''">
-                and title like concat('%',#{title},'%')
+                and visit_title like concat('%',#{title},'%')
             </if>
             <if test="idnumber!=null and idnumber!=''">
                 and idnumber like concat('%',#{idnumber},'%')
-            </if>
-            <if test="cardnumber!=null and cardnumber!=''">
-                and cardnumber like concat('%',#{cardnumber},'%')
             </if>
             <if test="mobile!=null and mobile!=''">
                 and mobile like concat('%',#{mobile},'%')
@@ -383,11 +376,7 @@
         </where>
     </select>
     <select id="listVisitByName" resultType="java.util.Map">
-        select * from (
-        select t1.*,t2.title,t2.gender,t2.idnumber,t2.cardnumber,
-        t2.mobile from face_visit t1
-        left join user t2 on t1.visit_id=t2.id
-        ) t
+        select *,visit_title as title from face_visit
         <where>
             <if test="visit_id !=null and visit_id!= 0">
                 and visit_id = #{visit_id}
@@ -399,19 +388,16 @@
                 and #{endtime} >= conftime
             </if>
             <if test="title!=null and title!=''">
-                and title like concat('%',#{title},'%')
+                and visit_title like concat('%',#{title},'%')
             </if>
             <if test="idnumber!=null and idnumber!=''">
                 and idnumber like concat('%',#{idnumber},'%')
-            </if>
-            <if test="cardnumber!=null and cardnumber!=''">
-                and cardnumber like concat('%',#{cardnumber},'%')
             </if>
             <if test="mobile!=null and mobile!=''">
                 and mobile like concat('%',#{mobile},'%')
             </if>
         </where>
-        order by t.id desc
+        order by id desc
         <if test="startIndex!=null and rop!=null">
             limit #{startIndex},#{rop}
         </if>
@@ -422,6 +408,18 @@
         <trim prefix="set" suffixOverrides=",">
             <if test="visit_id!=null and visit_id!=''">
                 visit_id = #{visit_id},
+            </if>
+            <if test="visit_title!=null and visit_title!=''">
+                visit_title = #{visit_title},
+            </if>
+            <if test="idnumber!=null and idnumber!=''">
+                idnumber = #{idnumber},
+            </if>
+            <if test="mobile!=null and mobile!=''">
+                mobile = #{mobile},
+            </if>
+            <if test="photo!=null and photo!=''">
+                photo = #{photo},
             </if>
             <if test="interview_ids!=null and interview_ids!=''">
                 interview_ids = #{interview_ids},
@@ -564,7 +562,7 @@
         <where>
             and id != #{visitId}
             <if test="userId!=null and userId!=''">
-                and interview_ids like concat('%',#{userId},'%')
+                and visit_id = #{userId}
             </if>
         </where>
         order by created desc

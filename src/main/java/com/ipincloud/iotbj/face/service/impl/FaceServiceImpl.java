@@ -180,7 +180,7 @@ public class FaceServiceImpl implements FaceService {
     public Object gatewayopen(JSONObject jsonObj) {
         Long id = jsonObj.getLong("id");
         Map gateway = faceDao.findGatewayById(id);
-        String acsDevIndexCode = String.valueOf(gateway.get("acsDevIndexCode"));
+        String acsDevIndexCode = String.valueOf(gateway.get("doorIndexCode"));
         if (StringUtils.isEmpty(acsDevIndexCode)) {
             return new ResponseBean(200, "FAILED", "操作失败", null);
         }
@@ -583,6 +583,10 @@ public class FaceServiceImpl implements FaceService {
 
         visit.put("visit_id", newUser.getId());
         visit.put("visit_title", newUser.getTitle());
+        visit.put("gender", newUser.getGender());
+        visit.put("idnumber", newUser.getIdnumber());
+        visit.put("mobile", newUser.getMobile());
+        visit.put("photo", newUser.getPhoto());
         visit.put("interview_ids", jsonObj.getString("interview_ids"));
         visit.put("interview_titles", jsonObj.getString("interview_titles"));
         visit.put("gateway_title", "东二门");
@@ -677,7 +681,12 @@ public class FaceServiceImpl implements FaceService {
                 user.remove("id");
                 user.put("id", visit.getLong("id"));
                 user.put("visit_id", userId);
-
+                user.put("title", visit.getString("visit_title"));
+                user.put("visit_title", visit.getString("visit_title"));
+                user.put("gender", visit.getString("gender"));
+                user.put("idnumber", visit.getString("idnumber"));
+                user.put("mobile", visit.getString("mobile"));
+                user.put("photo", visit.getString("photo"));
                 user.put("interview_ids", visit.getString("interview_ids"));
                 user.put("interview_titles", visit.getString("interview_titles"));
                 user.put("starttime", starttime);
@@ -749,17 +758,23 @@ public class FaceServiceImpl implements FaceService {
         }
         JSONObject user = new JSONObject();
         user.put("id", jsonObj.getLong("visit_id"));
-        user.put("mobile", jsonObj.getLong("mobile"));
-        user.put("photo", jsonObj.getLong("photo"));
+        user.put("title", jsonObj.getString("title"));
+        user.put("gender", jsonObj.getString("gender"));
+        user.put("idnumber", jsonObj.getString("idnumber"));
+        user.put("mobile", jsonObj.getString("mobile"));
+        user.put("photo", jsonObj.getString("photo"));
         userDao.updateInst(user);
 
         JSONObject visit = new JSONObject();
         visit.put("id", jsonObj.getString("id"));
+        visit.put("visit_id", jsonObj.getString("visit_id"));
+        visit.put("visit_title", jsonObj.getString("title"));
+        visit.put("gender", jsonObj.getString("gender"));
+        visit.put("idnumber", jsonObj.getString("idnumber"));
+        visit.put("mobile", jsonObj.getString("mobile"));
+        visit.put("photo", jsonObj.getString("photo"));
         visit.put("interview_ids", jsonObj.getString("interview_ids"));
         visit.put("interview_titles", jsonObj.getString("interview_titles"));
-        visit.put("conftime", System.currentTimeMillis());
-        visit.put("starttime", System.currentTimeMillis());
-        visit.put("endtime", System.currentTimeMillis() + (24 * 3600 * 1000));
         visit.put("state", "申请中");
         visit.put("updated", System.currentTimeMillis());
         faceDao.updateVisit(visit);
@@ -802,7 +817,7 @@ public class FaceServiceImpl implements FaceService {
 
         List<JSONObject> list = new ArrayList<>();
         if (StringUtils.isNotEmpty(visitlog.getString("interview_ids"))) {
-            list = faceDao.findVisitByInterview(visitId, visitlog.getString("interview_ids"));
+            list = faceDao.findVisitByInterview(visitId, visitlog.getString("visit_id"));
         }
         visit.put("visitHistory", list);
 
