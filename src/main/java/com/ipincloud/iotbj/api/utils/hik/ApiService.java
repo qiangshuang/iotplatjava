@@ -96,8 +96,10 @@ public class ApiService {
     public static boolean gatewayOpen(String acsDevIndexCode) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("controlType", 2);
-        jsonObject.put("doorIndexCodes", new ArrayList<>().add(acsDevIndexCode));
-        BaseResponse<Map> maps = ApiUtil.post(new TypeReference<BaseResponse<Map>>() {
+        List<String> doorIndexCodes = new ArrayList<>();
+        doorIndexCodes.add(acsDevIndexCode);
+        jsonObject.put("doorIndexCodes", doorIndexCodes);
+        BaseResponse<Object> maps = ApiUtil.post(new TypeReference<BaseResponse<Object>>() {
         }, ApiUtil.PATH_DOOR_OPEN, JSON.toJSONString(jsonObject));
         if (maps == null) {
             throw new RuntimeException(BaseResponse.ERR_NO_DATA);

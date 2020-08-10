@@ -192,7 +192,7 @@ public class FaceServiceImpl implements FaceService {
         if (!bool) {
             return new ResponseBean(200, "FAILED", "操作失败", null);
         }
-        faceDao.updateGatewayState(acsDevIndexCode);
+        faceDao.updateGatewayState(gateway.get("acsDevIndexCode") + "");
         return new ResponseBean(200, "SUCCESS", "操作成功", null);
     }
 
