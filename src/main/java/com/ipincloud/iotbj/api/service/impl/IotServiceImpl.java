@@ -328,7 +328,7 @@ public class IotServiceImpl implements IotService {
                 para.put("state", "运行中");
                 para.put("opentime", System.currentTimeMillis());
                 algorithmDao.addInst(para);
-                resultMap.put("result", "SUCCESE");
+                resultMap.put("result", "SUCCESS");
             } else {
                 resultMap.put("result", "FAILD");
             }
@@ -366,7 +366,7 @@ public class IotServiceImpl implements IotService {
                 algorithm.setState("关闭");
                 algorithmDao.updateInst(JSONObject.parseObject(JSON.toJSONString(algorithm)));
                 //algorithmDao.deletesInst(JSONObject.parseObject(algorithm.getId() + ""));
-                resultMap.put("result", "SUCCESE");
+                resultMap.put("result", "SUCCESS");
             } else {
                 resultMap.put("result", "FAILD");
             }
@@ -447,7 +447,7 @@ public class IotServiceImpl implements IotService {
             if (code == 200) {
                 algorithm.setState("运行中");
                 algorithmDao.updateInst(JSONObject.parseObject(JSON.toJSONString(algorithm)));
-                resultMap.put("result", "SUCCESE");
+                resultMap.put("result", "SUCCESS");
             } else {
                 resultMap.put("result", "FAILD");
                 resultMap.put("msg", msg);
