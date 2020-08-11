@@ -115,19 +115,12 @@ public class IamServiceImpl implements IamService {
             }
             //头像
             String fileData = itemObject.getString("photo");
-            if (StringUtils.isNotEmpty(itemObject.getString("photo"))) {
+            if (StringUtils.isNotEmpty(fileData)) {
                 String jpgBase64 = "data:image/jpg;base64,";
                 fileData = fileData.contains(jpgBase64) ? fileData.replaceAll(jpgBase64, "") : fileData;
                 String photo = saveBase64File(0L, fileData);
                 userJsonObj.put("photo", photo);
             }
-/*          //用户类型
-            String userGroup = itemObject.getString("user_type");
-            if (StringUtils.isNotEmpty(userGroup)) {
-                userJsonObj.put("userGroup", userGroup);
-            } else {
-                userJsonObj.put("userGroup", "外来访客");
-            }*/
             //部门
             String orgId = itemObject.getString("orgId");
             JSONObject orgJson = new JSONObject();
