@@ -114,9 +114,11 @@ public class IamServiceImpl implements IamService {
                 continue;
             }
             //头像
-            String photo = itemObject.getString("photo");
+            String fileData = itemObject.getString("photo");
             if (StringUtils.isNotEmpty(itemObject.getString("photo"))) {
-                photo = saveBase64File(0L, photo);
+                String jpgBase64 = "data:image/jpg;base64,";
+                fileData = fileData.contains(jpgBase64) ? fileData.replaceAll(jpgBase64, "") : fileData;
+                String photo = saveBase64File(0L, fileData);
                 userJsonObj.put("photo", photo);
             }
 /*          //用户类型
@@ -205,12 +207,14 @@ public class IamServiceImpl implements IamService {
                             person.put("gender", "0");
                         }
                         person.put("phoneNo", userJsonObj.getString("mobile"));
-                        person.put("certificateType", "111");
                         if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", userJsonObj.getString("idnumber"));
                         } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", userJsonObj.getString("mobile"));
                         } else {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", certificateNo);
                         }
                         if (Objects.equals("", userJsonObj.getString("user_name"))) {
@@ -275,19 +279,18 @@ public class IamServiceImpl implements IamService {
                         if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
                             person.put("phoneNo", userJsonObj.getString("mobile"));
                         }
-                        person.put("certificateType", "111");
                         if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", userJsonObj.getString("idnumber"));
                         } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", userJsonObj.getString("mobile"));
                         } else {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", certificateNo);
                         }
-
-                        if (StringUtils.isNotEmpty(loginName)) {
-                            person.put("jobNo", loginName);
-                        } else {
-                            person.put("jobNo", "");
+                        if (StringUtils.isNotEmpty(userJsonObj.getString("user_name"))) {
+                            person.put("jobNo", userJsonObj.getString("user_name"));
                         }
 
                         if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
@@ -574,8 +577,9 @@ public class IamServiceImpl implements IamService {
                     continue;
                 }
                 String fileData = itemObject.getString("filedata");
-
                 if (StringUtils.isNotEmpty(fileData)) {
+                    String jpgBase64 = "data:image/jpg;base64,";
+                    fileData = fileData.contains(jpgBase64) ? fileData.replaceAll(jpgBase64, "") : fileData;
                     Long userId = userJsonObj.getLong("id");
                     String fullfilPath = saveBase64File(userId, fileData);
                     if (fullfilPath == null || StringUtils.isEmpty(fullfilPath)) {
@@ -594,17 +598,12 @@ public class IamServiceImpl implements IamService {
                             person.put("gender", "0");
                         }
                         person.put("phoneNo", userJsonObj.getString("mobile"));
-                        person.put("certificateType", "111");
                         if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                            person.put("certificateType", "111");
                             person.put("certificateNo", userJsonObj.getString("idnumber"));
-                        } else {
-                            person.put("certificateNo", userJsonObj.getString("mobile"));
                         }
-
                         if (Objects.equals("", userJsonObj.getString("user_name"))) {
                             person.put("jobNo", userJsonObj.getString("user_name"));
-                        } else {
-                            person.put("jobNo", userJsonObj.getString("jobno"));
                         }
                         person.put("faces", fileData);
                         ApiService.updatePerson(person);
