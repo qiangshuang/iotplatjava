@@ -72,6 +72,7 @@ public class IamServiceImpl implements IamService {
             JSONObject userJsonObj = new JSONObject();
             //人员编号
             String personId = itemObject.getString("id");
+            System.out.println("IAM ID=" + personId);
             if (StringUtils.isNotEmpty(personId)) {
                 userJsonObj.put("personId", personId);
             }
@@ -299,6 +300,7 @@ public class IamServiceImpl implements IamService {
                             error.add(itemObject);
                             continue;
                         } else {
+                            System.out.println("HIK ID=" + personId);
                             userJsonObj.put("personId", personId);
                             userJsonObj.put("updated", System.currentTimeMillis());
                             userDao.updateInst(userJsonObj);
@@ -582,7 +584,7 @@ public class IamServiceImpl implements IamService {
                     if (hikEnable) {
                         JSONObject person = new JSONObject();
                         person.put("personId", personId);
-                        person.put("personName", userJsonObj.getString("title"));
+                        /*person.put("personName", userJsonObj.getString("title"));
                         if (Objects.equals("男", userJsonObj.getString("gender"))) {
                             person.put("gender", "1");
                         } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
@@ -597,9 +599,9 @@ public class IamServiceImpl implements IamService {
                         }
                         if (Objects.equals("", userJsonObj.getString("user_name"))) {
                             person.put("jobNo", userJsonObj.getString("user_name"));
-                        }
+                        }*/
                         person.put("faces", fileData);
-                        ApiService.updatePerson(person);
+                        ApiService.updateFace(person);
                     }
                     userJsonObj.put("photo", fullfilPath);
                     userJsonObj.put("updated", System.currentTimeMillis());

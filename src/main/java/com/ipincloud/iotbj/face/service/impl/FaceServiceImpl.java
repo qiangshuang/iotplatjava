@@ -709,8 +709,8 @@ public class FaceServiceImpl implements FaceService {
                 if (now < starttime || now > endtime) {
                     user.put("timemsg", "无有效通行时间");
                 }
-                jsonObj.put("user", user);
             }
+            jsonObj.put("user", user);
         }
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
     }

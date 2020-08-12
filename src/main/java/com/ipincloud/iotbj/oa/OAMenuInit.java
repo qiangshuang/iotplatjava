@@ -31,7 +31,7 @@ public class OAMenuInit {
         JSONArray menuData = new JSONArray();
 //        menuData.add(menu);
         JSONObject menu = new JSONObject();
-        menu.put("menuName", "岗位权限new");
+        menu.put("menuName", "岗位权限");
         menu.put("menuId", "image_recognition_menu_750");
         menu.put("webURL", "http://10.69.212.11:8189/rolelist");
         menu.put("displayType", "1");
@@ -41,7 +41,7 @@ public class OAMenuInit {
         menuData.add(menu);
 
         menu = new JSONObject();
-        menu.put("menuName", "人脸识别new");
+        menu.put("menuName", "人脸识别");
         menu.put("menuId", "image_recognition_menu_805");
         menu.put("displayType", "2");
         menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
@@ -87,7 +87,7 @@ public class OAMenuInit {
         menu = new JSONObject();
         menu.put("menuName", "来访人员管理");
         menu.put("menuId", "image_recognition_menu_818");
-        menu.put("webURL", "https://10.69.212.11:8443/vipman");
+        menu.put("webURL", "http://10.69.212.11:8189/vipman");
         menu.put("displayType", "1");
         menu.put("parentId", "image_recognition_menu_805");
         menu.put("isWebDisplay", 1);
@@ -95,7 +95,7 @@ public class OAMenuInit {
         menuData.add(menu);
 
         menu = new JSONObject();
-        menu.put("menuName", "车辆识别new");
+        menu.put("menuName", "车辆识别");
         menu.put("menuId", "image_recognition_menu_807");
         menu.put("displayType", "2");
         menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
@@ -131,7 +131,7 @@ public class OAMenuInit {
         menuData.add(menu);
 
         menu = new JSONObject();
-        menu.put("menuName", "安全生产识别new");
+        menu.put("menuName", "报警管理");
         menu.put("menuId", "image_recognition_menu_823");
         menu.put("displayType", "2");
         menu.put("parentId", "6030ac57-bbef-4ba0-8793-00a77907cd26");
@@ -139,7 +139,7 @@ public class OAMenuInit {
         menu.put("isMobileDisplay", 0);
         menuData.add(menu);
         menu = new JSONObject();
-        menu.put("menuName", "实时监控");
+        menu.put("menuName", "实时监控报警");
         menu.put("menuId", "image_recognition_menu_878");
         menu.put("webURL", "http://10.69.212.11:8189/homepage");
         menu.put("displayType", "1");
