@@ -48,4 +48,12 @@ public interface IotService {
     List<JSONObject> alarmdtl(Long algorithm_id);
 
     List<JSONObject> deviceslist();
+
+    List<JSONObject> otherCameralist(JSONArray jsonArray);
+
+    JSONObject realcameraindexlist();
+
+    Object realAlarmList(JSONObject jsonObject);
+
+    Object spatiotemporalDataTracking(JSONObject jsonObject);
 }

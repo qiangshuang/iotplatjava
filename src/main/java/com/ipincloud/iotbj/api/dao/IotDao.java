@@ -38,4 +38,22 @@ public interface IotDao {
     List<JSONObject> alarmcount();
 
     List<JSONObject> alarmdtl(@Param("algorithm_id") Long algorithm_id);
+
+    List<JSONObject> allCameraList();
+
+    List<JSONObject> realCameraIndexlist();
+
+    List<JSONObject> devicesList();
+
+    int countRealAlarmList(JSONObject jsonObj);
+
+    List<JSONObject> realAlarmList(JSONObject jsonObj);
+
+    List<JSONObject> algorithmList();
+
+    List<JSONObject> alarmList();
+
+    JSONObject alarmHandList();
+
+    List<JSONObject> alarmChangeList();
 }
