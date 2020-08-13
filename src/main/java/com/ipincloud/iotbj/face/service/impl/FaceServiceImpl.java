@@ -221,111 +221,6 @@ public class FaceServiceImpl implements FaceService {
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
     }
 
-    /*@Override
-    public Object policyadd(JSONObject jsonObj) {
-        JSONArray gateways = jsonObj.getJSONArray("gateways");
-        JSONArray persons = jsonObj.getJSONArray("persons");
-        if (gateways != null && persons != null && (gateways.size() > 100 || persons.size() > 1000)) {
-            return new ResponseBean(200, "FAILED", "设备单次数量超出100或人员数量超过1000", null);
-        }
-        Long starttime = jsonObj.getLong("starttime");
-        Long endtime = jsonObj.getLong("endtime");
-        if (starttime == null || starttime == 0 || endtime == null || endtime == 0) {
-            return new ResponseBean(200, "FAILED", "未配置通行时间", null);
-        }
-        JSONObject policy = new JSONObject();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        String startTime = simpleDateFormat.format(new Date(starttime));
-        String endTime = simpleDateFormat.format(new Date(endtime));
-        Set<JSONObject> resourceInfos = new HashSet<>();
-        Set<JSONObject> personInfos = new HashSet<>();
-        Set<String> personIds = new HashSet<>();
-        //List<JSONObject> errInfos = new ArrayList<>();
-        for (int i = 0; i < gateways.size(); i++) {
-            JSONObject joi = gateways.getJSONObject(i);
-            for (int j = 0; j < persons.size(); j++) {
-                JSONObject joj = persons.getJSONObject(j);
-                //添加人员信息
-                if (StringUtils.isNotEmpty(joj.getString("personId"))) {
-                    personIds.add(joj.getString("personId"));
-                    JSONObject person = faceDao.findUserByPersonId(joj.getString("personId"));
-                    JSONObject personInfo = new JSONObject();
-                    personInfo.put("personId", person.getString("personId"));
-                    personInfo.put("operatorType", 1);
-                    personInfo.put("startTime", startTime);
-                    personInfo.put("endTime", endTime);
-                    personInfo.put("personType", "1");
-                    personInfo.put("name", person.getString("title"));
-                    List<JSONObject> cards = new ArrayList<>();
-                    JSONObject card = new JSONObject();
-                    card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
-                    card.put("status", 0);
-                    card.put("cardType", 1);
-                    cards.add(card);
-                    personInfo.put("cards", cards);
-                    JSONObject face = new JSONObject();
-                    face.put("card", null);
-                    Map faceData = new HashMap<>();
-                    String photo = person.getString("photo");
-                    if (StringUtils.isEmpty(photo)) {
-                        break;
-                    }
-                    String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(photo);
-                    faceData.put("f" + person.getString("id"), imgPath);
-                    face.put("data", faceData);
-                    personInfo.put("face", face);
-                    personInfos.add(personInfo);
-                } else {
-                    break;
-                }
-                //添加资源信息
-                if (StringUtils.isNotEmpty(joi.getString("acsDevIndexCode"))) {
-                    //resourceInfo.put("resourceIndexCode", policy.getString("acsDevIndexCode"));
-                    //resourceInfo.put("resourceType", "acsDevice");
-                    List<JSONObject> doors = faceDao.findGatewayByIndexCode(joi.getString("acsDevIndexCode"));
-                    //JSONObject resourceInfo = new JSONObject();
-                    if (doors != null) {
-                        for (int k = 0; k < doors.size(); k++) {
-                            JSONObject resourceInfo = new JSONObject();
-                            resourceInfo.put("resourceIndexCode", doors.get(k).getString("doorIndexCode"));
-                            resourceInfo.put("resourceType", doors.get(k).getString("channelType"));
-                            JSONArray channelNos = new JSONArray();
-                            channelNos.add(doors.get(k).getInteger("channelNo"));
-                            resourceInfo.put("channelNos", channelNos);
-                            resourceInfos.add(resourceInfo);
-                        }
-
-                    } else {
-                        //channelNos.add(1);
-                    }
-                    //resourceInfo.put("channelNos", channelNos);
-                    //resourceInfos.add(resourceInfo);
-                } else {
-                    break;
-                }
-                policy.put("acsDevIndexCode", joi.getString("acsDevIndexCode"));
-                policy.put("personId", joj.getString("personId"));
-                policy.put("region_id", joi.getLong("region_id"));
-                policy.put("gateway_id", joi.getLong("gateway_id"));
-                policy.put("user_id", joj.getLong("user_id"));
-                policy.put("org_id", joj.getLong("org_id"));
-                policy.put("starttime", starttime);
-                policy.put("endtime", endtime);
-                policy.put("created", System.currentTimeMillis());
-                policy.put("updated", System.currentTimeMillis());
-                policy.put("state", "配置通过");
-                //faceDao.insertPolicy(policy);
-                faceDao.insertOrUpdatePolicy(policy);
-                policy.clear();
-            }
-        }
-        if (hikEnable) {
-            ApiService.authDownload(resourceInfos, personInfos, true);
-            ApiService.authDownloadSearchList(resourceInfos, personIds);
-        }
-        return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
-    }*/
-
     @Override
     public Object policyadd(JSONObject jsonObj) {
         JSONArray gateways = jsonObj.getJSONArray("gateways");
@@ -561,9 +456,23 @@ public class FaceServiceImpl implements FaceService {
 
     @Override
     public Object visithistorylist(JSONObject jsonObj) {
-        int totalRec = faceDao.countHistory(jsonObj);
+        List<JSONObject> childOrg = new ArrayList<>();
+        Set<Long> orgIds = new HashSet<>();
+
+        List<JSONObject> orgs = faceDao.findOrgs();
+        String pid = jsonObj.getString("org_id");
+        if (StringUtils.isNotEmpty(pid)) {
+            orgRecursion(childOrg, orgs, Long.valueOf(pid));
+            orgIds.add(Long.valueOf(pid));
+        }
+
+        for (JSONObject jsonObject : childOrg) {
+            orgIds.add(jsonObject.getLong("id"));
+        }
+
+        int totalRec = faceDao.countHistory(jsonObj,orgIds);
         jsonObj = ParaUtils.checkStartIndex(jsonObj, totalRec);
-        List<Map> list = faceDao.listHistory(jsonObj);
+        List<Map> list = faceDao.listHistory(jsonObj,orgIds);
         jsonObj.put("pageData", list);
         jsonObj.put("totalRec", totalRec);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);

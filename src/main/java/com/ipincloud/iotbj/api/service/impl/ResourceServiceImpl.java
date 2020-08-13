@@ -241,7 +241,7 @@ public class ResourceServiceImpl implements ResourceService {
         auditLog.setGateName(doorEvent.params.events.get(0).srcName);
         auditLog.setHappenTime(doorEvent.params.events.get(0).happenTime);
         int eventType = doorEvent.params.events.get(0).eventType.intValue();
-        if (eventType == 196893 || eventType == 197162) {
+        if (eventType == 196893 || eventType == 197162 || eventType == 198914) {
             auditLog.setResult("允许通过");
         }
         if (doorEvent.params.events.get(0).data.ExtEventCardNo != null) {
@@ -249,6 +249,8 @@ public class ResourceServiceImpl implements ResourceService {
             if (account != null) {
                 auditLog.setUserID(account.getPersonId());
                 auditLog.setName(account.getTitle());
+                auditLog.setParentId(account.getParentId());
+                auditLog.setParentTitle(account.getParentTitle());
                 auditLog.setNo(account.getUserName());
                 auditLog.setMobiles(account.getMobile());
                 auditLog.setCertificateNum(account.getIdnumber());
@@ -256,11 +258,9 @@ public class ResourceServiceImpl implements ResourceService {
                 auditLog.setGender(account.getGender());
                 auditLog.setCreated(System.currentTimeMillis());
                 auditLog.setUpdated(System.currentTimeMillis());
-            } else {
-                auditLog.setCertificateNum(doorEvent.params.events.get(0).data.ExtEventCardNo + "");
-            }
 
-            resourceDao.saveAuditLog(auditLog);
+                resourceDao.saveAuditLog(auditLog);
+            }
             if (account != null && !account.isGuest() && AUDIT_DOOR_NAME_SET.contains(auditLog.getSrcName())) {
                 commitAuditLog2IAM(auditLog);
             }

@@ -43,9 +43,9 @@ public interface FaceDao {
 
     Map findGatewayById(Long id);
 
-    int countHistory(JSONObject jsonObj);
+    int countHistory(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
-    List<Map> listHistory(JSONObject jsonObj);
+    List<Map> listHistory(@Param("jsonObj") JSONObject jsonObj, @Param("orgIds") Set<Long> orgIds);
 
     JSONObject getUserByIdnumber(String idnumber);
 

@@ -5,6 +5,8 @@ public class AuditLog {
     private String userID;
     private String srcName;
     private String name;
+    private Long parentId;
+    private String parentTitle;
     private String userGroup;
     private String gender;
     private String no;
@@ -47,6 +49,22 @@ public class AuditLog {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getParentId() {
+        return parentId;
+    }
+
+    public void setParentId(Long parentId) {
+        this.parentId = parentId;
+    }
+
+    public String getParentTitle() {
+        return parentTitle;
+    }
+
+    public void setParentTitle(String parentTitle) {
+        this.parentTitle = parentTitle;
     }
 
     public String getUserGroup() {

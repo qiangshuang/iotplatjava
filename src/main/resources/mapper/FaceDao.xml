@@ -243,63 +243,69 @@
     <select id="countHistory" resultType="java.lang.Integer">
         select count(*) from face_history
         <where>
-            <if test="parent_id!=null and parent_id!=0">
-                and parent_id = #{parent_id}
+            <if test="jsonObj.state!=null and jsonObj.state!=''">
+                state = #{jsonObj.state}
             </if>
-            <if test="state!=null and state!=''">
-                state = #{state}
+            <if test="jsonObj.starttime!=null and jsonObj.starttime!=0">
+                and visittime >= #{jsonObj.starttime}
             </if>
-            <if test="starttime!=null and starttime!=0">
-                and visittime >= #{starttime}
+            <if test="jsonObj.endtime!=null and jsonObj.endtime!=0">
+                and #{jsonObj.endtime} >= visittime
             </if>
-            <if test="endtime!=null and endtime!=0">
-                and #{endtime} >= visittime
+            <if test="jsonObj.visit_title!=null and jsonObj.visit_title!=''">
+                and visit_title like concat('%',#{jsonObj.visit_title},'%')
             </if>
-            <if test="visit_title!=null and visit_title!=''">
-                and visit_title like concat('%',#{visit_title},'%')
+            <if test="jsonObj.gateway_titlee!=null and jsonObj.gateway_titlee!=''">
+                and gateway_titlee like concat('%',#{jsonObj.gateway_titlee},'%')
             </if>
-            <if test="gateway_title!=null and gateway_title!=''">
-                and gateway_title like concat('%',#{gateway_title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber like concat('%',#{jsonObj.idnumber},'%')
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber like concat('%',#{idnumber},'%')
+            <if test="jsonObj.mobile!=null and jsonObj.mobile!=''">
+                and mobile like concat('%',#{jsonObj.mobile},'%')
             </if>
-            <if test="mobile!=null and mobile!=''">
-                and mobile like concat('%',#{mobile},'%')
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and parent_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
     </select>
     <select id="listHistory" resultType="java.util.Map">
         select * from face_history
         <where>
-            <if test="parent_id!=null and parent_id!=0">
-                and parent_id = #{parent_id}
+            <if test="jsonObj.state!=null and jsonObj.state!=''">
+                state = #{jsonObj.state}
             </if>
-            <if test="state!=null and state!=''">
-                state = #{state}
+            <if test="jsonObj.starttime!=null and jsonObj.starttime!=0">
+                and visittime >= #{jsonObj.starttime}
             </if>
-            <if test="starttime!=null and starttime!=0">
-                and visittime >= #{starttime}
+            <if test="jsonObj.endtime!=null and jsonObj.endtime!=0">
+                and #{jsonObj.endtime} >= visittime
             </if>
-            <if test="endtime!=null and endtime!=0">
-                and #{endtime} >= visittime
+            <if test="jsonObj.visit_title!=null and jsonObj.visit_title!=''">
+                and visit_title like concat('%',#{jsonObj.visit_title},'%')
             </if>
-            <if test="visit_title!=null and visit_title!=''">
-                and visit_title like concat('%',#{visit_title},'%')
+            <if test="jsonObj.gateway_titlee!=null and jsonObj.gateway_titlee!=''">
+                and gateway_titlee like concat('%',#{jsonObj.gateway_titlee},'%')
             </if>
-            <if test="gateway_title!=null and gateway_title!=''">
-                and gateway_title like concat('%',#{gateway_title},'%')
+            <if test="jsonObj.idnumber!=null and jsonObj.idnumber!=''">
+                and idnumber like concat('%',#{jsonObj.idnumber},'%')
             </if>
-            <if test="idnumber!=null and idnumber!=''">
-                and idnumber like concat('%',#{idnumber},'%')
+            <if test="jsonObj.mobile!=null and jsonObj.mobile!=''">
+                and mobile like concat('%',#{jsonObj.mobile},'%')
             </if>
-            <if test="mobile!=null and mobile!=''">
-                and mobile like concat('%',#{mobile},'%')
+            <if test="orgIds!=null and orgIds.size()>0 ">
+                and parent_id in
+                <foreach collection="orgIds" item="orgId" index="index" open="(" separator="," close=")">
+                    #{orgId}
+                </foreach>
             </if>
         </where>
         order by id desc
-        <if test="startIndex!=null and rop!=null">
-            limit #{startIndex},#{rop}
+        <if test="jsonObj.startIndex!=null and jsonObj.rop!=null">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
         </if>
     </select>
 

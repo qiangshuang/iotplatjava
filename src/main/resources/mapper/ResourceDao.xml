@@ -75,7 +75,7 @@
 
     <insert id="saveAuditLog">
         insert into face_history (visit_id,visit_title,gender,mobile,parent_id,parent_title,idnumber,cardnumber,interview_title,gateway_titlee,visittime,vistpic,userpic,usergroup,state,created,updated)
-        values(#{userID},#{name},#{gender},#{mobiles},null,null,#{certificateNum},#{no},null,#{srcName},#{happenTime},null,null,#{userGroup},#{result},#{created},#{updated})
+        values(#{userID},#{name},#{gender},#{mobiles},#{parentId},#{parentTitle},#{certificateNum},#{no},null,#{srcName},#{happenTime},null,null,#{userGroup},#{result},#{created},#{updated})
     </insert>
 
     <insert id="insertOrUpdateVehicleHistory" useGeneratedKeys="true" keyProperty="jsonObj.id">
