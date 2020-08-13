@@ -20,4 +20,6 @@ public interface IamService {
 
     Object saveOrUpdateUserFace(JSONArray jsonObj);
 
+    Object issueAccessControlAuthority(JSONObject jsonObj);
+
 }

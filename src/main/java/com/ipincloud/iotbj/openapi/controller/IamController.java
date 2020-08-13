@@ -94,5 +94,14 @@ public class IamController {
         return iamService.saveOrUpdateUserFace(jsonObj);
     }
 
+    @PostMapping("/account/issueAccessControlAuthority")
+    public Object issueAccessControlAuthority(@RequestParam Map<String, String> param) {
+        logger.info("info:recv issueAccessControlAuthority{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
+        if (jsonObj == null) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        return iamService.issueAccessControlAuthority(jsonObj);
+    }
 
 }
