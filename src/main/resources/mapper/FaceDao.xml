@@ -316,6 +316,7 @@
     <select id="countUser" resultType="java.lang.Integer">
         select count(*) from user
         <where>
+            photo != ''
             <if test="jsonObj.title!=null and jsonObj.title!=''">
                 and title like concat('%',#{jsonObj.title},'%')
             </if>
@@ -333,6 +334,7 @@
     <select id="listUserByName" resultType="java.util.Map">
         select * from user
         <where>
+            photo != ''
             <if test="jsonObj.title!=null and jsonObj.title!=''">
                 and title like concat('%',#{jsonObj.title},'%')
             </if>
