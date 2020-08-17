@@ -34,7 +34,7 @@ public class ExceptionController {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseBean handle401() {
         logger.debug("401:用户未登录.");
-        return new ResponseBean(200, "FAILED", "用户未登录.", null);
+        return new ResponseBean(200, "FAILED", "用户未登录", null);
     }
 
     // 捕捉其他所有异常
@@ -43,7 +43,7 @@ public class ExceptionController {
     public ResponseBean globalException(HttpServletRequest request, Throwable ex) {
         String exMess = ex.getMessage();
         logger.debug("ShiroException:" + exMess);
-        return new ResponseBean(200, "FAILED", "操作失败:" + exMess, null);
+        return new ResponseBean(200, "FAILED", "操作失败", exMess);
     }
 
     private HttpStatus getStatus(HttpServletRequest request) {
