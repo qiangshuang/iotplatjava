@@ -164,6 +164,13 @@ public class IamServiceImpl implements IamService {
                 userJsonObj.put("idnumber", genUUNumber());  //随机生成身份证号
             }
 
+            Date date = new Date();//获取当前时间
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            calendar.add(Calendar.YEAR, 1);
+            Long starttime = date.getTime();
+            Long endtime = calendar.getTime().getTime();
+
             JSONObject user = userDao.queryByPersonId(personId);
             JSONObject hikperson = null;
             // 存在人员进行更新
@@ -220,6 +227,8 @@ public class IamServiceImpl implements IamService {
                     }
                 }
                 if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
+                    genPolicy(personId,starttime,endtime,user.getLong("id"),user.getLong("parent_id")); //下发门禁权限
+
                     orgJson.put("id", user.getLong("id"));
                     orgDao.updateInst(orgJson);
                     userJsonObj.put("id", user.getLong("id"));
@@ -301,6 +310,8 @@ public class IamServiceImpl implements IamService {
                             continue;
                         } else {
                             System.out.println("HIK ID=" + personId);
+                            genPolicy(personId,starttime,endtime,userJsonObj.getLong("id"),userJsonObj.getLong("parent_id")); //下发门禁权限
+
                             userJsonObj.put("personId", personId);
                             userJsonObj.put("updated", System.currentTimeMillis());
                             userDao.updateInst(userJsonObj);
