@@ -2,6 +2,29 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ipincloud.iotbj.api.dao.ResourceDao">
 
+    <resultMap type="com.ipincloud.iotbj.srv.domain.User" id="UserMap">
+        <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
+        <result property="userName" column="user_name" jdbcType="VARCHAR"/>
+        <result property="pwd" column="pwd" jdbcType="VARCHAR"/>
+        <result property="id" column="id" jdbcType="BIGINT"/>
+        <result property="title" column="title" jdbcType="VARCHAR"/>
+        <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
+        <result property="parentTitle" column="parent_title" jdbcType="VARCHAR"/>
+        <result property="lastlogin" column="lastlogin" jdbcType="BIGINT"/>
+        <result property="jobTitle" column="job_title" jdbcType="VARCHAR"/>
+        <result property="jobId" column="job_id" jdbcType="BIGINT"/>
+        <result property="thirdin" column="thirdin" jdbcType="VARCHAR"/>
+        <result property="created" column="created" jdbcType="BIGINT"/>
+        <result property="updated" column="updated" jdbcType="BIGINT"/>
+        <result property="photo" column="photo" jdbcType="VARCHAR"/>
+        <result property="idnumber" column="idnumber" jdbcType="VARCHAR"/>
+        <result property="jobno" column="jobno" jdbcType="VARCHAR"/>
+        <result property="cardnumber" column="cardnumber" jdbcType="INTEGER"/>
+        <result property="mcardno" column="mcardno" jdbcType="VARCHAR"/>
+        <result property="gender" column="gender" jdbcType="VARCHAR"/>
+        <result property="personId" column="personId" jdbcType="VARCHAR"/>
+    </resultMap>
+
     <insert id="insertOrUpdateOrg">
         <selectKey keyProperty="count" resultType="int" order="BEFORE">
             select count(*) as count from org where orgIndexCode = #{info.orgIndexCode}
@@ -65,7 +88,7 @@
         select count(*) as count from user where personId = #{personId}
     </select>
 
-    <select id="getAccountByCertificateNum" resultType="com.ipincloud.iotbj.srv.domain.User">
+    <select id="getAccountByCertificateNum" resultMap="UserMap">
         select * from user
         <where>
             and (mobile =#{mobiles} or idnumber =#{mobiles} or user_name=#{mobiles})
