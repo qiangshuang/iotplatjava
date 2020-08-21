@@ -227,7 +227,7 @@ public class IamServiceImpl implements IamService {
                     }
                 }
                 if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
-                    genPolicy(personId,starttime,endtime,user.getLong("id"),user.getLong("parent_id")); //下发门禁权限
+                    genPolicy(personId, starttime, endtime, user.getLong("id"), user.getLong("parent_id")); //下发门禁权限
 
                     orgJson.put("id", user.getLong("id"));
                     orgDao.updateInst(orgJson);
@@ -310,7 +310,7 @@ public class IamServiceImpl implements IamService {
                             continue;
                         } else {
                             System.out.println("HIK ID=" + personId);
-                            genPolicy(personId,starttime,endtime,userJsonObj.getLong("id"),userJsonObj.getLong("parent_id")); //下发门禁权限
+                            genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
 
                             userJsonObj.put("personId", personId);
                             userJsonObj.put("updated", System.currentTimeMillis());
@@ -625,39 +625,54 @@ public class IamServiceImpl implements IamService {
     }
 
 
-    //8. 下发人员门禁权限
+    //8. 工作票下发人员门禁权限
     @Override
     public Object issueAccessControlAuthority(JSONObject jsonObj) {
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
-        String personId = jsonObj.getString("id");
-        Long starttime = jsonObj.getLong("startTime");
-        Long endtime = jsonObj.getLong("endTime");
+        List<JSONObject> errList = new ArrayList<>();
+        JSONArray ja = jsonObj.getJSONArray("policies");
+        for (int i = 0; i < ja.size(); i++) {
+            JSONObject policy = ja.getJSONObject(i);
+            String personId = policy.getString("userId");
+            String starttime = policy.getString("startAt");
+            String endtime = policy.getString("endAt");
+            String doorIndexCode = policy.getString("gatewayId");
+            String gzpId = policy.getString("id");
 
-        if (StringUtils.isEmpty(personId) || StringUtils.isEmpty(starttime + "") || StringUtils.isEmpty(endtime + "")) {
-            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
-        }
-        JSONObject user = faceDao.findUserByPersonId(personId);
-        if (user != null) {
+            if (StringUtils.isEmpty(personId) || StringUtils.isEmpty(starttime) || StringUtils.isEmpty(endtime)
+                    || StringUtils.isEmpty(doorIndexCode) || StringUtils.isEmpty(gzpId)) {
+                policy.put("errMsg", "没有收到有效数据");
+                errList.add(policy);
+                continue;
+            }
+            JSONObject user = faceDao.findUserByPersonId(personId);
+            if (user == null) {
+                policy.put("errMsg", "系统无此人");
+                errList.add(policy);
+                continue;
+            }
             Long userId = user.getLong("id");
             Long orgId = user.getLong("parent_id");
             String photo = user.getString("photo");
             if (StringUtils.isEmpty(photo)) {
-                return new ResponseBean(-1, "FAILED", "人员无头像", null);
+                policy.put("errMsg", "人员无头像");
+                errList.add(policy);
+                continue;
             }
             try {
-                genPolicy(personId, starttime, endtime, userId, orgId);
+                genPolicybyGzp(personId, starttime, endtime, userId, orgId, doorIndexCode, gzpId);
             } catch (Exception e) {
-                return new ResponseBean(-1, "FAILED", "下发权限失败" + e.getMessage(), null);
+                policy.put("errMsg", "下发权限失败");
+                errList.add(policy);
+                continue;
             }
-        } else {
-            return new ResponseBean(-1, "FAILED", "系统无此人员", null);
         }
-        return new ResponseBean(0, "SUCCESS", "权限下发成功", null);
+        return new ResponseBean(0, "SUCCESS", "权限下发成功", errList);
     }
 
-    //下发权限
+    //IAM下发权限
     private boolean genPolicy(String personId, Long starttime, Long endtime, Long userId, Long orgId) {
         // 下发门禁权限
         List<JSONObject> gateways = faceDao.findGatewayByName("东二门");
@@ -734,6 +749,95 @@ public class IamServiceImpl implements IamService {
             policy.put("created", System.currentTimeMillis());
             policy.put("updated", System.currentTimeMillis());
             policy.put("state", "配置通过");
+            faceDao.insertOrUpdatePolicy(policy);
+            policy.clear();
+        }
+        if (hikEnable) {
+            if (resourceInfos.size() > 0 || personIds.size() > 0) {
+                ApiService.authDownload(resourceInfos, personInfos, true);
+                ApiService.authDownloadSearchList(resourceInfos, personIds);
+            }
+        }
+        return true;
+    }
+
+    //工作票下发权限
+    private boolean genPolicybyGzp(String personId, String starttime, String endtime, Long userId, Long orgId, String doorIndexCode, String gzpId) {
+        List<JSONObject> gateways = faceDao.findGatewayByDoorIndexCode(doorIndexCode);
+        if (gateways == null) {
+            return false;
+        }
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+        String startTime = simpleDateFormat.format(new Date(starttime));
+        String endTime = simpleDateFormat.format(new Date(endtime));
+
+        Set<JSONObject> personInfos = new HashSet<>();
+        Set<String> personIds = new HashSet<>();
+        //添加人员信息
+        if (StringUtils.isNotEmpty(personId)) {
+            JSONObject person = faceDao.findUserByPersonId(personId);
+            JSONObject personInfo = new JSONObject();
+            personInfo.put("personId", person.getString("personId"));
+            personInfo.put("operatorType", 1);
+            personInfo.put("startTime", startTime);
+            personInfo.put("endTime", endTime);
+            personInfo.put("personType", "1");
+            personInfo.put("name", person.getString("title"));
+            List<JSONObject> cards = new ArrayList<>();
+            JSONObject card = new JSONObject();
+            card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
+            card.put("status", 0);
+            card.put("cardType", 1);
+            cards.add(card);
+            personInfo.put("cards", cards);
+            JSONObject face = new JSONObject();
+            face.put("card", null);
+            Map faceData = new HashMap<>();
+            String photo = person.getString("photo");
+            if (StringUtils.isEmpty(photo)) {
+                return false;
+            }
+            String imgPath = localhostUri + "/face/img?imgPath=" + FileUtils.getRealFilePath(photo);
+            faceData.put("f" + person.getString("id"), imgPath);
+            face.put("data", faceData);
+            personInfo.put("face", face);
+            personInfos.add(personInfo);
+        }
+        personIds.add(personId);
+
+        Set<JSONObject> resourceInfos = new HashSet<>();
+        for (int i = 0; i < gateways.size(); i++) {
+            JSONObject gateway = gateways.get(i);
+            //添加资源信息
+            if (StringUtils.isNotEmpty(gateway.getString("acsDevIndexCode"))) {
+                List<JSONObject> doors = faceDao.findGatewayByIndexCode(gateway.getString("acsDevIndexCode"));
+                if (doors != null) {
+                    for (int k = 0; k < doors.size(); k++) {
+                        JSONObject resourceInfo = new JSONObject();
+                        resourceInfo.put("resourceIndexCode", doors.get(k).getString("doorIndexCode"));
+                        resourceInfo.put("resourceType", doors.get(k).getString("channelType"));
+                        JSONArray channelNos = new JSONArray();
+                        channelNos.add(doors.get(k).getInteger("channelNo"));
+                        resourceInfo.put("channelNos", channelNos);
+                        resourceInfos.add(resourceInfo);
+                    }
+                }
+            } else {
+                break;
+            }
+            JSONObject policy = new JSONObject();
+            policy.put("personId", personId);
+            policy.put("acsDevIndexCode", gateway.getString("acsDevIndexCode"));
+            policy.put("region_id", gateway.getLong("region_id"));
+            policy.put("gateway_id", gateway.getLong("id"));
+            policy.put("user_id", userId);
+            policy.put("org_id", orgId);
+            policy.put("starttime", starttime);
+            policy.put("endtime", endtime);
+            policy.put("created", System.currentTimeMillis());
+            policy.put("updated", System.currentTimeMillis());
+            policy.put("state", "配置通过");
+            policy.put("gzpId", gzpId);
             faceDao.insertOrUpdatePolicy(policy);
             policy.clear();
         }
