@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.dao.IotDao;
 import com.ipincloud.iotbj.api.service.IotService;
 import com.ipincloud.iotbj.api.utils.IotUtils;
+import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.domain.Algorithm;
 import com.ipincloud.iotbj.srv.domain.Algorithmalarm;
@@ -65,30 +66,32 @@ public class IotServiceImpl implements IotService {
      * 调用北向接口
      */
     @Override
-    public List<Map> deviceSync(JSONObject jsonObject) {
-        JSONObject param = new JSONObject();
-        param.put("modName", "摄像头");
-        param.put("userName", "iotadmin");
-        JSONObject modInfo = iotDao.selectModInfo(param);
-        if (modInfo == null) {
-            modInfo = IotUtils.getModInfo(iot_url, iot_apikey, param);
-            modInfoDao.addInst(modInfo);
-        }
-        modInfo.put("pageNum", jsonObject.getInteger("cp"));
-        modInfo.put("pageSize", jsonObject.getInteger("rop"));
-        JSONArray ja = null;
+    public Object deviceSync(JSONObject jsonObj) {
+        String modName = "摄像头";
         if (iotEnable) {
-            ja = IotUtils.getCameraEntityList(iot_url, iot_apikey, modInfo);
-        }
-        for (int i = 0; i < ja.size(); i++) {
-            int count = iotDao.existByIndex(ja.getJSONObject(i).getString("cameraIndex"));
-            if (count > 0) {
-                break;
-            } else
-                modCameraDao.addInst(ja.getJSONObject(i));
-        }
+            JSONObject jsonObject = ApiService.deviceSync(modName);
+            List<JSONObject> jsons = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(JSONObject.class);
 
-        return ja.toJavaList(Map.class);
+            List<JSONObject> cameras = new ArrayList<>();
+            for (int i = 0; i < jsons.size(); i++) {
+                JSONObject camera = jsons.get(i);
+                if (camera != null && StringUtils.isNotEmpty(camera.getString("cameraIndex"))) {
+                    String cameraIndex = camera.getString("cameraIndex");
+                    int count = iotDao.existByIndex(cameraIndex);
+                    if (count > 0) {
+                        continue;
+                    } else {
+                        cameras.add(camera);
+                    }
+                }
+            }
+            if (cameras.size() > 0) {
+                jsonObj.put("pageData", cameras);
+                jsonObj.put("totalRec", jsonObject.getInteger("total"));
+                return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
+            }
+        }
+        return new ResponseBean(200, "SUCCESS", "操作成功", null);
     }
 
     /**
@@ -117,11 +120,8 @@ public class IotServiceImpl implements IotService {
             }
             JSONObject parm = new JSONObject();
 
-            if (StringUtils.isNotEmpty(camera.getCameraIndex())) {
-                parm.put("camera_id", camera.getCameraIndex());
-            } else {
-                parm.put("camera_id", camera.getId().toString());
-            }
+
+            parm.put("camera_id", camera.getId().toString());
             parm.put("camera_name", camera.getTitle());
             parm.put("fps", camera.getFramerate());
             parm.put("codec", camera.getCodec());
@@ -163,11 +163,7 @@ public class IotServiceImpl implements IotService {
             }
 
             JSONObject parm = new JSONObject();
-            if (StringUtils.isNotEmpty(camera.getCameraIndex())) {
-                parm.put("camera_id", camera.getCameraIndex());
-            } else {
-                parm.put("camera_id", camera.getId().toString());
-            }
+            parm.put("camera_id", camera.getId().toString());
             if (iotEnable) {
                 IotUtils.postCloseCamera(algorithm_url, parm);
             }
@@ -203,11 +199,7 @@ public class IotServiceImpl implements IotService {
             }
 
             JSONObject parm = new JSONObject();
-            if (StringUtils.isNotEmpty(camera.getCameraIndex())) {
-                parm.put("camera_id", camera.getCameraIndex());
-            } else {
-                parm.put("camera_id", camera.getId().toString());
-            }
+            parm.put("camera_id", camera.getId().toString());
             if (iotEnable) {
                 IotUtils.postCloseCamera(algorithm_url, parm);
             }
@@ -218,11 +210,7 @@ public class IotServiceImpl implements IotService {
             }
 
             JSONObject openparm = new JSONObject();
-            if (StringUtils.isNotEmpty(camera.getCameraIndex())) {
-                openparm.put("camera_id", camera.getCameraIndex());
-            } else {
-                openparm.put("camera_id", camera.getId().toString());
-            }
+            openparm.put("camera_id", camera.getId().toString());
             openparm.put("camera_name", camera.getTitle());
             openparm.put("fps", camera.getFramerate());
             openparm.put("codec", camera.getCodec());

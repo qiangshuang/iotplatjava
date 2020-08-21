@@ -7,7 +7,7 @@
     </select>
 
     <select id="existByIndex" resultType="java.lang.Integer">
-        select count(*) from mod_camera where cameraIndex= #{cameraIndex}
+        select count(*) from camera where cameraIndex= #{cameraIndex}
     </select>
 
     <update id="confirmState">

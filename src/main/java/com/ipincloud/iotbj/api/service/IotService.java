@@ -15,7 +15,7 @@ import java.util.Map;
  */
 public interface IotService {
 
-    List<Map> deviceSync(JSONObject jo);
+    Object deviceSync(JSONObject jo);
 
     List<Map> deviceOpen(List<Long> ids);
 

@@ -1,9 +1,6 @@
 package com.ipincloud.iotbj.vehicle.service.impl;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.ipincloud.iotbj.api.utils.hik.ApiModel;
 import com.ipincloud.iotbj.api.utils.hik.ApiService;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
 import com.ipincloud.iotbj.utils.ParaUtils;
@@ -13,22 +10,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class VehicleServiceImpl implements VehicleService {
     @Autowired
     ApiVehicleDao vehicleDao;
 
+    @Value("${iotEnable}")
+    private boolean iotEnable;
     @Value("${hikEnable}")
     private boolean hikEnable;
 
     @Override
     public Object syncVehicleDevice(JSONObject jsonObj) {
-        if (hikEnable) {
-            JSONObject jsonObject = ApiService.deviceSync();
+        String modName = "车辆道闸";
+        if (iotEnable) {
+            JSONObject jsonObject = ApiService.deviceSync(modName);
 
-            List<JSONObject>  jsons = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(JSONObject.class);
+            List<JSONObject> jsons = jsonObject.getJSONObject("data").getJSONArray("list").toJavaList(JSONObject.class);
             List<JSONObject> gates = new ArrayList<>();
             for (int i = 0; i < jsons.size(); i++) {
                 JSONObject gate = new JSONObject();
@@ -67,12 +69,6 @@ public class VehicleServiceImpl implements VehicleService {
             jsonObject.put("command", 1);
             ApiService.deviceOpen(jsonObject);
         }
-//
-//        boolean bool = true;
-//
-//        if (!bool) {
-//            return new ResponseBean(200, "FAILED", "操作失败", null);
-//        }
         vehicleDao.updateGateState(id);
         return new ResponseBean(200, "SUCCESS", "操作成功", null);
     }

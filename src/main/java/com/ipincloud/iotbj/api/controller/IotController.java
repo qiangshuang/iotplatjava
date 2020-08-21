@@ -33,9 +33,9 @@ public class IotController {
     public Object deviceSync(@RequestBody String bodyStr) {
         JSONObject jo = JSONObject.parseObject(bodyStr);
         String hy = jo.getString("_hy");
-        List<Map> list = new ArrayList();
+        List<JSONObject> list = new ArrayList();
         if (Objects.equals("camerasync", hy)) {
-            list = iotService.deviceSync(jo);
+            return iotService.deviceSync(jo);
         }
         return new ResponseBean(200, "SUCCESS", "操作成功", list);
     }

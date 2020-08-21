@@ -1,6 +1,9 @@
 package com.ipincloud.iotbj.api.utils.hik;
 
-import com.alibaba.fastjson.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.ipincloud.iotbj.api.utils.IotUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
 import org.slf4j.Logger;
@@ -41,19 +44,19 @@ public class ApiService {
         return result.data;
     }
 
-    // 同步车道
-    public static JSONObject deviceSync() {
+    // 同步设备（车辆道闸、摄像头）
+    public static JSONObject deviceSync(String modName) {
 
         String apikey = "KWrgSTHd36CHMa3wlNSECTkckMntDK6U";
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("userName", "iotadmin");
-        jsonObject.put("modName", "车辆道闸");
+        jsonObject.put("modName", modName);
 
 
         String url = iotBaseUrl + "/modelInfo";
         String result = IotUtils.doPost(url, apikey, jsonObject);
 
-        JSONObject retJson = (JSONObject) JSONObject.parse(result);
+        JSONObject retJson = JSONObject.parseObject(result);
         if (retJson.getInteger("code") != 0) {
             return retJson;
         }
@@ -66,7 +69,7 @@ public class ApiService {
         step2Json.remove("modName");
         String url2 = iotBaseUrl + "/modelKey";
         String result2 = IotUtils.doGet(url2, apikey, step2Json);
-        JSONObject retJson2 = (JSONObject) JSONObject.parse(result2);
+        JSONObject retJson2 = JSONObject.parseObject(result2);
         if (retJson2.getInteger("code") != 0) {
             return retJson2;
         }
@@ -81,7 +84,7 @@ public class ApiService {
 
         String url3 = iotBaseUrl + "/entityList";
         String result3 = IotUtils.doPost(url3, apikey, step3Json);
-        JSONObject retJson3 = (JSONObject) JSONObject.parse(result3);
+        JSONObject retJson3 = JSONObject.parseObject(result3);
         return retJson3;
     }
 
@@ -448,6 +451,22 @@ public class ApiService {
         }, ApiUtil.PATH_AUTH_ITEM_LIST_SEARCH, JSON.toJSONString(jsonObject));
         return result.data;
 
+    }
+
+    //查询人员条目列表
+    public static JSONObject authDownloadSearchListByPersonId(String personId) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("pageNo", 1);
+        jsonObject.put("pageSize", 1000);
+
+        List<String> personIds = new ArrayList<>();
+        personIds.add(personId);
+        jsonObject.put("personIds", personIds);
+
+        jsonObject.put("queryType", "door");
+        BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_AUTH_ITEM_LIST_SEARCH, JSON.toJSONString(jsonObject));
+        return result.data;
     }
 
 }
