@@ -129,6 +129,7 @@
             and t1.algorithm_id= #{algorithm_id}
         </if>
         ORDER BY t1.alarm_time desc
+        limit 50
     </select>
 
     <select id="allCameraList" resultType="com.alibaba.fastjson.JSONObject">

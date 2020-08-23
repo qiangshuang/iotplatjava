@@ -57,4 +57,9 @@ public interface OrgDao {
     int deleteOrgPerson(@Param("deleteIds") List<String> deleteIds);
 
     int deleteUserPerson(@Param("deleteIds") List<String> deleteIds);
+
+    int insertOrUpdateOrg(@Param("info") JSONObject info);
+
+    //逻辑删除（数据含第三方标识，不允许物理删除）
+    int deletesByOrgIndexCode(List<String> list);
 }

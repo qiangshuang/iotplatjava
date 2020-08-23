@@ -104,4 +104,24 @@ public class IamController {
         return iamService.issueAccessControlAuthority(jsonObj);
     }
 
+    @PostMapping("/account/saveOrUpdateOrg")
+    public Object saveOrUpdateOrg(@RequestParam Map<String, String> param) {
+        logger.info("info:recv saveOrUpdateOrg{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
+        if (jsonObj == null) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        return iamService.saveOrUpdateOrg(jsonObj);
+    }
+
+    @PostMapping("/account/deleteOrgs")
+    public Object deleteOrgs(@RequestParam Map<String, String> param) {
+        logger.info("info:recv deleteOrgs{}", JSON.toJSONString(param));
+        JSONObject jsonObj = JSONObject.parseObject(JSON.toJSONString(param));
+        if (jsonObj == null) {
+            return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
+        }
+        return iamService.deleteOrgs(jsonObj);
+    }
+
 }

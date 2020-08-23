@@ -138,6 +138,25 @@
         </foreach>
     </insert>
 
+    <insert id="insertOrUpdateOrg">
+        <selectKey keyProperty="count" resultType="int" order="BEFORE">
+            select count(*) as count from org where orgIndexCode = #{info.orgIndexCode}
+        </selectKey>
+        <if test="count==0">
+            insert into org (parent_id,parent_title,orgIndexCode,title, parentOrgIndexCode,type,stop)
+            values
+            (#{info.parent_id},#{info.parent_title},#{info.orgIndexCode}, #{info.title},
+            #{info.parentOrgIndexCode},'部门','f')
+        </if>
+        <if test="count>0">
+            UPDATE org SET title =#{info.title},
+            parentOrgIndexCode=#{info.parentOrgIndexCode},
+            parent_id = #{info.parent_id},
+            parent_title = #{info.parent_title}
+            WHERE orgIndexCode=#{info.orgIndexCode}
+        </if>
+    </insert>
+
 
     <update id="updateInst" parameterType="java.util.Map">
         UPDATE org SET
@@ -313,4 +332,11 @@
             #{personId}
         </foreach>
     </delete>
+
+    <update id="deletesByOrgIndexCode">
+        update org set stop='t' where orgIndexCode in
+        <foreach collection="list" item="orgIndexCode" index="index2" open="(" separator="," close=")">
+            #{orgIndexCode}
+        </foreach>
+    </update>
 </mapper>

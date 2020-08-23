@@ -22,4 +22,7 @@ public interface IamService {
 
     Object issueAccessControlAuthority(JSONObject jsonObj);
 
+    Object saveOrUpdateOrg(JSONObject jsonObj);
+
+    Object deleteOrgs(JSONObject jsonObj);
 }

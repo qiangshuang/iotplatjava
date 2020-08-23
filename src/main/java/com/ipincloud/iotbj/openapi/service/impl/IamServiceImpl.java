@@ -367,11 +367,11 @@ public class IamServiceImpl implements IamService {
     @Override
     public Object saveOrUpdatePos(JSONObject jsonObj) {
         if (jsonObj == null || jsonObj.isEmpty()) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
         JSONArray dArr = jsonObj.getJSONArray("saveOrUpdatePos");
         if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
 
         for (int i = 0; i < dArr.size(); i++) {
@@ -408,7 +408,7 @@ public class IamServiceImpl implements IamService {
     @Override
     public Object deletePoss(JSONObject jsonObj) {
         if (jsonObj == null || jsonObj.isEmpty()) {
-            return new ResponseBean(200, "FAILED", "没有收到有效数据.", null);
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
         String dArr = jsonObj.getString("deletePoss");
         if (dArr == null || dArr.isEmpty() || dArr.length() < 1) {
@@ -670,6 +670,85 @@ public class IamServiceImpl implements IamService {
             }
         }
         return new ResponseBean(0, "SUCCESS", "权限下发成功", errList);
+    }
+
+    //新增或更新组织机构
+    @Override
+    public Object saveOrUpdateOrg(JSONObject jsonObj) {
+        if (jsonObj == null || jsonObj.isEmpty()) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
+        }
+        JSONArray dArr = jsonObj.getJSONArray("saveOrUpdateOrg");
+        if (dArr == null || dArr.isEmpty() || dArr.size() < 1) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
+        }
+        List<JSONObject> errList = new ArrayList<>();
+        for (int i = 0; i < dArr.size(); i++) {
+            JSONObject newOrg = new JSONObject();
+            JSONObject itemObject = dArr.getJSONObject(i);
+            if (itemObject == null) {
+                continue;
+            }
+            String parentOrgIndexCode = itemObject.getString("parentId");
+            if (StringUtils.isEmpty(parentOrgIndexCode)) {
+                logger.error("parentId为空");
+                itemObject.put("errMsg", "parentId为空");
+            } else {
+                Org parentOrg = orgDao.queryByIndexCode(parentOrgIndexCode);
+                if (parentOrg != null) {
+                    newOrg.put("parentOrgIndexCode", parentOrgIndexCode);
+                    newOrg.put("parent_id", parentOrg.getId());
+                    newOrg.put("parent_title", parentOrg.getTitle());
+                } else {
+                    logger.error("parentId为无效值");
+                    itemObject.put("errMsg", "parentId为无效值");
+                }
+            }
+            String orgIndexCode = itemObject.getString("id");
+            if (StringUtils.isEmpty(orgIndexCode)) {
+                logger.error("id为空");
+                itemObject.put("errMsg", "id为空");
+            } else {
+                newOrg.put("orgIndexCode", orgIndexCode);
+            }
+            String title = itemObject.getString("name");
+            if (StringUtils.isEmpty(title)) {
+                logger.error("name为空");
+                itemObject.put("errMsg", "name为空");
+            } else {
+                newOrg.put("title", title);
+            }
+            if (StringUtils.isNotEmpty(itemObject.getString("errMsg"))) {
+                errList.add(itemObject);
+                continue;
+            }
+            orgDao.insertOrUpdateOrg(newOrg);
+        }
+
+        return new ResponseBean(0, "SUCCESS", "新增或更新组织机构成功.", errList);
+    }
+
+    //批量删除组织机构
+    @Override
+    public Object deleteOrgs(JSONObject jsonObj) {
+        List<String> list = new ArrayList<>();
+        if (jsonObj == null || jsonObj.isEmpty()) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
+        }
+        String dArr = jsonObj.getString("deleteOrgs");
+        if (dArr == null || dArr.isEmpty() || dArr.length() < 1) {
+            return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
+        }
+        if (StringUtils.isNotEmpty(dArr)) {
+            String[] orgIndexCodes = dArr.split(",");
+            for (int i = 0; i < orgIndexCodes.length; i++) {
+                if (StringUtils.isNotEmpty(orgIndexCodes[i])) {
+                    list.add(orgIndexCodes[i]);
+                }
+            }
+        }
+        orgDao.deletesByOrgIndexCode(list);
+        return new ResponseBean(0, "SUCCESS", "批量删除组织机构成功", null);
     }
 
     //IAM下发权限
