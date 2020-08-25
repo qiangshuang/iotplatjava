@@ -127,6 +127,9 @@ public class SysController {
             FileUtils.unZipFiles(dest,unzipPath);
             
             Map<Integer, Map<Integer,Object>> mapExcel = Excel2Map.readExcelContentz(excelPath);
+//            if(mapExcel == null){
+//                excelPath = unzipPath+"upload.xlsx";
+//            }
             
             List<JSONObject> retJsonList = new ArrayList<>();
             for(Map<Integer,Object> rowMap : mapExcel.values()){

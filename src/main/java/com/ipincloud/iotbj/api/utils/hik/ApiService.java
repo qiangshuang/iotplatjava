@@ -310,7 +310,8 @@ public class ApiService {
         eventTypes.add(197151);
         eventTypes.add(197160);
         eventTypes.add(198914);
-        eventTypes.add(197162);
+//        eventTypes.add(197162);
+//        eventTypes.add(197163);
 
         String eventDest = appBaseUrl + "/eventRcvFace";
         jsonObject.put("eventTypes", eventTypes);

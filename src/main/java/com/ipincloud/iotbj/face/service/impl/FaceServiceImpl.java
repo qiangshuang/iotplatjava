@@ -394,8 +394,8 @@ public class FaceServiceImpl implements FaceService {
                 JSONObject personInfo = new JSONObject();
                 personInfo.put("personId", person.getString("personId"));
                 personInfo.put("operatorType", 2);
-                personInfo.put("startTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("starttime"))));
-                personInfo.put("endTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("endtime"))));
+//                personInfo.put("startTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("starttime"))));
+//                personInfo.put("endTime", new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new Date(policy.getLong("endtime"))));
                 personInfo.put("personType", "1");
                 personInfo.put("name", person.getString("title"));
                 List<JSONObject> cards = new ArrayList<>();

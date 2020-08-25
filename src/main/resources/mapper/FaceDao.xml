@@ -588,6 +588,10 @@
         select * from face_gateway where acsDevIndexCode = #{acsDevIndexCode}
     </select>
 
+    <select id="findGatewayByDoorIndexCode" resultType="com.alibaba.fastjson.JSONObject">
+        select * from face_gateway where doorIndexCode = #{doorIndexCode}
+    </select>
+
     <select id="findUserByPersonId" resultType="com.alibaba.fastjson.JSONObject">
         select * from user where personId = #{personId} limit 1
     </select>

@@ -167,7 +167,7 @@ public class IamServiceImpl implements IamService {
             Date date = new Date();//获取当前时间
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
-            calendar.add(Calendar.YEAR, 1);
+            calendar.add(Calendar.YEAR, 5);
             Long starttime = date.getTime();
             Long endtime = calendar.getTime().getTime();
 
@@ -661,8 +661,11 @@ public class IamServiceImpl implements IamService {
                 errList.add(policy);
                 continue;
             }
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             try {
-                genPolicybyGzp(personId, starttime, endtime, userId, orgId, doorIndexCode, gzpId);
+                Date startTime_t = simpleDateFormat.parse(starttime);
+                Date endTime_t = simpleDateFormat.parse(endtime);
+                genPolicybyGzp(personId, startTime_t.getTime(), endTime_t.getTime(), userId, orgId, doorIndexCode, gzpId);
             } catch (Exception e) {
                 policy.put("errMsg", "下发权限失败");
                 errList.add(policy);
@@ -841,7 +844,9 @@ public class IamServiceImpl implements IamService {
     }
 
     //工作票下发权限
-    private boolean genPolicybyGzp(String personId, String starttime, String endtime, Long userId, Long orgId, String doorIndexCode, String gzpId) {
+    private boolean genPolicybyGzp(String personId, Long starttime, Long endtime,
+                                   Long userId, Long orgId, String doorIndexCode, String gzpId)
+                throws Exception{
         List<JSONObject> gateways = faceDao.findGatewayByDoorIndexCode(doorIndexCode);
         if (gateways == null) {
             return false;

@@ -51,6 +51,14 @@ public class ResourceServiceImpl implements ResourceService {
             add("东二门北人脸识别进_门1");
             add("人脸识别进_门1");
             add("人脸识别出_门1");
+            add("东二门北口人员通道_门1");
+            add("东二门中间口人员通道新加_门1");
+            add("人员通道_门1");
+            add("东二门南口人员通道_门1");
+            add("东二门北口人员通道_门2");
+            add("东二门中间口人员通道新加_门2");
+            add("东二门南口人员通道_门2");
+            add("人员通道_门2");
         }
     };
 
@@ -80,7 +88,7 @@ public class ResourceServiceImpl implements ResourceService {
             map.put("tenantId", "lfdc");
             map.put("gateName", auditLog.getGateName());
             map.put("userId", auditLog.getUserID());
-            map.put("time", tim.toString());
+            //map.put("time", tim.toString());
             map.put("inOut", auditLog.getExtEventInOut().toString());
             // 创建连接
             //httpClient = HttpClientFactory.getInstance().getHttpClient();

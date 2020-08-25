@@ -110,4 +110,6 @@ public interface FaceDao {
     List<JSONObject> listPolicyByPersonIds(@Param("validPeronIds") List<String> validPeronIds);
 
     int deletePolicyByPersonId(@Param("validPeronIds") List<String> validPeronIds);
+
+    List<JSONObject> findGatewayByDoorIndexCode(String doorIndexCode);
 }
