@@ -21,7 +21,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,6 +199,15 @@ public class OAApi {
             JSONArray jsonArray = new JSONArray();
             jsonArray.add(rootMenu);
             removeRoleMenu(roleId, roleName, jsonArray);
+        }
+    }
+
+    public void updateMessageHandleState(String msgId, String userId, String approveResult) {
+        try {
+            HttpPost httpPost = new HttpPost(oaBaseUrl + "/im/oapi/message/handleState/update?msgId=" + msgId + "&userId=" + userId + "&approveResult=" + approveResult + "&tenantId=" + oaTenantId);
+            System.out.println(OAApi.execute(httpPost));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

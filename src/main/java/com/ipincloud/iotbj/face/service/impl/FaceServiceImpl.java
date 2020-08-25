@@ -897,6 +897,18 @@ public class FaceServiceImpl implements FaceService {
                 ApiService.authDownloadSearchList(resourceInfos, personIds);
             }
         }
+        //将任务转为已办
+        String handleState = "PASS";
+        String interviewIds = visitlog.getString("interview_ids");
+        if (StringUtils.isNotEmpty(interviewIds)) {
+            String[] interviewId = interviewIds.split(",");
+            for (int i = 0; i < interviewId.length; i++) {
+                User person = userDao.queryById((long) Integer.parseInt(interviewId[i]));
+                if (person != null && StringUtils.isNotEmpty(person.getPersonId())) {
+                    new OAApi().updateMessageHandleState(visitId + "", person.getPersonId(), handleState);
+                }
+            }
+        }
 
         String state = "允许";
         faceDao.updateVisitState(visitId, state);
@@ -906,9 +918,26 @@ public class FaceServiceImpl implements FaceService {
     @Override
     public Object visitprohibit(JSONObject jsonObj) {
         Long visitId = jsonObj.getLong("id");
-        if (visitId == null || visitId == 0) {
-            return new ResponseBean(200, "FAILED", "操作失败", jsonObj);
+        JSONObject visitlog = faceDao.findVisitById(visitId);
+        if (visitlog == null) {
+            return new ResponseBean(200, "FAILED", "访客申请已过期", null);
         }
+        if (!Objects.equals("申请中", visitlog.getString("state"))) {
+            return new ResponseBean(200, "FAILED", "该申请已处理", null);
+        }
+        //将任务转为已办
+        String handleState = "FAILED";
+        String interviewIds = visitlog.getString("interview_ids");
+        if (StringUtils.isNotEmpty(interviewIds)) {
+            String[] interviewId = interviewIds.split(",");
+            for (int i = 0; i < interviewId.length; i++) {
+                User person = userDao.queryById((long) Integer.parseInt(interviewId[i]));
+                if (person != null && StringUtils.isNotEmpty(person.getPersonId())) {
+                    new OAApi().updateMessageHandleState(visitId + "", person.getPersonId(), handleState);
+                }
+            }
+        }
+
         String state = "禁止";
         faceDao.updateVisitState(visitId, state);
         return new ResponseBean(200, "SUCCESS", "操作成功", jsonObj);
