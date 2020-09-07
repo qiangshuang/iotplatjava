@@ -34,7 +34,7 @@ mqtt:
 
 #是否调用海康接口
 hikEnable: true
-
+iotEnable: true
 #本地返回地址
 localhostUri: http://10.69.202.101:8089
 

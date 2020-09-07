@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSON;
 
 import org.apache.shiro.SecurityUtils;
@@ -185,6 +186,27 @@ private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
             }
 
             case "algorithmaccdel": {
+
+                JSONArray ja = jsonObj.getJSONArray("algorithmacc").getJSONObject(0).getJSONArray("val");
+            
+                JSONObject filterObj = new JSONObject();
+                filterObj.put("name","algorithm_id");
+                filterObj.put("val",ja);
+                filterObj.put("op","in");
+
+                List<JSONObject> algmaccs = new ArrayList<>();
+                algmaccs.add(filterObj);
+
+                JSONObject alarmJson = new JSONObject();
+                alarmJson.put("qps",algmaccs);
+
+                Map retMap = algorithmalarmService.algorithmalarmList(alarmJson);
+                int totalRec = (int)retMap.get("totalRec");
+                if (totalRec > 0 ){
+                    ResponseBean retResponseBean = new ResponseBean(200, "FAILED", "启用后的算法不能删除",null);
+                    return JSON.toJSONString(retResponseBean);
+                }
+                
                 Integer delNum = algorithmaccService.deletesAlgorithmaccInst(jsonObj);
                 ResponseBean retResponseBean = new ResponseBean(200, "SUCCESS", "操作成功", delNum);
                 return JSON.toJSONString(retResponseBean);
