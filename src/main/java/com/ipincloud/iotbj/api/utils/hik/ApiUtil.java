@@ -132,7 +132,7 @@ public class ApiUtil {
         if (response == null) {
             throw new HikException(BaseResponse.ERR_NO_DATA);
         }
-        if (!Objects.equals("0", response.code)) {
+        if (!"0".equals(response.code)) { 
             throw new HikException(response.msg);
         }
         return response;
