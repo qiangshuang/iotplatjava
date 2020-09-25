@@ -27,8 +27,8 @@ public class IotbjApplication extends SpringBootServletInitializer {
 		application.run(args);
 
 		if (hikEnable) {
-			ApiService.getEventFace();
-			ApiService.getEventVehicle();
+//			ApiService.getEventFace();
+//			ApiService.getEventVehicle();
 		}
 
 	}

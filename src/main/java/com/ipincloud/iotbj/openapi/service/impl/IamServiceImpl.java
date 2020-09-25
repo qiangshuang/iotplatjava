@@ -1,6 +1,7 @@
 package com.ipincloud.iotbj.openapi.service.impl;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
@@ -11,8 +12,10 @@ import com.ipincloud.iotbj.openapi.service.IamService;
 import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.domain.Org;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
+import com.ipincloud.iotbj.test.Mytest;
 import com.ipincloud.iotbj.utils.FileUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
+import com.ipincloud.iotbj.utils.TheadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 
 
 @Service
@@ -54,6 +59,7 @@ public class IamServiceImpl implements IamService {
     //1.增加或更新用户
     @Override
     public Object saveOrUpdateUser(JSONObject jsonObj) {
+        long starttime = System.currentTimeMillis();
         if (jsonObj == null || jsonObj.isEmpty()) {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
@@ -62,268 +68,28 @@ public class IamServiceImpl implements IamService {
             return new ResponseBean(-1, "FAILED", "没有收到有效数据.", null);
         }
         JSONObject data = new JSONObject();
-        List<JSONObject> success = new ArrayList<>();
+        //List<JSONObject> success = new ArrayList<>();
         List<JSONObject> error = new ArrayList<>();
+
+        Callable callable = null;
         for (int i = 0; i < dArr.size(); i++) {
-            JSONObject itemObject = dArr.getJSONObject(i);
-            if (itemObject == null) {
+            TheadUtils theadUtils = new TheadUtils();
+            theadUtils.setItemObject(dArr.getJSONObject(i));
+            callable = theadUtils;
+            FutureTask task = new FutureTask(callable);
+            new Thread(task, "Thead-" + i).start();
+            try {
+                error.add((JSONObject) task.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+                error.add(dArr.getJSONObject(i));
                 continue;
             }
-            JSONObject userJsonObj = new JSONObject();
-            //人员编号
-            String personId = itemObject.getString("id");
-            System.out.println("IAM ID=" + personId);
-            if (StringUtils.isNotEmpty(personId)) {
-                userJsonObj.put("personId", personId);
-            }
-            //手机号
-            String mobile = itemObject.getString("mobile");
-            if (StringUtils.isNotEmpty(mobile)) {
-                userJsonObj.put("mobile", mobile);
-            } else {
-                error.add(itemObject);
-                continue;
-            }
-            //性别
-            String sex = itemObject.getString("gender");
-            if (StringUtils.isNotEmpty(sex)) {
-                String gender = "";
-                if (Objects.equals("1", sex)) {
-                    gender = "男";
-                } else if (Objects.equals("2", sex)) {
-                    gender = "女";
-                } else {
-                    gender = sex;
-                }
-                userJsonObj.put("gender", gender);
-            }
-            //工号 || 登录账号loginName
-            String no = itemObject.getString("no");
-            String loginName = itemObject.getString("loginName");
-            if (StringUtils.isEmpty(no)) {
-                userJsonObj.put("user_name", StringUtils.isEmpty(loginName) ? "" : loginName);
-            } else {
-                userJsonObj.put("user_name", StringUtils.isEmpty(no) ? "" : no);
-            }
-
-            //姓名
-            String title = itemObject.getString("name");
-            if (StringUtils.isNotEmpty(title)) {
-                userJsonObj.put("title", itemObject.getString("name"));
-            } else {
-                error.add(itemObject);
-                continue;
-            }
-            //头像
-            String fileData = itemObject.getString("photo");
-            if (StringUtils.isNotEmpty(fileData)) {
-                String jpgBase64 = "data:image/jpg;base64,";
-                fileData = fileData.contains(jpgBase64) ? fileData.replaceAll(jpgBase64, "") : fileData;
-                String photo = saveBase64File(0L, fileData);
-                userJsonObj.put("photo", photo);
-            }
-            //部门
-            String orgId = itemObject.getString("orgId");
-            JSONObject orgJson = new JSONObject();
-            if (StringUtils.isNotEmpty(orgId)) {
-                Org org = orgDao.queryByIndexCode(orgId);
-                if (org != null) {
-                    orgJson.put("type", "user");
-                    orgJson.put("parent_id", org.getId());
-                    orgJson.put("title", title);
-
-                    userJsonObj.put("parent_id", org.getId());
-                    userJsonObj.put("parent_title", org.getTitle());
-                    userJsonObj.put("userGroup", "厂内人员");
-                } else {
-                    error.add(itemObject);
-                    continue;
-                }
-            } else {
-                orgJson.put("type", "user");
-                orgJson.put("parent_id", 0);
-                orgJson.put("title", title);
-
-                Org org = orgDao.queryByName("外来访客");
-                if (org != null) {
-                    userJsonObj.put("parent_id", org.getId());
-                    userJsonObj.put("parent_title", org.getTitle());
-                    userJsonObj.put("userGroup", "外来访客");
-                } else {
-                    userJsonObj.put("parent_id", 0);
-                    userJsonObj.put("parent_title", "");
-                    userJsonObj.put("userGroup", "外来访客");
-                }
-            }
-
-            //身份证
-            String certificateNo = itemObject.getString("idCard");
-            if (StringUtils.isNotEmpty(certificateNo)) {
-                userJsonObj.put("idnumber", certificateNo);
-            } else {
-                userJsonObj.put("idnumber", genUUNumber());  //随机生成身份证号
-            }
-
-            Date date = new Date();//获取当前时间
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(date);
-            calendar.add(Calendar.YEAR, 5);
-            Long starttime = date.getTime();
-            Long endtime = calendar.getTime().getTime();
-
-            JSONObject user = userDao.queryByPersonId(personId);
-            JSONObject hikperson = null;
-            // 存在人员进行更新
-            if (user != null) {
-                //更新海康
-                if (hikEnable) {
-                    //人员ID查询
-                    if (hikperson == null && StringUtils.isNotEmpty(personId)) {
-                        JSONObject personNo = new JSONObject();
-                        personNo.put("personId", personId);
-                        hikperson = ApiService.getPersonbyPersonNo(personNo);
-                    }
-                    //手机号查询
-                    if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
-                        JSONObject phoneNo = new JSONObject();
-                        phoneNo.put("phoneNo", mobile);
-                        hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
-                    }
-                    //身份证查询
-                    if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
-                        JSONObject certificate = new JSONObject();
-                        certificate.put("certificateType", "111");
-                        certificate.put("certificateNo", certificateNo);
-                        hikperson = ApiService.getPersonbycertificateno(certificate);
-                    }
-                    if (hikperson != null) {
-                        JSONObject person = new JSONObject();
-                        person.put("personId", hikperson.getString("personId"));
-                        person.put("personName", userJsonObj.getString("title"));
-                        if (Objects.equals("男", userJsonObj.getString("gender"))) {
-                            person.put("gender", "1");
-                        } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
-                            person.put("gender", "2");
-                        } else {
-                            person.put("gender", "0");
-                        }
-                        person.put("phoneNo", userJsonObj.getString("mobile"));
-                        if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", userJsonObj.getString("idnumber"));
-                        } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", userJsonObj.getString("mobile"));
-                        } else {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", certificateNo);
-                        }
-                        if (Objects.equals("", userJsonObj.getString("user_name"))) {
-                            person.put("jobNo", userJsonObj.getString("user_name"));
-                        } else {
-                            person.put("jobNo", userJsonObj.getString("jobno"));
-                        }
-                        ApiService.updatePerson(person);
-                    }
-                }
-                if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
-                    genPolicy(personId, starttime, endtime, user.getLong("id"), user.getLong("parent_id")); //下发门禁权限
-
-                    orgJson.put("id", user.getLong("id"));
-                    orgDao.updateInst(orgJson);
-                    userJsonObj.put("id", user.getLong("id"));
-                    userJsonObj.put("updated", System.currentTimeMillis());
-                    userDao.updateInst(userJsonObj);
-                }
-            } else {
-                if (userJsonObj != null && orgJson != null) {
-                    orgDao.addInst(orgJson);
-                    userJsonObj.put("id", orgJson.getLong("id"));
-                    userJsonObj.put("created", System.currentTimeMillis());
-                    userDao.addInst(userJsonObj);
-                }
-                //添加到海康
-                if (hikEnable) {
-                    //人员ID查询
-                    if (hikperson == null && StringUtils.isNotEmpty(personId)) {
-                        JSONObject personNo = new JSONObject();
-                        personNo.put("personId", personId);
-                        hikperson = ApiService.getPersonbyPersonNo(personNo);
-                    }
-                    //手机号查询
-                    if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
-                        JSONObject phoneNo = new JSONObject();
-                        phoneNo.put("phoneNo", mobile);
-                        hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
-                    }
-                    //身份证查询
-                    if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
-                        JSONObject certificate = new JSONObject();
-                        certificate.put("certificateType", "111");
-                        certificate.put("certificateNo", certificateNo);
-                        hikperson = ApiService.getPersonbycertificateno(certificate);
-                    }
-                    if (hikperson == null || hikperson.isEmpty()) {
-                        JSONObject person = new JSONObject();
-                        person.put("personId", personId);
-                        person.put("personName", userJsonObj.getString("title"));
-                        if (Objects.equals("男", userJsonObj.getString("gender"))) {
-                            person.put("gender", "1");
-                        } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
-                            person.put("gender", "2");
-                        } else {
-                            person.put("gender", "0");
-                        }
-                        ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
-                        if (hikOrg == null) {
-                            throw new HikException("海康平台的根部门不存在");
-                        }
-                        person.put("orgIndexCode", hikOrg.orgIndexCode);
-                        if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                            person.put("phoneNo", userJsonObj.getString("mobile"));
-                        }
-                        if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", userJsonObj.getString("idnumber"));
-                        } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", userJsonObj.getString("mobile"));
-                        } else {
-                            person.put("certificateType", "111");
-                            person.put("certificateNo", certificateNo);
-                        }
-                        if (StringUtils.isNotEmpty(userJsonObj.getString("user_name"))) {
-                            person.put("jobNo", userJsonObj.getString("user_name"));
-                        }
-
-                        if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
-                            List<Map> list = new ArrayList();
-                            Map face = new HashMap();
-                            String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
-                            face.put("faceData", str);
-                            list.add(face);
-                            person.put("faces", list);
-                        }
-                        personId = ApiService.addPerson(person);
-                        if (StringUtils.isEmpty(personId)) {
-                            error.add(itemObject);
-                            continue;
-                        } else {
-                            System.out.println("HIK ID=" + personId);
-                            genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
-
-                            userJsonObj.put("personId", personId);
-                            userJsonObj.put("updated", System.currentTimeMillis());
-                            userDao.updateInst(userJsonObj);
-                            success.add(itemObject);
-                        }
-                    }
-                }
-                data.put("success", success);
-                data.put("fail", error);
-            }
+            //data.put("success", success);
+            data.put("fail", error);
         }
-
+        long endtime = System.currentTimeMillis();
+        System.out.println("新增人员数据执行时间："+(endtime-starttime)/1000);
         return new ResponseBean(0, "SUCCESS", "用户同步成功.", data);
     }
 
@@ -523,9 +289,7 @@ public class IamServiceImpl implements IamService {
 
                 userRoleDao.addInst(userRoleJsonObj);
             }
-
         }
-
         return new ResponseBean(0, "SUCCESS", "更新或新增用户角色成功.", null);
     }
 
@@ -846,7 +610,7 @@ public class IamServiceImpl implements IamService {
     //工作票下发权限
     private boolean genPolicybyGzp(String personId, Long starttime, Long endtime,
                                    Long userId, Long orgId, String doorIndexCode, String gzpId)
-                throws Exception{
+            throws Exception {
         List<JSONObject> gateways = faceDao.findGatewayByDoorIndexCode(doorIndexCode);
         if (gateways == null) {
             return false;
@@ -1063,5 +827,274 @@ public class IamServiceImpl implements IamService {
             }
         }
 
+    }
+
+    private JSONObject pushUser(JSONObject itemObject) {
+        if (itemObject == null) {
+            return null;
+        }
+        JSONObject userJsonObj = new JSONObject();
+        //人员编号
+        String personId = itemObject.getString("id");
+        System.out.println("IAM ID=" + personId);
+        if (StringUtils.isNotEmpty(personId)) {
+            userJsonObj.put("personId", personId);
+        }
+        //手机号
+        String mobile = itemObject.getString("mobile");
+        if (StringUtils.isNotEmpty(mobile)) {
+            userJsonObj.put("mobile", mobile);
+        } else {
+            return itemObject;
+        }
+        //性别
+        String sex = itemObject.getString("gender");
+        if (StringUtils.isNotEmpty(sex)) {
+            String gender = "";
+            if (Objects.equals("1", sex)) {
+                gender = "男";
+            } else if (Objects.equals("2", sex)) {
+                gender = "女";
+            } else {
+                gender = sex;
+            }
+            userJsonObj.put("gender", gender);
+        }
+        //工号 || 登录账号loginName
+        String no = itemObject.getString("no");
+        String loginName = itemObject.getString("loginName");
+        if (StringUtils.isEmpty(no)) {
+            userJsonObj.put("user_name", StringUtils.isEmpty(loginName) ? "" : loginName);
+        } else {
+            userJsonObj.put("user_name", StringUtils.isEmpty(no) ? "" : no);
+        }
+
+        //姓名
+        String title = itemObject.getString("name");
+        if (StringUtils.isNotEmpty(title)) {
+            userJsonObj.put("title", itemObject.getString("name"));
+        } else {
+            return itemObject;
+        }
+        //头像
+        String fileData = itemObject.getString("faceImage");
+        if (StringUtils.isNotEmpty(fileData)) {
+            String jpgBase64 = "data:image/jpg;base64,";
+            fileData = fileData.contains(jpgBase64) ? fileData.replaceAll(jpgBase64, "") : fileData;
+            String photo = saveBase64File(0L, fileData);
+            userJsonObj.put("photo", photo);
+        }
+        //部门
+        String orgId = itemObject.getString("orgId");
+        JSONObject orgJson = new JSONObject();
+        if (StringUtils.isNotEmpty(orgId)) {
+            Org org = orgDao.queryByIndexCode(orgId);
+            if (org != null) {
+                orgJson.put("type", "user");
+                orgJson.put("parent_id", org.getId());
+                orgJson.put("title", title);
+
+                userJsonObj.put("parent_id", org.getId());
+                userJsonObj.put("parent_title", org.getTitle());
+                userJsonObj.put("userGroup", "厂内人员");
+            } else {
+                return itemObject;
+            }
+        } else {
+            orgJson.put("type", "user");
+            orgJson.put("parent_id", 0);
+            orgJson.put("title", title);
+
+            Org org = orgDao.queryByName("外来访客");
+            if (org != null) {
+                userJsonObj.put("parent_id", org.getId());
+                userJsonObj.put("parent_title", org.getTitle());
+                userJsonObj.put("userGroup", "外来访客");
+            } else {
+                userJsonObj.put("parent_id", 0);
+                userJsonObj.put("parent_title", "");
+                userJsonObj.put("userGroup", "外来访客");
+            }
+        }
+
+        //身份证
+        String certificateNo = itemObject.getString("idCard");
+        if (StringUtils.isNotEmpty(certificateNo)) {
+            userJsonObj.put("idnumber", certificateNo);
+        } else {
+            userJsonObj.put("idnumber", genUUNumber());  //随机生成身份证号
+        }
+
+        Date date = new Date();//获取当前时间
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.YEAR, 5);
+        Long starttime = date.getTime();
+        Long endtime = calendar.getTime().getTime();
+
+        JSONObject user = userDao.queryByPersonId(personId);
+        JSONObject hikperson = null;
+        // 存在人员进行更新
+        if (user != null) {
+            //更新海康
+            if (hikEnable) {
+                //人员ID查询
+                if (hikperson == null && StringUtils.isNotEmpty(personId)) {
+                    JSONObject personNo = new JSONObject();
+                    personNo.put("personId", personId);
+                    hikperson = ApiService.getPersonbyPersonNo(personNo);
+                }
+                //手机号查询
+                if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
+                    JSONObject phoneNo = new JSONObject();
+                    phoneNo.put("phoneNo", mobile);
+                    hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
+                }
+                //身份证查询
+                if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
+                    JSONObject certificate = new JSONObject();
+                    certificate.put("certificateType", "111");
+                    certificate.put("certificateNo", certificateNo);
+                    hikperson = ApiService.getPersonbycertificateno(certificate);
+                }
+                if (hikperson != null) {
+                    JSONObject person = new JSONObject();
+                    person.put("personId", hikperson.getString("personId"));
+                    person.put("personName", userJsonObj.getString("title"));
+                    if (Objects.equals("男", userJsonObj.getString("gender"))) {
+                        person.put("gender", "1");
+                    } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
+                        person.put("gender", "2");
+                    } else {
+                        person.put("gender", "0");
+                    }
+                    person.put("phoneNo", userJsonObj.getString("mobile"));
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", userJsonObj.getString("idnumber"));
+                    } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", userJsonObj.getString("mobile"));
+                    } else {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", certificateNo);
+                    }
+                    if (Objects.equals("", userJsonObj.getString("user_name"))) {
+                        person.put("jobNo", userJsonObj.getString("user_name"));
+                    } else {
+                        person.put("jobNo", userJsonObj.getString("jobno"));
+                    }
+                    ApiService.updatePerson(person);
+                }
+            }
+            if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
+                genPolicy(personId, starttime, endtime, user.getLong("id"), user.getLong("parent_id")); //下发门禁权限
+
+                orgJson.put("id", user.getLong("id"));
+                orgDao.updateInst(orgJson);
+                userJsonObj.put("id", user.getLong("id"));
+                userJsonObj.put("updated", System.currentTimeMillis());
+                userDao.updateInst(userJsonObj);
+            }
+        } else {
+            if (userJsonObj != null && orgJson != null) {
+                orgDao.addInst(orgJson);
+                userJsonObj.put("id", orgJson.getLong("id"));
+                userJsonObj.put("created", System.currentTimeMillis());
+                userDao.addInst(userJsonObj);
+            }
+            //添加到海康
+            if (hikEnable) {
+                //人员ID查询
+                if (hikperson == null && StringUtils.isNotEmpty(personId)) {
+                    JSONObject personNo = new JSONObject();
+                    personNo.put("personId", personId);
+                    hikperson = ApiService.getPersonbyPersonNo(personNo);
+                }
+                //手机号查询
+                if (hikperson == null && StringUtils.isNotEmpty(mobile)) {
+                    JSONObject phoneNo = new JSONObject();
+                    phoneNo.put("phoneNo", mobile);
+                    hikperson = ApiService.getPersonbyPhoneNo(phoneNo);
+                }
+                //身份证查询
+                if (hikperson == null && StringUtils.isNotEmpty(certificateNo)) {
+                    JSONObject certificate = new JSONObject();
+                    certificate.put("certificateType", "111");
+                    certificate.put("certificateNo", certificateNo);
+                    hikperson = ApiService.getPersonbycertificateno(certificate);
+                }
+                if (hikperson == null || hikperson.isEmpty()) {
+                    JSONObject person = new JSONObject();
+                    person.put("personId", personId);
+                    person.put("personName", userJsonObj.getString("title"));
+                    if (Objects.equals("男", userJsonObj.getString("gender"))) {
+                        person.put("gender", "1");
+                    } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
+                        person.put("gender", "2");
+                    } else {
+                        person.put("gender", "0");
+                    }
+                    ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
+                    if (hikOrg == null) {
+                        throw new HikException("海康平台的根部门不存在");
+                    }
+                    person.put("orgIndexCode", hikOrg.orgIndexCode);
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                        person.put("phoneNo", userJsonObj.getString("mobile"));
+                    }
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", userJsonObj.getString("idnumber"));
+                    } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", userJsonObj.getString("mobile"));
+                    } else {
+                        person.put("certificateType", "111");
+                        person.put("certificateNo", certificateNo);
+                    }
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("user_name"))) {
+                        person.put("jobNo", userJsonObj.getString("user_name"));
+                    }
+
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
+                        List<Map> list = new ArrayList();
+                        Map face = new HashMap();
+                        String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
+                        face.put("faceData", str);
+                        list.add(face);
+                        person.put("faces", list);
+                    }
+                    personId = ApiService.addPerson(person);
+                    if (StringUtils.isEmpty(personId)) {
+                        return itemObject;
+                    } else {
+                        System.out.println("HIK ID=" + personId);
+                        genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
+                        userJsonObj.put("personId", personId);
+                        userJsonObj.put("updated", System.currentTimeMillis());
+                        userDao.updateInst(userJsonObj);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    class TheadUtils implements Callable {
+        JSONObject itemObject;
+
+        public JSONObject getItemObject() {
+            return itemObject;
+        }
+
+        public void setItemObject(JSONObject itemObject) {
+            this.itemObject = itemObject;
+        }
+
+        @Override
+        public Object call() throws Exception {
+            return pushUser(itemObject);
+        }
     }
 }
