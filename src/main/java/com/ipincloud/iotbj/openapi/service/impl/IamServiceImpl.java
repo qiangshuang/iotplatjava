@@ -544,12 +544,12 @@ public class IamServiceImpl implements IamService {
             List<JSONObject> cards = new ArrayList<>();
             JSONObject card = new JSONObject();
             card.put("card", Objects.equals("", person.getString("mobile")) ? person.getString("idnumber").replace("X", "0").replace("x", "0") : person.getString("mobile"));
-            card.put("status", 0);
+            card.put("status", 1);
             card.put("cardType", 1);
             cards.add(card);
             personInfo.put("cards", cards);
             JSONObject face = new JSONObject();
-            face.put("card", null);
+            face.put("card", card.getString("card"));
             Map faceData = new HashMap<>();
             String photo = person.getString("photo");
             if (StringUtils.isEmpty(photo)) {
@@ -1069,11 +1069,28 @@ public class IamServiceImpl implements IamService {
                     if (StringUtils.isEmpty(personId)) {
                         return itemObject;
                     } else {
-                        System.out.println("HIK ID=" + personId);
-                        genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
-                        userJsonObj.put("personId", personId);
-                        userJsonObj.put("updated", System.currentTimeMillis());
-                        userDao.updateInst(userJsonObj);
+                        logger.debug("HIK ID=" + personId);
+                        JSONObject personNo = new JSONObject();
+                        personNo.put("personId", personId);
+                        for(int i=0; i<5; i++){
+                            JSONObject personIDTest = ApiService.getPersonbyPersonNo(personNo);
+                            if(personIDTest != null && personIDTest.containsKey("personId")){
+                                logger.debug(personIDTest.toJSONString());
+                                if(personId.equals(personIDTest.getString("personId"))){
+                                    genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
+                                    userJsonObj.put("personId", personId);
+                                    userJsonObj.put("updated", System.currentTimeMillis());
+                                    userDao.updateInst(userJsonObj);
+                                    break;
+                                }
+                            }
+                            logger.debug("Not Find personId time：" + i);
+                            try {
+                                Thread.sleep(1000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                 }
             }

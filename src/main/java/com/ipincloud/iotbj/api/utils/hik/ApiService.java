@@ -224,7 +224,6 @@ public class ApiService {
 //        face.put("faceData", jsonObject.getJSONArray("faces").getJSONObject(0).getString("faceData"));
 //        BaseResponse<JSONObject> faceResult = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
 //        }, ApiUtil.PATH_ADD_FACE_SINGLE, JSON.toJSONString(face));
-
         return personId;
     }
 
