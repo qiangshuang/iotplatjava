@@ -215,6 +215,10 @@ public class ApiService {
 
     // 添加人员(人脸)
     public static String addPerson(JSONObject jsonObject) {
+        String paramPersonId = jsonObject.getString("personId");
+        if (!StringUtils.isEmpty(paramPersonId)) {
+            deleteFace(paramPersonId);
+        }
         BaseResponse<String> result = ApiUtil.post(new TypeReference<BaseResponse<String>>() {
         }, ApiUtil.PATH_SINGLE_ADD_PERSON, JSON.toJSONString(jsonObject));
         String personId = result.data;
@@ -248,7 +252,6 @@ public class ApiService {
         BaseResponse<JSONObject> resultlist = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
         }, ApiUtil.PATH_GET_PERSON_LIST_BY, JSON.toJSONString(param));
 
-
         JSONArray personPhoto = resultlist.data.getJSONArray("list").getJSONObject(0).getJSONArray("personPhoto");
         JSONObject faceadd = new JSONObject();
         faceadd.put("personId", personId);
@@ -262,6 +265,31 @@ public class ApiService {
             face.put("faceData", jsonObject.getString("faces"));
             BaseResponse<JSONObject> result = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
             }, ApiUtil.PATH_UPDATE_FACE, JSON.toJSONString(face));
+        }
+    }
+
+    //删除人臉
+    public static void deleteFace(String personId) {
+        JSONObject param = new JSONObject();
+        param.put("pageNo", 1);
+        param.put("pageSize", 1000);
+        param.put("personIds", personId);
+        BaseResponse<JSONObject> resultlist = ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+        }, ApiUtil.PATH_GET_PERSON_LIST_BY, JSON.toJSONString(param));
+
+        if (resultlist.data == null || resultlist.data.getJSONArray("list") == null || resultlist.data.getJSONArray("list").size() == 0) {
+            return;
+        }
+
+        JSONArray personPhotos = resultlist.data.getJSONArray("list").getJSONObject(0).getJSONArray("personPhoto");
+        if (personPhotos != null && personPhotos.size() > 0) {
+            JSONObject personPhoto = personPhotos.getJSONObject(0);
+            String faceId = personPhoto.getString("personPhotoIndexCode");
+            if (StringUtils.isEmpty(faceId)) return;
+            JSONObject faceParam = new JSONObject();
+            faceParam.put("faceId", faceId);
+            ApiUtil.post(new TypeReference<BaseResponse<JSONObject>>() {
+            }, ApiUtil.PATH_DELETE_FACE, JSON.toJSONString(faceParam));
         }
     }
 

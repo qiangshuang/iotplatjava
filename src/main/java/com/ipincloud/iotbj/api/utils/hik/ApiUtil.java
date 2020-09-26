@@ -33,6 +33,7 @@ public class ApiUtil {
     public  static String PATH_GET_PERSON_LIST_BY = "/api/resource/v2/person/advance/personList";
     public static String PATH_ADD_FACE = "/api/resource/v1/face/single/add";
     public static String PATH_UPDATE_FACE = "/api/resource/v1/face/single/update";
+    public static String PATH_DELETE_FACE = "/api/resource/v1/face/single/delete";
     public static String PATH_SEARCH_FACE_GROUP = "/api/frs/v1/face/group";
     public static String PATH_ADD_FACE_GROUP = "/api/frs/v1/face/group/single/addition";
     public static String PATH_GET_PERSONINFO_BY_CERTIFICATENO = "/api/resource/v1/person/certificateNo/personInfo";

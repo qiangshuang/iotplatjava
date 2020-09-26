@@ -314,11 +314,15 @@ public class OrgServiceImpl implements OrgService {
                         if (validPeronIds.size() > 0) {
                             //1.删除权限配置
                             deletePersonPolicy(validPeronIds);
-                            //2.删除海康人员
                             JSONObject deletePersonInfo = new JSONObject();
                             deletePersonInfo.put("personIds", validPeronIds);
+                            //2.删除海康人脸
+                            for (String personId : validPeronIds) {
+                                ApiService.deleteFace(personId);
+                            }
+                            //3.删除海康人员
                             ApiService.deletePerson(deletePersonInfo);
-                            //3.删除本地权限库
+                            //4.删除本地权限库
                             faceDao.deletePolicyByPersonId(validPeronIds);
                         }
                     }

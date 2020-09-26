@@ -1,7 +1,6 @@
 package com.ipincloud.iotbj.openapi.service.impl;
 
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.ipincloud.iotbj.api.utils.hik.ApiModel;
@@ -12,10 +11,8 @@ import com.ipincloud.iotbj.openapi.service.IamService;
 import com.ipincloud.iotbj.srv.dao.*;
 import com.ipincloud.iotbj.srv.domain.Org;
 import com.ipincloud.iotbj.sys.domain.ResponseBean;
-import com.ipincloud.iotbj.test.Mytest;
 import com.ipincloud.iotbj.utils.FileUtils;
 import com.ipincloud.iotbj.utils.StringUtils;
-import com.ipincloud.iotbj.utils.TheadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,10 +116,14 @@ public class IamServiceImpl implements IamService {
             //2.删除海康人员
             JSONObject deletePersonInfo = new JSONObject();
             deletePersonInfo.put("personIds", deleteIds);
+            //3.删除海康人脸
+            for (String personId : deleteIds) {
+                ApiService.deleteFace(personId);
+            }
             ApiService.deletePerson(deletePersonInfo);
-            //3.删除本地权限库
+            //4.删除本地权限库
             faceDao.deletePolicyByPersonId(deleteIds);
-            //4.删除本地用户信息
+            //5.删除本地用户信息
             orgDao.deleteOrgPerson(deleteIds);
             orgDao.deleteUserPerson(deleteIds);
         }
@@ -957,12 +958,18 @@ public class IamServiceImpl implements IamService {
                     certificate.put("certificateNo", certificateNo);
                     hikperson = ApiService.getPersonbycertificateno(certificate);
                 }
+                logger.debug("hikperson==null:{}", hikperson == null);
 
                 JSONObject person = new JSONObject();
                 if (hikperson != null) {
                     person.put("personId", hikperson.getString("personId"));
                 } else {
                     person.put("personId", personId);
+                    ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
+                    if (hikOrg == null) {
+                        throw new HikException("海康平台的根部门不存在");
+                    }
+                    person.put("orgIndexCode", hikOrg.orgIndexCode);
                 }
                 person.put("personName", userJsonObj.getString("title"));
                 if (Objects.equals("男", userJsonObj.getString("gender"))) {
@@ -972,6 +979,7 @@ public class IamServiceImpl implements IamService {
                 } else {
                     person.put("gender", "0");
                 }
+
                 person.put("phoneNo", userJsonObj.getString("mobile"));
                 if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
                     person.put("certificateType", "111");
@@ -1074,15 +1082,15 @@ public class IamServiceImpl implements IamService {
                     person.put("jobNo", userJsonObj.getString("user_name"));
                 }
 
-                if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
-                    List<Map> list = new ArrayList();
-                    Map face = new HashMap();
-                    String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
-                    face.put("faceData", str);
-                    list.add(face);
-                    person.put("faces", list);
-                }
                 if (hikperson == null || hikperson.isEmpty() || StringUtils.isEmpty(hikperson.getString("personId"))) {
+                    if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
+                        List<Map> list = new ArrayList();
+                        Map face = new HashMap();
+                        String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
+                        face.put("faceData", str);
+                        list.add(face);
+                        person.put("faces", list);
+                    }
                     personId = ApiService.addPerson(person);
                 } else {
                     ApiService.updatePerson(person);
