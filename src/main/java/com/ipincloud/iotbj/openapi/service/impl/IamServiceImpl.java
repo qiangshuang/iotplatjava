@@ -89,7 +89,7 @@ public class IamServiceImpl implements IamService {
             data.put("fail", error);
         }
         long endtime = System.currentTimeMillis();
-        System.out.println("新增人员数据执行时间："+(endtime-starttime)/1000);
+        System.out.println("新增人员数据执行时间：" + (endtime - starttime) / 1000);
         return new ResponseBean(0, "SUCCESS", "用户同步成功.", data);
     }
 
@@ -957,34 +957,47 @@ public class IamServiceImpl implements IamService {
                     certificate.put("certificateNo", certificateNo);
                     hikperson = ApiService.getPersonbycertificateno(certificate);
                 }
+
+                JSONObject person = new JSONObject();
                 if (hikperson != null) {
-                    JSONObject person = new JSONObject();
                     person.put("personId", hikperson.getString("personId"));
-                    person.put("personName", userJsonObj.getString("title"));
-                    if (Objects.equals("男", userJsonObj.getString("gender"))) {
-                        person.put("gender", "1");
-                    } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
-                        person.put("gender", "2");
-                    } else {
-                        person.put("gender", "0");
-                    }
-                    person.put("phoneNo", userJsonObj.getString("mobile"));
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", userJsonObj.getString("idnumber"));
-                    } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", userJsonObj.getString("mobile"));
-                    } else {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", certificateNo);
-                    }
-                    if (Objects.equals("", userJsonObj.getString("user_name"))) {
-                        person.put("jobNo", userJsonObj.getString("user_name"));
-                    } else {
-                        person.put("jobNo", userJsonObj.getString("jobno"));
-                    }
+                } else {
+                    person.put("personId", personId);
+                }
+                person.put("personName", userJsonObj.getString("title"));
+                if (Objects.equals("男", userJsonObj.getString("gender"))) {
+                    person.put("gender", "1");
+                } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
+                    person.put("gender", "2");
+                } else {
+                    person.put("gender", "0");
+                }
+                person.put("phoneNo", userJsonObj.getString("mobile"));
+                if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", userJsonObj.getString("idnumber"));
+                } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", userJsonObj.getString("mobile"));
+                } else {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", certificateNo);
+                }
+                if (Objects.equals("", userJsonObj.getString("user_name"))) {
+                    person.put("jobNo", userJsonObj.getString("user_name"));
+                } else {
+                    person.put("jobNo", userJsonObj.getString("jobno"));
+                }
+                if (hikperson != null) {
                     ApiService.updatePerson(person);
+                } else {
+                    String hikPersonId = ApiService.addPerson(person);
+                    logger.debug("hikPersonId:{}", hikPersonId);
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             if (userJsonObj != null && StringUtils.isNotEmpty(user.getLong("id").toString())) {
@@ -1024,72 +1037,84 @@ public class IamServiceImpl implements IamService {
                     certificate.put("certificateNo", certificateNo);
                     hikperson = ApiService.getPersonbycertificateno(certificate);
                 }
-                if (hikperson == null || hikperson.isEmpty()) {
-                    JSONObject person = new JSONObject();
-                    person.put("personId", personId);
-                    person.put("personName", userJsonObj.getString("title"));
-                    if (Objects.equals("男", userJsonObj.getString("gender"))) {
-                        person.put("gender", "1");
-                    } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
-                        person.put("gender", "2");
-                    } else {
-                        person.put("gender", "0");
-                    }
-                    ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
-                    if (hikOrg == null) {
-                        throw new HikException("海康平台的根部门不存在");
-                    }
-                    person.put("orgIndexCode", hikOrg.orgIndexCode);
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                        person.put("phoneNo", userJsonObj.getString("mobile"));
-                    }
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", userJsonObj.getString("idnumber"));
-                    } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", userJsonObj.getString("mobile"));
-                    } else {
-                        person.put("certificateType", "111");
-                        person.put("certificateNo", certificateNo);
-                    }
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("user_name"))) {
-                        person.put("jobNo", userJsonObj.getString("user_name"));
-                    }
 
-                    if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
-                        List<Map> list = new ArrayList();
-                        Map face = new HashMap();
-                        String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
-                        face.put("faceData", str);
-                        list.add(face);
-                        person.put("faces", list);
-                    }
+                JSONObject person = new JSONObject();
+                if (hikperson == null || hikperson.isEmpty() || StringUtils.isEmpty(hikperson.getString("personId"))) {
+                    person.put("personId", personId);
+                } else {
+                    person.put("personId", hikperson.getString("personId"));
+                }
+                person.put("personName", userJsonObj.getString("title"));
+                if (Objects.equals("男", userJsonObj.getString("gender"))) {
+                    person.put("gender", "1");
+                } else if (Objects.equals("女", userJsonObj.getString("gender"))) {
+                    person.put("gender", "2");
+                } else {
+                    person.put("gender", "0");
+                }
+                ApiModel.HikOrg hikOrg = ApiService.getOrgRoot();
+                if (hikOrg == null) {
+                    throw new HikException("海康平台的根部门不存在");
+                }
+                person.put("orgIndexCode", hikOrg.orgIndexCode);
+                if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                    person.put("phoneNo", userJsonObj.getString("mobile"));
+                }
+                if (StringUtils.isNotEmpty(userJsonObj.getString("idnumber"))) {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", userJsonObj.getString("idnumber"));
+                } else if (StringUtils.isNotEmpty(userJsonObj.getString("mobile"))) {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", userJsonObj.getString("mobile"));
+                } else {
+                    person.put("certificateType", "111");
+                    person.put("certificateNo", certificateNo);
+                }
+                if (StringUtils.isNotEmpty(userJsonObj.getString("user_name"))) {
+                    person.put("jobNo", userJsonObj.getString("user_name"));
+                }
+
+                if (StringUtils.isNotEmpty(userJsonObj.getString("photo"))) {
+                    List<Map> list = new ArrayList();
+                    Map face = new HashMap();
+                    String str = FileUtils.readImgBase64Code(userJsonObj.getString("photo"));
+                    face.put("faceData", str);
+                    list.add(face);
+                    person.put("faces", list);
+                }
+                if (hikperson == null || hikperson.isEmpty() || StringUtils.isEmpty(hikperson.getString("personId"))) {
                     personId = ApiService.addPerson(person);
-                    if (StringUtils.isEmpty(personId)) {
-                        return itemObject;
-                    } else {
-                        logger.debug("HIK ID=" + personId);
-                        JSONObject personNo = new JSONObject();
-                        personNo.put("personId", personId);
-                        for(int i=0; i<5; i++){
-                            JSONObject personIDTest = ApiService.getPersonbyPersonNo(personNo);
-                            if(personIDTest != null && personIDTest.containsKey("personId")){
-                                logger.debug(personIDTest.toJSONString());
-                                if(personId.equals(personIDTest.getString("personId"))){
-                                    genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
-                                    userJsonObj.put("personId", personId);
-                                    userJsonObj.put("updated", System.currentTimeMillis());
-                                    userDao.updateInst(userJsonObj);
-                                    break;
-                                }
+                } else {
+                    ApiService.updatePerson(person);
+                }
+                if (StringUtils.isEmpty(personId)) {
+                    return itemObject;
+                } else {
+                    logger.debug("HIK ID=" + personId);
+                    JSONObject personNo = new JSONObject();
+                    personNo.put("personId", personId);
+                    for (int i = 0; i < 5; i++) {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        JSONObject personIDTest = ApiService.getPersonbyPersonNo(personNo);
+                        if (personIDTest != null && personIDTest.containsKey("personId")) {
+                            logger.debug(personIDTest.toJSONString());
+                            if (personId.equals(personIDTest.getString("personId"))) {
+                                genPolicy(personId, starttime, endtime, userJsonObj.getLong("id"), userJsonObj.getLong("parent_id")); //下发门禁权限
+                                userJsonObj.put("personId", personId);
+                                userJsonObj.put("updated", System.currentTimeMillis());
+                                userDao.updateInst(userJsonObj);
+                                break;
                             }
-                            logger.debug("Not Find personId time：" + i);
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        }
+                        logger.debug("Not Find personId time：" + i);
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
