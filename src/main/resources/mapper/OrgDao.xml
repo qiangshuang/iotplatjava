@@ -319,7 +319,7 @@
 
     <delete id="deleteOrgPerson">
         delete from org where id in (
-        select parent_id from user where personId in
+        select id from user where personId in
         <foreach collection="deleteIds" item="personId" index="index2" open="(" separator="," close=")">
             #{personId}
         </foreach>
