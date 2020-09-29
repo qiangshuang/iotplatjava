@@ -159,7 +159,7 @@ public class ApiService {
             }
             isDownloadFinished = jo1.data.getBoolean("isDownloadFinished");
 
-        } while (!isDownloadFinished || System.currentTimeMillis() - start > 3600 * 1000);
+        } while (!isDownloadFinished || System.currentTimeMillis() - start > 300 * 1000);
         return isDownloadFinished;
     }
 
