@@ -149,7 +149,78 @@
         </if>
     </select>
 
+    <select id="countUserAndPosList" resultType="java.lang.Integer">
+        select count(distinct id) from user 
+        <where>
+            and personId != ''
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test='item.op == "like" and item.val != null and item.val !="" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "&gt;=" '>
+                        and `${item.name}` &gt;= #{item.val}
+                    </if>
+                    <if test='item.op == "&lt;=" '>
+                        and `${item.name}` &lt;= #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
 
+
+    <select id="userAndPosList" resultType="java.util.Map">
+        select user.*,role.title as postitle from user left join user_role on user.id = user_role.user_id left join role on user_role.role_id=role.id
+        <where>
+            and user.personId != ''
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test='item.op == "like" and item.val != null and item.val !="" '>
+                        and ${item.tb}.`${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and ${item.tb}.`${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "&gt;=" '>
+                        and ${item.tb}.`${item.name}` &gt;= #{item.val}
+                    </if>
+                    <if test='item.op == "&lt;=" '>
+                        and ${item.tb}.`${item.name}` &lt;= #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and ${item.tb}.`${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        <choose>
+            <when test="jsonObj.sps != null and jsonObj.sps.size() > 0 ">
+                order by
+                <foreach item="item" collection="jsonObj.sps" index="index" separator=",">
+                    `${item.name}` ${item.orderV}
+                </foreach>
+            </when>
+            <otherwise>
+                order by id desc
+            </otherwise>
+        </choose>
+        <if test="jsonObj.startIndex != null and jsonObj.rop!=null ">
+            limit #{jsonObj.startIndex},#{jsonObj.rop}
+        </if>
+    </select>
     <select id="countUserUserRoleListJoin" resultType="java.lang.Integer">
         select count(user.id) from user join user_role on user.id=user_role.user_id
         <where>
