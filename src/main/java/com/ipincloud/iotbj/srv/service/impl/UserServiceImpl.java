@@ -69,7 +69,19 @@ public User queryByUsername(String userName){
         return retMap;
     }
             
-    
+    @Override
+    public Map userAndPosList(JSONObject jsonObj){
+
+        int totalRec = this.userDao.countUserAndPosList(jsonObj);
+        jsonObj = ParaUtils.checkStartIndex(jsonObj,totalRec);
+        List<Map> pageData = this.userDao.userAndPosList(jsonObj);
+        Map retMap = new HashMap();
+        retMap.put("pageData",pageData);
+        retMap.put("totalRec",totalRec);
+        retMap.put("cp",jsonObj.get("cp"));
+        retMap.put("rop",jsonObj.get("rop"));
+        return retMap;
+    }   
     //@param jsonObj 过滤条件等 
     //@return 对象连接查询User 分页 
     @Override

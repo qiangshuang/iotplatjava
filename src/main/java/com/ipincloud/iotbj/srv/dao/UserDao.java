@@ -37,6 +37,12 @@ public interface UserDao {
     //@return 总条数list
     Integer countUserList(@Param("jsonObj") JSONObject jsonObj);
 
+    List<Map> userAndPosList(@Param("jsonObj") JSONObject jsonObj);
+
+    //@param jsonObj 过滤条件等
+    //@return 总条数list 
+    Integer countUserAndPosList(@Param("jsonObj") JSONObject jsonObj);
+    
     //@param jsonObj 过滤条件等
     //@return 实例对象User
     List<Map> userUserRoleListJoin(@Param("jsonObj") JSONObject jsonObj);

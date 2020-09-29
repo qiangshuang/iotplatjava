@@ -22,6 +22,7 @@ void updateInst(JSONObject jsonObj);
 //@param jsonObj 过滤条件查询 
 //@return 实例对象User 
 Map userList(JSONObject jsonObj);
+Map userAndPosList(JSONObject jsonObj);
     //@param jsonObj 过滤条件等 
     //@return 实例对象User 
     Map userUserRoleListJoin(JSONObject jsonObj);

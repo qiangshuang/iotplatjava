@@ -367,7 +367,12 @@
             ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",retMap);
             return JSON.toJSONString(retResponseBean);
             }
-            
+        case "userposlist":
+            {
+            Map retMap = userService.userAndPosList(jsonObj);
+            ResponseBean retResponseBean = new ResponseBean(200,"SUCCESS", "操作成功",retMap);
+            return JSON.toJSONString(retResponseBean);
+            }  
         case "pushuserlist":
             {
             Map retMap = userService.userList(jsonObj);
