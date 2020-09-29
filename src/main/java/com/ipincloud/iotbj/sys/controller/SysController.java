@@ -56,11 +56,13 @@ import com.ipincloud.iotbj.utils.StringUtils;
 import com.ipincloud.iotbj.srv.domain.User;
 import com.ipincloud.iotbj.srv.domain.Page;
 import com.ipincloud.iotbj.srv.domain.Btn;
+import com.ipincloud.iotbj.srv.domain.Org;
 import com.ipincloud.iotbj.srv.service.UserService;
 import com.ipincloud.iotbj.srv.service.PageService;
 import com.ipincloud.iotbj.srv.service.BtnService;
 import com.ipincloud.iotbj.srv.service.OrgService;
 import com.ipincloud.iotbj.srv.dao.UserDao;
+import com.ipincloud.iotbj.srv.dao.OrgDao;
 
 import java.io.*;
 import java.util.*;
@@ -82,6 +84,8 @@ public class SysController {
     private OrgService orgService;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private OrgDao orgDao;
     
     @PostMapping("/hyimportzip")
     public Object hyimportzip(HttpServletRequest request,
@@ -119,7 +123,7 @@ public class SysController {
             dest.getParentFile().mkdirs();
         }
 
-        
+        Org org = orgDao.queryByName("外来访客");
         try {
             // 保存到服务器中
             file.transferTo(dest);
@@ -174,6 +178,12 @@ public class SysController {
 
                         userJson.put("photo",photoPath);
                         userJson.put("state","成功");
+                        if (org != null) {
+                            userJson.put("parent_id", org.getId());
+                            userJson.put("parent_title", org.getTitle());
+                            userJson.put("userGroup", "外来访客");
+                        } 
+
                         try{
                             userJson = orgService.addOrgUserInstAttr(userJson);
                         }catch(Exception ex){
@@ -200,6 +210,12 @@ public class SysController {
                         userJson.put("mobile",tStr);
 
                         userJson.put("photo",photoPath);
+                        
+                        if (org != null) {
+                            userJson.put("parent_id", org.getId());
+                            userJson.put("parent_title", org.getTitle());
+                            userJson.put("userGroup", "外来访客");
+                        } 
                         
                         try{
                             orgService.updateOrgUserInstAttr(userJson);
