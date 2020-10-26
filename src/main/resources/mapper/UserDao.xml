@@ -106,7 +106,7 @@
     </select>
 
 
-    <select id="userList" resultType="java.util.Map">
+    <select id="userposlistuserList" resultType="java.util.Map">
         select * from user
         <where>
             and personId != ''
@@ -180,7 +180,11 @@
 
 
     <select id="userAndPosList" resultType="java.util.Map">
-        select user.*,role.title as postitle from user left join user_role on user.id = user_role.user_id left join role on user_role.role_id=role.id
+--         select user.*,role.title as postitle from user
+--         left join user_role on user.id = user_role.user_id
+--         left join role on user_role.role_id=role.id
+        select user.*,role.title as postitle from user
+        left join (select user_id ,GROUP_CONCAT(r.title) as title from role r,user_role ur where r.id=ur.role_id GROUP BY ur.user_id) role on user.id=role.user_id
         <where>
             and user.personId != ''
             <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">

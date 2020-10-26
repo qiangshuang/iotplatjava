@@ -14,6 +14,8 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicNameValuePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ import java.util.List;
 @Component
 @Service
 public class OAApi {
+
+    private static Logger logger = LoggerFactory.getLogger(OAApi.class);
 
     @Value("${oa.baseUrl}")
     String oaBaseUrl;
@@ -160,7 +164,9 @@ public class OAApi {
             HttpEntity entity = new UrlEncodedFormEntity(paramList, "UTF-8");
             httpPost.setEntity(entity);
             execute(httpPost);
+            logger.info("推送算法报警信息到IAM工作台成功：{}",JSON.toJSONString(paramList));
         } catch (Exception e) {
+            logger.info("推送算法报警信息到IAM工作台失败：{}",JSON.toJSONString(e));
             e.printStackTrace();
         }
     }
