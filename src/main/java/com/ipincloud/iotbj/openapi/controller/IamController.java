@@ -30,6 +30,12 @@ public class IamController {
         if (jsonObj == null) {
             return new ResponseBean(200, "FAILED", "获取的参数不正确!", null);
         }
+//        String ip = request.getHeader("x-forwarded-for");
+//        if (ip == null || ip.length() == 0){
+//            ip = request.getRemoteAddr();
+//        }
+//        System.out.println("ip"+ip);
+
         return iamService.saveOrUpdateUser(jsonObj);
     }
 

@@ -50,7 +50,7 @@ iot:
   apikey: KWrgSTHd36CHMa3wlNSECTkckMntDK6U #北向服务APIKEY
 
 oa:
-  baseUrl: http://10.69.206.48      # http://10.69.206.23
+  baseUrl: http://10.69.206.23
   appId: Potc5cAAaXVlQASwU233NraEEo5KXAat
   tenantId: lfdc
   secret: 79246cdd-dfa2-47ad-9252-289b78b8947e
