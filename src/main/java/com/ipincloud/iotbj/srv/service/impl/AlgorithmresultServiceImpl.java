@@ -129,7 +129,8 @@ public class AlgorithmresultServiceImpl implements AlgorithmresultService {
                                         User user = userDao.queryById(Long.parseLong(users[j]));
                                         if (user != null) {
                                             personId += user.getPersonId() + ",";
-                                            msgId += algorithmalarm.getString("id") + ",";
+                                            //msgId += algorithmalarm.getString("id") + ",";
+                                            msgId += UUID.randomUUID() + ",";
                                         }
                                     }
                                 }

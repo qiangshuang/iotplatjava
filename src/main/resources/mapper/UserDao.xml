@@ -75,6 +75,34 @@
         where id = #{jsonObj.id}
     </update>
 
+    <select id="userList" resultType="java.util.Map">
+        select distinct * from user
+        <where>
+            and personId != ''
+            <if test="jsonObj.qps != null and jsonObj.qps.size() > 0">
+                <foreach collection="jsonObj.qps" item="item" index="index">
+                    <if test='item.op == "like" and item.val != null and item.val !="" '>
+                        and `${item.name}` like concat('%',#{item.val},'%')
+                    </if>
+                    <if test='item.op == "=" or item.op == "" or item.op == null '>
+                        and `${item.name}` = #{item.val}
+                    </if>
+                    <if test='item.op == "&gt;=" '>
+                        and `${item.name}` &gt;= #{item.val}
+                    </if>
+                    <if test='item.op == "&lt;=" '>
+                        and `${item.name}` &lt;= #{item.val}
+                    </if>
+                    <if test='item.op == "in" '>
+                        and `${item.name}` in
+                        <foreach item="item2" collection="item.val" index="index2" open="(" separator="," close=")">
+                            #{item2}
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </select>
 
     <select id="countUserList" resultType="java.lang.Integer">
         select count(distinct id) from user
